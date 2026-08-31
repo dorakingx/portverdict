@@ -1,0 +1,7 @@
+packages:
+  - apps/*
+  - packages/*
+allowBuilds:
+  # ESLint's resolver ships a pinned platform binary; its postinstall only
+  # verifies that the matching optional dependency is available.
+  unrs-resolver: true
