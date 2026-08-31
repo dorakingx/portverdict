@@ -1,0 +1,13 @@
+{
+  "id": "ts-streaming",
+  "language": "typescript",
+  "behavior": "streaming",
+  "source": "for await (const event of closedStream) emit(event.delta)",
+  "baseline": "for await (const event of nebiusStream) emit(event.delta)",
+  "candidates": [
+    "for await (const event of nebiusStream) if (event.choices[0]?.delta?.content) emit(event.choices[0].delta.content)",
+    "const text = await nebiusStream.text(); emit(text)"
+  ],
+  "required": ["for await", "choices[0]?.delta?.content", "emit"],
+  "forbidden": ["await nebiusStream.text"]
+}

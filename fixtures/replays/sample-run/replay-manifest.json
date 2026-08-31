@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "manifestType": "portverdict.replay",
+  "runId": "sample-run",
+  "provenance": {
+    "kind": "development-fixture",
+    "label": "DEVELOPMENT FIXTURE — synthetic and unverified; no Nebius, NVIDIA, Tavily, GitHub, model, network, build, test, or hosted sandbox execution.",
+    "originalLiveRun": null
+  },
+  "source": {
+    "kind": "fixture",
+    "fixtureId": "fixture-weather-tool-migration",
+    "revision": "fixture-weather-v1",
+    "displayName": "Synthetic forecast tool-call migration",
+    "contentSha256": "0dfe8c2cb9c9250023ae429eaf26e3164529738a81e5ab07e2b241a94a1ed7a1"
+  },
+  "createdAt": "2026-08-31T00:00:19.000Z",
+  "eventLog": {
+    "path": "events.ndjson",
+    "mediaType": "application/x-ndjson",
+    "byteLength": 9641,
+    "sha256": "65574c656176da696ffa61a39937094d31dc2fe529955f328e2d7179250c9af3",
+    "role": "events",
+    "eventCount": 19,
+    "firstEventId": 1,
+    "lastEventId": 19
+  },
+  "snapshot": {
+    "path": "snapshot.json",
+    "mediaType": "application/json",
+    "byteLength": 8020,
+    "sha256": "94af31e2d00ef6be0299a8e07336a7345bcf84d69f65af5280722edf54830f81",
+    "role": "snapshot",
+    "state": "SELECTED"
+  },
+  "artifacts": [
+    {
+      "path": "README.md",
+      "mediaType": "text/markdown",
+      "byteLength": 1495,
+      "sha256": "962eeb9f3895136bbf384e9aa725fd22040fdc9a96e75cf41a6ad538cdfa2f3f",
+      "role": "report"
+    },
+    {
+      "path": "artifacts/candidates/compatibility-shim.json",
+      "mediaType": "application/json",
+      "byteLength": 615,
+      "sha256": "3764bc6cef94e4dec053d67b6b5b4b3fb532cb95bbdf2d90c885822d3e7af800",
+      "role": "artifact"
+    },
+    {
+      "path": "artifacts/candidates/direct-sdk-port.json",
+      "mediaType": "application/json",
+      "byteLength": 789,
+      "sha256": "feb4e45cadc298a3fbd97a37ed785a5305180dc2f6af3b73eeeed0dd4d85d74f",
+      "role": "artifact"
+    },
+    {
+      "path": "artifacts/candidates/prompt-schema-adapter.json",
+      "mediaType": "application/json",
+      "byteLength": 712,
+      "sha256": "246b58b0198d240ac795fde84a4a246f0fef2012d997330c9c5c7af6eee363a0",
+      "role": "artifact"
+    },
+    {
+      "path": "artifacts/checkpoint.json",
+      "mediaType": "application/json",
+      "byteLength": 425,
+      "sha256": "a0b99c3a1b937147870e23c84fe59d5506fedca2d7bfe82a3b193035a7c9625b",
+      "role": "artifact"
+    },
+    {
+      "path": "artifacts/evidence.json",
+      "mediaType": "application/json",
+      "byteLength": 18454,
+      "sha256": "8035c05486f9ee163efbd121d873340d600b93923981ecff5e5573c1c505130a",
+      "role": "evidence"
+    },
+    {
+      "path": "artifacts/inventory.json",
+      "mediaType": "application/json",
+      "byteLength": 662,
+      "sha256": "b7fb0856fe9175dab9ab58fd1be55c4740c967619a1e7bc4ced25cea62b142a2",
+      "role": "artifact"
+    },
+    {
+      "path": "artifacts/migration-spec.json",
+      "mediaType": "application/json",
+      "byteLength": 872,
+      "sha256": "3681b70547da4d4033066bfdfb10a366dad261b6a67c444662d9e7913606c828",
+      "role": "artifact"
+    },
+    {
+      "path": "artifacts/research-record.json",
+      "mediaType": "application/json",
+      "byteLength": 743,
+      "sha256": "ceaad0d3156e96f91f1986dc67520db54baca5d0665a62ebf6dfbb4bdf4b6cdd",
+      "role": "evidence"
+    },
+    {
+      "path": "artifacts/selected-after.ts",
+      "mediaType": "text/typescript",
+      "byteLength": 1236,
+      "sha256": "2eb6e28e6c7e20b58f793ff59f4478cd514ea1d0ae46ad599dabd79728bf169a",
+      "role": "artifact"
+    },
+    {
+      "path": "artifacts/source-before.ts",
+      "mediaType": "text/typescript",
+      "byteLength": 487,
+      "sha256": "0dfe8c2cb9c9250023ae429eaf26e3164529738a81e5ab07e2b241a94a1ed7a1",
+      "role": "artifact"
+    },
+    {
+      "path": "artifacts/source-revision.json",
+      "mediaType": "application/json",
+      "byteLength": 489,
+      "sha256": "4d8805f203baa02b7a81c3f196e31ae460fe7fff1a5738c099474051b09421ec",
+      "role": "artifact"
+    },
+    {
+      "path": "artifacts/sponsor-evidence.json",
+      "mediaType": "application/json",
+      "byteLength": 1032,
+      "sha256": "5231038399f869368c96b503950ccd20bf6e42808b6a47fc79ae52aead934723",
+      "role": "evidence"
+    },
+    {
+      "path": "diff.patch",
+      "mediaType": "text/x-diff",
+      "byteLength": 1688,
+      "sha256": "a678df970df00cce0c6f2ebc67fdfec1e4bc539d69ebca5cabf527ee05294eab",
+      "role": "patch"
+    },
+    {
+      "path": "report.md",
+      "mediaType": "text/markdown",
+      "byteLength": 2604,
+      "sha256": "7b2aab971938896e1c75518e10176e51c7362b251e01618804ef8570a262264f",
+      "role": "report"
+    }
+  ],
+  "integritySha256": "3687aa12d45c5c585799ff40d38ef79cca86da108bc791914c5105455f043b40"
+}

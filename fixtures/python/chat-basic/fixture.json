@@ -1,0 +1,13 @@
+{
+  "id": "py-chat-basic",
+  "language": "python",
+  "behavior": "chat",
+  "source": "client.messages.create(model='closed-model', messages=messages)",
+  "baseline": "client.chat.completions.create(model='unverified-model', messages=messages)",
+  "candidates": [
+    "client.chat.completions.create(model=catalog.require_nvidia_model('reasoning'), messages=messages)",
+    "client.responses.create(model='unverified-model', input=messages)"
+  ],
+  "required": ["catalog.require_nvidia_model", "messages=messages"],
+  "forbidden": ["unverified-model"]
+}

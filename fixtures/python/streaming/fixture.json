@@ -1,0 +1,13 @@
+{
+  "id": "py-streaming",
+  "language": "python",
+  "behavior": "streaming",
+  "source": "for event in closed_stream: emit(event.delta)",
+  "baseline": "for event in nebius_stream: emit(event.delta)",
+  "candidates": [
+    "for event in nebius_stream:\n    if event.choices[0].delta.content:\n        emit(event.choices[0].delta.content)",
+    "emit(nebius_stream.read())"
+  ],
+  "required": ["for event", "choices[0].delta.content", "emit"],
+  "forbidden": [".read()"]
+}

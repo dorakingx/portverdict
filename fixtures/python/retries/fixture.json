@@ -1,0 +1,13 @@
+{
+  "id": "py-retries",
+  "language": "python",
+  "behavior": "retries-timeouts",
+  "source": "await closed_client.complete(request)",
+  "baseline": "await nebius_client.complete(request)",
+  "candidates": [
+    "await retry_429_and_5xx(lambda: nebius_client.complete(request, timeout=30), max_retries=2)",
+    "while True:\n    await nebius_client.complete(request)"
+  ],
+  "required": ["retry_429_and_5xx", "timeout=30", "max_retries=2"],
+  "forbidden": ["while True"]
+}

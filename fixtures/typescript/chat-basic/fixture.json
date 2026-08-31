@@ -1,0 +1,13 @@
+{
+  "id": "ts-chat-basic",
+  "language": "typescript",
+  "behavior": "chat",
+  "source": "client.chat.completions.create({ model: 'closed-model', messages })",
+  "baseline": "client.chat.completions.create({ model: 'unverified-model', messages })",
+  "candidates": [
+    "client.chat.completions.create({ model: catalog.requireNvidiaModel('reasoning'), messages })",
+    "client.responses.create({ model: 'unverified-model', input: messages })"
+  ],
+  "required": ["catalog.requireNvidiaModel", "messages"],
+  "forbidden": ["unverified-model"]
+}

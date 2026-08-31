@@ -1,0 +1,13 @@
+{
+  "id": "py-tool-calling",
+  "language": "python",
+  "behavior": "tool-calling",
+  "source": "run_tool(call.name, call.arguments)",
+  "baseline": "run_tool(call.function.name, call.function.arguments)",
+  "candidates": [
+    "run_tool(require_name(call.function.name), ToolArgs.model_validate_json(call.function.arguments))",
+    "run_tool(str(call.function.name), str(call.function.arguments))"
+  ],
+  "required": ["ToolArgs.model_validate_json", "require_name"],
+  "forbidden": ["str(call.function"]
+}

@@ -1,0 +1,13 @@
+.git
+.github
+.next
+**/.next
+node_modules
+**/node_modules
+.env
+.env.*
+!.env.example
+.portverdict-runs
+playwright-report
+test-results
+submission/demo-video.mp4

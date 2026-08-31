@@ -19,6 +19,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "benchmark": "node scripts/run-benchmark.mjs",
+    "secret:scan": "node scripts/secret-scan.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "verify": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
@@ -31,6 +33,7 @@
     "@types/react-dom": "19.2.5",
     "eslint": "9.39.5",
     "eslint-config-next": "16.3.3",
+    "next": "16.3.3",
     "prettier": "3.9.6",
     "typescript": "6.0.3",
     "vitest": "4.1.11"

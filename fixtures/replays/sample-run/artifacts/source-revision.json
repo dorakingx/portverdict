@@ -1,0 +1,13 @@
+{
+  "fixtureDisclosure": "DEVELOPMENT FIXTURE — synthetic local source revision; no GitHub repository was fetched.",
+  "synthetic": true,
+  "verified": false,
+  "source": {
+    "kind": "fixture",
+    "fixtureId": "fixture-weather-tool-migration",
+    "revision": "fixture-weather-v1",
+    "displayName": "Synthetic forecast tool-call migration",
+    "contentSha256": "0dfe8c2cb9c9250023ae429eaf26e3164529738a81e5ab07e2b241a94a1ed7a1"
+  },
+  "contentPath": "artifacts/source-before.ts"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "ts-retries",
+  "language": "typescript",
+  "behavior": "retries-timeouts",
+  "source": "await closedClient.complete(request)",
+  "baseline": "await nebiusClient.complete(request)",
+  "candidates": [
+    "await retry429And5xx(() => nebiusClient.complete(request, { signal: AbortSignal.timeout(30000) }), 2)",
+    "while (true) await nebiusClient.complete(request)"
+  ],
+  "required": ["retry429And5xx", "AbortSignal.timeout(30000)", ", 2"],
+  "forbidden": ["while (true)"]
+}

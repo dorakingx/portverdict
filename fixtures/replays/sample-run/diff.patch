@@ -1,0 +1,51 @@
+# DEVELOPMENT FIXTURE — illustrative synthetic patch; not produced by a hosted agent.
+diff --git a/src/forecast-tool.ts b/src/forecast-tool.ts
+index 7abfa11..ab38d93 100644
+--- a/src/forecast-tool.ts
++++ b/src/forecast-tool.ts
+@@ -1,15 +1,41 @@
+ type Forecast = { city: string; temperatureC: number; summary: string };
+ 
+ type ToolCall = {
+-  name: string;
+-  arguments: string;
++  function?: { name?: unknown; arguments?: unknown };
++  name?: unknown;
++  arguments?: unknown;
+ };
+ 
++function requireString(value: unknown, field: string): string {
++  if (typeof value !== "string" || value.trim() === "") {
++    throw new TypeError(`Invalid forecast tool field: ${field}`);
++  }
++  return value;
++}
++
+ export function parseForecastToolCall(call: ToolCall): Forecast {
+-  const payload = JSON.parse(call.arguments) as Record<string, unknown>;
++  const name = call.function?.name ?? call.name;
++  const rawArguments = call.function?.arguments ?? call.arguments;
++
++  if (name !== "record_forecast") {
++    throw new TypeError("Unexpected forecast tool name");
++  }
++
++  const payload = JSON.parse(requireString(rawArguments, "arguments")) as Record<
++    string,
++    unknown
++  >;
++  const city = requireString(payload.city, "city");
++  const summary = requireString(payload.summary, "summary");
++  const temperatureC = payload.temperature_c;
++
++  if (typeof temperatureC !== "number" || !Number.isFinite(temperatureC)) {
++    throw new TypeError("Invalid forecast tool field: temperature_c");
++  }
+ 
+-  return {
+-    city: String(payload.city),
+-    temperatureC: Number(payload.temperature_c),
+-    summary: String(payload.summary),
+-  };
++  return { city, temperatureC, summary };
+ }

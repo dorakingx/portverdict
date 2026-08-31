@@ -1,0 +1,35 @@
+{
+  "fixtureDisclosure": "DEVELOPMENT FIXTURE — no sponsor service or model was called.",
+  "records": [
+    {
+      "provider": "Nebius Token Factory",
+      "synthetic": true,
+      "verified": false,
+      "requestId": null,
+      "modelId": null,
+      "detail": "Provider-shaped placeholder only; authenticated model discovery was not performed."
+    },
+    {
+      "provider": "Nebius Sandboxes",
+      "synthetic": true,
+      "verified": false,
+      "operationId": null,
+      "checkpointId": null,
+      "detail": "The shared checkpoint is a local fixture concept, not a hosted sandbox checkpoint."
+    },
+    {
+      "provider": "NVIDIA",
+      "synthetic": true,
+      "verified": false,
+      "modelId": null,
+      "detail": "No NVIDIA model inference is represented by this replay."
+    },
+    {
+      "provider": "Tavily",
+      "synthetic": true,
+      "verified": false,
+      "requestId": null,
+      "detail": "The research artifact mirrors a response shape but contains authored fixture content."
+    }
+  ]
+}

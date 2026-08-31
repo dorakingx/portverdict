@@ -1,0 +1,25 @@
+{
+  "fixtureDisclosure": "DEVELOPMENT FIXTURE — Tavily-shaped but never sent to Tavily; all result text is authored fixture data.",
+  "provider": "Tavily",
+  "synthetic": true,
+  "verified": false,
+  "requestId": null,
+  "request": {
+    "endpointShape": "/search",
+    "query": "nested function tool-call schema migration",
+    "includeUsage": true,
+    "domains": ["docs.example.invalid"]
+  },
+  "response": {
+    "answer": null,
+    "results": [
+      {
+        "title": "Synthetic tool-call migration note",
+        "url": "https://docs.example.invalid/synthetic-tool-calls",
+        "content": "Fixture-only note: nested function envelopes require strict argument validation.",
+        "score": 0
+      }
+    ],
+    "usage": null
+  }
+}

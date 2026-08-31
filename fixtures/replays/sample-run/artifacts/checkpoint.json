@@ -1,0 +1,14 @@
+{
+  "fixtureDisclosure": "DEVELOPMENT FIXTURE — local logical checkpoint only; no hosted sandbox was created.",
+  "synthetic": true,
+  "verified": false,
+  "checkpointId": "checkpoint_fixture_shared_v1",
+  "sourceRevision": "fixture-weather-v1",
+  "sandboxOperationId": null,
+  "sandboxImageId": null,
+  "sharedByCandidateIds": [
+    "candidate_direct_sdk",
+    "candidate_prompt_schema",
+    "candidate_compat_shim"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "fixtureDisclosure": "DEVELOPMENT FIXTURE — synthetic and unverified; this is not model-generated output.",
+  "synthetic": true,
+  "verified": false,
+  "objective": "Preserve forecast tool semantics while adapting to a nested function tool-call envelope.",
+  "candidateStrategies": [
+    {
+      "candidateId": "candidate_direct_sdk",
+      "strategy": "minimal-compatibility",
+      "label": "Direct SDK port"
+    },
+    {
+      "candidateId": "candidate_prompt_schema",
+      "strategy": "prompt-schema-adaptation",
+      "label": "Prompt + schema adapter"
+    },
+    {
+      "candidateId": "candidate_compat_shim",
+      "strategy": "resilience-routing-adaptation",
+      "label": "Compatibility shim"
+    }
+  ],
+  "selectionRule": "Only candidates passing every configured behavioral and safety gate are eligible; infrastructure failures remain inconclusive."
+}

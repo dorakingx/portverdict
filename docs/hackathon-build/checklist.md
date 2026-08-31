@@ -17,37 +17,37 @@
       Acceptance: A clean install and minimal production build succeed with no secrets tracked; the public license and environment contract are explicit.
       Verify: `pnpm install --frozen-lockfile`, `pnpm typecheck`, `pnpm lint`, `pnpm build`, and a tracked-secret scan.
 
-- [ ] **2. Implement validated domain schemas and the run state machine**
+- [x] **2. Implement validated domain schemas and the run state machine**
       Spec ref: `spec.md > Domain Model`, `Architecture > Run state machine`, `HTTP And Event Contracts`
       What to build: Zod schemas for runs, candidates, evidence, gates, events, API payloads, and replay manifests; implement a pure exhaustive reducer, commands, idempotency, retries, cancellation, terminal states, and versioning.
       Acceptance: Behavioral failure, infrastructure failure, cancellation, selection, and abstention are distinct; invalid or out-of-order events cannot mutate state.
       Verify: Unit tests covering every valid transition, rejected transition, duplicate event, retry boundary, cancel path, and all-branches-fail path.
 
-- [ ] **3. Build the evidence store, provenance guard, evaluator, and model router**
+- [x] **3. Build the evidence store, provenance guard, evaluator, and model router**
       Spec ref: `spec.md > Evidence store`, `Evaluator and provenance guard`, `Model router`
       What to build: Append-only event/artifact persistence, atomic snapshots, replay integrity manifests, redaction, unsupported-number guard, hard-gate evaluator, parity categories, deterministic selection/abstention, catalog-driven routing, and structured telemetry.
       Acceptance: No number reaches a report without measured provenance; failed/inconclusive hard gates cannot be overridden by a model rationale; no unverified model ID is selectable.
       Verify: Store crash/integrity tests, provenance-negative tests, gate-precedence tests, and router catalog/fallback/budget tests.
 
-- [ ] **4. Create the honest sample evidence replay**
+- [x] **4. Create the honest sample evidence replay**
       Spec ref: `spec.md > Data Flow`, `Demo And Submission Flow`
       What to build: A schema-valid sample run with immutable source revision, shared checkpoint, three candidate branches, one schema/tool failure, one inconclusive branch, one selected branch, Tavily source records, diff, report, and patch. Mark every artifact synthetic/placeholder until replaced by a recorded authenticated live run; do not claim sponsor API execution yet.
       Acceptance: Replay mode exercises the complete UI contract while remaining unmistakably labeled as development fixture evidence.
       Verify: Manifest hash validation, fixture schema tests, negative tamper test, and a full reducer replay to the expected verdict.
 
-- [ ] **5. Build the landing, repository selection, and run shell**
+- [x] **5. Build the landing, repository selection, and run shell**
       Spec ref: `spec.md > Marketing and repository selection`, `Visual System`; `prd.md > Epic 1`, `Epic 2`, `Epic 8`
       What to build: Evidence Flight Recorder landing page, one-click sample launch, public repository input with bounds, live/replay disclosure, persistent run identity bar, status route, loading/empty/error states, and responsive navigation.
       Acceptance: A judge reaches the sample without login; the primary action is above the fold; mode, source commit, run ID, and verdict remain visible; mobile/keyboard flows work.
       Verify: Component tests plus Playwright at 390×844, 768×1024, and 1440×900, including keyboard-only and reduced-motion runs.
 
-- [ ] **6. Build the branch workflow and evidence experience**
+- [x] **6. Build the branch workflow and evidence experience**
       Spec ref: `spec.md > Run shell and accessible branch rail`, `Evidence, comparison, diff, and report UI`; `prd.md > Epic 3`, `Epic 4`, `Epic 5`
       What to build: Repository inventory, shared-checkpoint rail, three semantic candidate lanes, stage nodes, replay scrubber, SSE-compatible client island, evidence sheet/deep links, provenance chain, source cards, raw redacted artifacts, and accurate partial/timeout/failure states.
       Acceptance: Rejected branches remain visible; evidence opens from every claim; status uses icon+text+color; no fake activity or chain-of-thought appears.
       Verify: UI state matrix tests, screen-reader semantics, focus return, SSE resume simulation, and screenshot review.
 
-- [ ] **7. Build comparison, verdict, diff, report, and guarded export**
+- [x] **7. Build comparison, verdict, diff, report, and guarded export**
       Spec ref: `spec.md > Evaluator and provenance guard`, `GitHub integration`, `Demo And Submission Flow`; `prd.md > Epic 6`, `Epic 7`
       What to build: Gate-first comparison, behavioral matrix, deterministic verdict hero, accessible unified diff, report export, patch download, abstention behavior, and pull-request preview/confirm boundary.
       Acceptance: Only an eligible branch is called selected; abstention never exposes a normal safe-to-ship action; every metric/source links to evidence; pull-request writes require confirmation.
@@ -59,7 +59,7 @@
       Acceptance: Unit/contract tests pass without credentials; live smoke tests use real server-side credentials when supplied; three candidates demonstrably derive from one real checkpoint; Tavily makes a functional runtime call.
       Verify: Captured contract fixtures, mocked failure tests, then authenticated catalog/inference/Sandbox-branch/Tavily smoke scripts. This item pauses only if credentials or quota are unavailable.
 
-- [ ] **9. Add ten migration fixtures and run the baseline comparison**
+- [x] **9. Add ten migration fixtures and run the baseline comparison**
       Spec ref: `spec.md > Verification Matrix`; `prd.md > Submission Proof Points`
       What to build: Five TypeScript and five Python fixtures covering chat, streaming, structured output, tool calls, retries/timeouts, plus single-shot baseline and branch-and-verify runners. Store raw results, methodology, provenance, and charts generated from data.
       Acceptance: Results are reproducible and honest; branch-and-verify is improved if possible but remaining failures/abstentions are reported without selection bias.

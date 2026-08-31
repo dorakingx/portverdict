@@ -1,0 +1,13 @@
+{
+  "id": "ts-structured-output",
+  "language": "typescript",
+  "behavior": "structured-output",
+  "source": "return JSON.parse(completion.text) as Invoice",
+  "baseline": "return JSON.parse(completion.choices[0].message.content) as Invoice",
+  "candidates": [
+    "return InvoiceSchema.parse(JSON.parse(completion.choices[0].message.content))",
+    "return JSON.parse(completion.choices[0].message.content) as Invoice"
+  ],
+  "required": ["InvoiceSchema.parse", "JSON.parse"],
+  "forbidden": [" as Invoice"]
+}

@@ -1,0 +1,19 @@
+{
+  "fixtureDisclosure": "DEVELOPMENT FIXTURE — synthetic and unverified; no repository scan was executed.",
+  "synthetic": true,
+  "verified": false,
+  "sourceFile": "artifacts/source-before.ts",
+  "migrationSurface": [
+    {
+      "kind": "tool-call-parser",
+      "symbol": "parseForecastToolCall",
+      "risk": "The source accepts legacy top-level tool name/arguments and coerces invalid schema values."
+    }
+  ],
+  "requiredBehaviors": [
+    "Accept the nested function tool-call envelope.",
+    "Reject an unexpected tool name.",
+    "Reject missing or non-string required fields.",
+    "Reject a non-numeric temperature instead of coercing it."
+  ]
+}

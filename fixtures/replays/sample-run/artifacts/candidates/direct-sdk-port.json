@@ -1,0 +1,22 @@
+{
+  "fixtureDisclosure": "DEVELOPMENT FIXTURE — synthetic outcome; no command was executed.",
+  "synthetic": true,
+  "verified": false,
+  "candidateId": "candidate_direct_sdk",
+  "strategy": "minimal-compatibility",
+  "label": "Direct SDK port",
+  "checkpointId": "checkpoint_fixture_shared_v1",
+  "outcome": "REJECTED",
+  "build": { "status": "passed", "command": "pnpm build", "executed": false },
+  "counterexample": {
+    "input": {
+      "function": {
+        "name": "record_forecast",
+        "arguments": "{\"city\":\"Tokyo\",\"temperature_c\":\"hot\",\"summary\":\"Clear\"}"
+      }
+    },
+    "expected": "Reject temperature_c because it is not numeric.",
+    "observed": "The direct port coerces the string to NaN and returns it.",
+    "gates": ["schema", "tool-calls"]
+  }
+}

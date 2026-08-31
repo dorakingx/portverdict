@@ -1,0 +1,13 @@
+{
+  "id": "ts-tool-calling",
+  "language": "typescript",
+  "behavior": "tool-calling",
+  "source": "runTool(call.name, call.arguments)",
+  "baseline": "runTool(call.function.name, call.function.arguments)",
+  "candidates": [
+    "runTool(requireName(call.function?.name), ToolArgsSchema.parse(JSON.parse(requireString(call.function?.arguments))))",
+    "runTool(String(call.function?.name), String(call.function?.arguments))"
+  ],
+  "required": ["ToolArgsSchema.parse", "JSON.parse", "requireName"],
+  "forbidden": ["String(call.function"]
+}

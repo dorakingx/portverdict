@@ -1,0 +1,13 @@
+{
+  "id": "py-structured-output",
+  "language": "python",
+  "behavior": "structured-output",
+  "source": "return json.loads(completion.text)",
+  "baseline": "return json.loads(completion.choices[0].message.content)",
+  "candidates": [
+    "return Invoice.model_validate_json(completion.choices[0].message.content)",
+    "return dict(json.loads(completion.choices[0].message.content))"
+  ],
+  "required": ["Invoice.model_validate_json", "message.content"],
+  "forbidden": ["return dict("]
+}

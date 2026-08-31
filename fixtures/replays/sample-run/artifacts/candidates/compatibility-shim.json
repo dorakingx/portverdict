@@ -1,0 +1,18 @@
+{
+  "fixtureDisclosure": "DEVELOPMENT FIXTURE — synthetic infrastructure timeout; no command or sandbox operation was executed.",
+  "synthetic": true,
+  "verified": false,
+  "candidateId": "candidate_compat_shim",
+  "strategy": "resilience-routing-adaptation",
+  "label": "Compatibility shim",
+  "checkpointId": "checkpoint_fixture_shared_v1",
+  "outcome": "INCONCLUSIVE",
+  "failure": {
+    "kind": "infrastructure",
+    "code": "FIXTURE_SANDBOX_TIMEOUT",
+    "timedOut": true,
+    "retriable": true,
+    "operationId": null,
+    "detail": "A deterministic fixture timeout prevents a behavioral judgment."
+  }
+}

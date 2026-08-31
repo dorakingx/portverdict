@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 1,
+  "id": "sample-run",
+  "idempotencyKey": "10000000-0000-4000-8000-000000000001",
+  "mode": "replay",
+  "state": "SELECTED",
+  "sourceRequest": {
+    "kind": "fixture",
+    "fixtureId": "fixture-weather-tool-migration"
+  },
+  "source": {
+    "kind": "fixture",
+    "fixtureId": "fixture-weather-tool-migration",
+    "revision": "fixture-weather-v1",
+    "displayName": "Synthetic forecast tool-call migration",
+    "contentSha256": "0dfe8c2cb9c9250023ae429eaf26e3164529738a81e5ab07e2b241a94a1ed7a1"
+  },
+  "config": {
+    "schemaVersion": 1,
+    "strategies": [
+      "minimal-compatibility",
+      "prompt-schema-adaptation",
+      "resilience-routing-adaptation"
+    ],
+    "hardGates": [
+      "build",
+      "original-tests",
+      "migration-tests",
+      "schema",
+      "tool-calls",
+      "prompt-regression",
+      "secret-scan",
+      "security",
+      "evidence-completeness"
+    ],
+    "retryPolicy": {
+      "maxRetries": 2,
+      "baseDelayMs": 500,
+      "maxDelayMs": 5000
+    },
+    "timeouts": {
+      "modelCallMs": 120000,
+      "sandboxOperationMs": 900000,
+      "cancellationMs": 30000
+    },
+    "maxSourceBytes": 25000000,
+    "maxArtifactBytes": 20000000,
+    "researchEnabled": true
+  },
+  "inventoryArtifactId": "artifact_inventory",
+  "migrationSpecArtifactId": "artifact_migration_spec",
+  "baseCheckpoint": {
+    "id": "checkpoint_fixture_shared_v1",
+    "sourceRevision": "fixture-weather-v1",
+    "sandboxOperationId": null,
+    "sandboxImageId": null,
+    "artifactId": "artifact_checkpoint",
+    "createdAt": "2026-08-31T00:00:05.000Z"
+  },
+  "candidates": [
+    {
+      "id": "candidate_direct_sdk",
+      "runId": "sample-run",
+      "strategy": "minimal-compatibility",
+      "state": "REJECTED",
+      "checkpointId": "checkpoint_fixture_shared_v1",
+      "sandboxOperationId": null,
+      "hardGates": [
+        {
+          "gate": "build",
+          "status": "passed",
+          "evidenceIds": ["evidence_direct_build"]
+        },
+        {
+          "gate": "schema",
+          "status": "failed",
+          "evidenceIds": ["evidence_direct_counterexample"]
+        },
+        {
+          "gate": "tool-calls",
+          "status": "failed",
+          "evidenceIds": ["evidence_direct_counterexample"]
+        }
+      ],
+      "score": {
+        "candidateId": "candidate_direct_sdk",
+        "eligible": false,
+        "rank": null,
+        "dimensions": [
+          {
+            "name": "behavioral-parity",
+            "value": 0,
+            "unit": "percent",
+            "direction": "maximize",
+            "evidenceIds": ["evidence_direct_counterexample"]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "evidence_direct_patch",
+        "evidence_direct_build",
+        "evidence_direct_counterexample"
+      ],
+      "failure": {
+        "kind": "behavioral",
+        "code": "TOOL_SCHEMA_COUNTEREXAMPLE",
+        "message": "Authored fixture counterexample describes non-numeric temperature coercion instead of rejection.",
+        "retriable": false,
+        "evidenceIds": ["evidence_direct_counterexample"]
+      },
+      "startedAt": "2026-08-31T00:00:06.000Z",
+      "completedAt": "2026-08-31T00:00:13.000Z"
+    },
+    {
+      "id": "candidate_prompt_schema",
+      "runId": "sample-run",
+      "strategy": "prompt-schema-adaptation",
+      "state": "ELIGIBLE",
+      "checkpointId": "checkpoint_fixture_shared_v1",
+      "sandboxOperationId": null,
+      "hardGates": [
+        {
+          "gate": "build",
+          "status": "passed",
+          "evidenceIds": ["evidence_adapter_build"]
+        },
+        {
+          "gate": "original-tests",
+          "status": "passed",
+          "evidenceIds": ["evidence_adapter_behavior"]
+        },
+        {
+          "gate": "migration-tests",
+          "status": "passed",
+          "evidenceIds": ["evidence_adapter_behavior"]
+        },
+        {
+          "gate": "schema",
+          "status": "passed",
+          "evidenceIds": ["evidence_adapter_behavior"]
+        },
+        {
+          "gate": "tool-calls",
+          "status": "passed",
+          "evidenceIds": ["evidence_adapter_behavior"]
+        },
+        {
+          "gate": "prompt-regression",
+          "status": "passed",
+          "evidenceIds": ["evidence_adapter_behavior"]
+        },
+        {
+          "gate": "secret-scan",
+          "status": "passed",
+          "evidenceIds": ["evidence_adapter_security"]
+        },
+        {
+          "gate": "security",
+          "status": "passed",
+          "evidenceIds": ["evidence_adapter_security"]
+        },
+        {
+          "gate": "evidence-completeness",
+          "status": "passed",
+          "evidenceIds": ["evidence_adapter_completeness"]
+        }
+      ],
+      "score": {
+        "candidateId": "candidate_prompt_schema",
+        "eligible": true,
+        "rank": 1,
+        "dimensions": [
+          {
+            "name": "behavioral-parity",
+            "value": 100,
+            "unit": "percent",
+            "direction": "maximize",
+            "evidenceIds": ["evidence_adapter_behavior"]
+          },
+          {
+            "name": "evidence-completeness",
+            "value": 100,
+            "unit": "percent",
+            "direction": "maximize",
+            "evidenceIds": ["evidence_adapter_completeness"]
+          }
+        ]
+      },
+      "evidenceIds": [
+        "evidence_adapter_patch",
+        "evidence_adapter_build",
+        "evidence_adapter_behavior",
+        "evidence_adapter_security",
+        "evidence_adapter_completeness"
+      ],
+      "failure": null,
+      "startedAt": "2026-08-31T00:00:06.000Z",
+      "completedAt": "2026-08-31T00:00:15.000Z"
+    },
+    {
+      "id": "candidate_compat_shim",
+      "runId": "sample-run",
+      "strategy": "resilience-routing-adaptation",
+      "state": "INCONCLUSIVE",
+      "checkpointId": "checkpoint_fixture_shared_v1",
+      "sandboxOperationId": null,
+      "hardGates": [
+        {
+          "gate": "build",
+          "status": "inconclusive",
+          "evidenceIds": ["evidence_shim_timeout"]
+        }
+      ],
+      "score": {
+        "candidateId": "candidate_compat_shim",
+        "eligible": false,
+        "rank": null,
+        "dimensions": [
+          {
+            "name": "evaluation-confidence",
+            "value": 0,
+            "unit": "percent",
+            "direction": "maximize",
+            "evidenceIds": ["evidence_shim_timeout"]
+          }
+        ]
+      },
+      "evidenceIds": ["evidence_shim_patch", "evidence_shim_timeout"],
+      "failure": {
+        "kind": "infrastructure",
+        "code": "FIXTURE_SANDBOX_TIMEOUT",
+        "message": "Synthetic infrastructure timeout; no sandbox operation was executed.",
+        "retriable": true,
+        "evidenceIds": ["evidence_shim_timeout"]
+      },
+      "startedAt": "2026-08-31T00:00:06.000Z",
+      "completedAt": "2026-08-31T00:00:12.000Z"
+    }
+  ],
+  "verdict": {
+    "kind": "selected",
+    "selectedCandidateId": "candidate_prompt_schema",
+    "eligibleCandidateIds": ["candidate_prompt_schema"],
+    "rejectedCandidateIds": ["candidate_direct_sdk"],
+    "inconclusiveCandidateIds": ["candidate_compat_shim"],
+    "decidedAt": "2026-08-31T00:00:19.000Z",
+    "evidenceIds": ["evidence_verdict"],
+    "rationaleEvidenceId": "evidence_verdict"
+  },
+  "evidenceIds": [
+    "evidence_source_fixture",
+    "evidence_research_fixture",
+    "evidence_inventory",
+    "evidence_specification",
+    "evidence_checkpoint",
+    "evidence_direct_patch",
+    "evidence_adapter_patch",
+    "evidence_shim_patch",
+    "evidence_direct_build",
+    "evidence_adapter_build",
+    "evidence_shim_timeout",
+    "evidence_direct_counterexample",
+    "evidence_adapter_behavior",
+    "evidence_adapter_security",
+    "evidence_adapter_completeness",
+    "evidence_evaluation",
+    "evidence_falsification",
+    "evidence_scoring",
+    "evidence_verdict"
+  ],
+  "failure": null,
+  "createdAt": "2026-08-31T00:00:01.000Z",
+  "updatedAt": "2026-08-31T00:00:19.000Z",
+  "originalLiveRun": null
+}

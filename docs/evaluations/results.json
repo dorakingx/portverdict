@@ -1,0 +1,300 @@
+{
+  "schemaVersion": 1,
+  "benchmarkKind": "deterministic-local-contract-preflight",
+  "sponsorCallsMade": false,
+  "modelCallsMade": false,
+  "sandboxCallsMade": false,
+  "fixtureCount": 10,
+  "methodology": "Evaluate stored candidate snippets against explicit required and forbidden behavior-contract markers. This checks the evaluator harness, not model quality or live migration performance.",
+  "cases": [
+    {
+      "id": "ts-chat-basic",
+      "language": "typescript",
+      "behavior": "chat",
+      "fixturePath": "fixtures/typescript/chat-basic/fixture.json",
+      "fixtureSha256": "3b4f9a48bc2905af628625b607f46bfe787b30246dff6cec1a03c52ac9217c09",
+      "baseline": {
+        "passed": false,
+        "missing": ["catalog.requireNvidiaModel"],
+        "forbidden": ["unverified-model"]
+      },
+      "candidates": [
+        {
+          "candidate": 1,
+          "passed": true,
+          "missing": [],
+          "forbidden": []
+        },
+        {
+          "candidate": 2,
+          "passed": false,
+          "missing": ["catalog.requireNvidiaModel"],
+          "forbidden": ["unverified-model"]
+        }
+      ],
+      "verdict": "selected",
+      "selectedCandidate": 1
+    },
+    {
+      "id": "ts-streaming",
+      "language": "typescript",
+      "behavior": "streaming",
+      "fixturePath": "fixtures/typescript/streaming/fixture.json",
+      "fixtureSha256": "f83ce9da3f20aab112d82f28060730c8898e83bec634646bf8327b0afcca48d3",
+      "baseline": {
+        "passed": false,
+        "missing": ["choices[0]?.delta?.content"],
+        "forbidden": []
+      },
+      "candidates": [
+        {
+          "candidate": 1,
+          "passed": true,
+          "missing": [],
+          "forbidden": []
+        },
+        {
+          "candidate": 2,
+          "passed": false,
+          "missing": ["for await", "choices[0]?.delta?.content"],
+          "forbidden": ["await nebiusStream.text"]
+        }
+      ],
+      "verdict": "selected",
+      "selectedCandidate": 1
+    },
+    {
+      "id": "ts-structured-output",
+      "language": "typescript",
+      "behavior": "structured-output",
+      "fixturePath": "fixtures/typescript/structured-output/fixture.json",
+      "fixtureSha256": "c2667c9861f31debcd08466d7379a7192af9b749021320b67d147a12dc50b412",
+      "baseline": {
+        "passed": false,
+        "missing": ["InvoiceSchema.parse"],
+        "forbidden": [" as Invoice"]
+      },
+      "candidates": [
+        {
+          "candidate": 1,
+          "passed": true,
+          "missing": [],
+          "forbidden": []
+        },
+        {
+          "candidate": 2,
+          "passed": false,
+          "missing": ["InvoiceSchema.parse"],
+          "forbidden": [" as Invoice"]
+        }
+      ],
+      "verdict": "selected",
+      "selectedCandidate": 1
+    },
+    {
+      "id": "ts-tool-calling",
+      "language": "typescript",
+      "behavior": "tool-calling",
+      "fixturePath": "fixtures/typescript/tool-calling/fixture.json",
+      "fixtureSha256": "ddaace2d16f65be8ef88b6e5999ad74eefcc3a3425f62e0f295618b7f004a0e4",
+      "baseline": {
+        "passed": false,
+        "missing": ["ToolArgsSchema.parse", "JSON.parse", "requireName"],
+        "forbidden": []
+      },
+      "candidates": [
+        {
+          "candidate": 1,
+          "passed": false,
+          "missing": [],
+          "forbidden": ["String(call.function"]
+        },
+        {
+          "candidate": 2,
+          "passed": false,
+          "missing": ["ToolArgsSchema.parse", "JSON.parse", "requireName"],
+          "forbidden": ["String(call.function"]
+        }
+      ],
+      "verdict": "abstained",
+      "selectedCandidate": null
+    },
+    {
+      "id": "ts-retries",
+      "language": "typescript",
+      "behavior": "retries-timeouts",
+      "fixturePath": "fixtures/typescript/retries/fixture.json",
+      "fixtureSha256": "589b9462ed48e6b701e23b431b41484c5e8c21c27316742f4f410fba930dfb8e",
+      "baseline": {
+        "passed": false,
+        "missing": ["retry429And5xx", "AbortSignal.timeout(30000)", ", 2"],
+        "forbidden": []
+      },
+      "candidates": [
+        {
+          "candidate": 1,
+          "passed": true,
+          "missing": [],
+          "forbidden": []
+        },
+        {
+          "candidate": 2,
+          "passed": false,
+          "missing": ["retry429And5xx", "AbortSignal.timeout(30000)", ", 2"],
+          "forbidden": ["while (true)"]
+        }
+      ],
+      "verdict": "selected",
+      "selectedCandidate": 1
+    },
+    {
+      "id": "py-chat-basic",
+      "language": "python",
+      "behavior": "chat",
+      "fixturePath": "fixtures/python/chat-basic/fixture.json",
+      "fixtureSha256": "a2a5f99e627ebdc90d60b2695fc0ecec972ac330bc18bdc60059a895d577ed24",
+      "baseline": {
+        "passed": false,
+        "missing": ["catalog.require_nvidia_model"],
+        "forbidden": ["unverified-model"]
+      },
+      "candidates": [
+        {
+          "candidate": 1,
+          "passed": true,
+          "missing": [],
+          "forbidden": []
+        },
+        {
+          "candidate": 2,
+          "passed": false,
+          "missing": ["catalog.require_nvidia_model", "messages=messages"],
+          "forbidden": ["unverified-model"]
+        }
+      ],
+      "verdict": "selected",
+      "selectedCandidate": 1
+    },
+    {
+      "id": "py-streaming",
+      "language": "python",
+      "behavior": "streaming",
+      "fixturePath": "fixtures/python/streaming/fixture.json",
+      "fixtureSha256": "b266d35741152b95768efc1ec3762fe74fc504d3ff0067362ef282734eb27475",
+      "baseline": {
+        "passed": false,
+        "missing": ["choices[0].delta.content"],
+        "forbidden": []
+      },
+      "candidates": [
+        {
+          "candidate": 1,
+          "passed": true,
+          "missing": [],
+          "forbidden": []
+        },
+        {
+          "candidate": 2,
+          "passed": false,
+          "missing": ["for event", "choices[0].delta.content"],
+          "forbidden": [".read()"]
+        }
+      ],
+      "verdict": "selected",
+      "selectedCandidate": 1
+    },
+    {
+      "id": "py-structured-output",
+      "language": "python",
+      "behavior": "structured-output",
+      "fixturePath": "fixtures/python/structured-output/fixture.json",
+      "fixtureSha256": "d78b7cb1568e4c4b176136205f60961204bbc6aef0c3fda7c957eedf6d74ccb8",
+      "baseline": {
+        "passed": false,
+        "missing": ["Invoice.model_validate_json"],
+        "forbidden": []
+      },
+      "candidates": [
+        {
+          "candidate": 1,
+          "passed": true,
+          "missing": [],
+          "forbidden": []
+        },
+        {
+          "candidate": 2,
+          "passed": false,
+          "missing": ["Invoice.model_validate_json"],
+          "forbidden": ["return dict("]
+        }
+      ],
+      "verdict": "selected",
+      "selectedCandidate": 1
+    },
+    {
+      "id": "py-tool-calling",
+      "language": "python",
+      "behavior": "tool-calling",
+      "fixturePath": "fixtures/python/tool-calling/fixture.json",
+      "fixtureSha256": "c51898a66dedab66cbbea352d4fa7fd645060769feb2dfdf8bcb81c5d367c0ee",
+      "baseline": {
+        "passed": false,
+        "missing": ["ToolArgs.model_validate_json", "require_name"],
+        "forbidden": []
+      },
+      "candidates": [
+        {
+          "candidate": 1,
+          "passed": true,
+          "missing": [],
+          "forbidden": []
+        },
+        {
+          "candidate": 2,
+          "passed": false,
+          "missing": ["ToolArgs.model_validate_json", "require_name"],
+          "forbidden": ["str(call.function"]
+        }
+      ],
+      "verdict": "selected",
+      "selectedCandidate": 1
+    },
+    {
+      "id": "py-retries",
+      "language": "python",
+      "behavior": "retries-timeouts",
+      "fixturePath": "fixtures/python/retries/fixture.json",
+      "fixtureSha256": "9abdd4c6f62d7334d628563c13df9e7c1fee1c68d022fdb26121ae0e8cd4f755",
+      "baseline": {
+        "passed": false,
+        "missing": ["retry_429_and_5xx", "timeout=30", "max_retries=2"],
+        "forbidden": []
+      },
+      "candidates": [
+        {
+          "candidate": 1,
+          "passed": true,
+          "missing": [],
+          "forbidden": []
+        },
+        {
+          "candidate": 2,
+          "passed": false,
+          "missing": ["retry_429_and_5xx", "timeout=30", "max_retries=2"],
+          "forbidden": ["while True"]
+        }
+      ],
+      "verdict": "selected",
+      "selectedCandidate": 1
+    }
+  ],
+  "summary": {
+    "baselinePassed": 0,
+    "baselineFailed": 10,
+    "workflowSelected": 9,
+    "workflowAbstained": 1,
+    "regressionsCaught": 9,
+    "elapsedMilliseconds": 2.134
+  },
+  "contentSha256": "bf115c0f94be774e4ba1ee52550e5d88cc7b69c0fb38bf8dca84b5190919773d"
+}

@@ -1,0 +1,467 @@
+{
+  "fixtureDisclosure": "DEVELOPMENT FIXTURE — every record is synthetic, unverified, and backed only by immutable fixture bytes; no command, provider, model, or network request was executed.",
+  "synthetic": true,
+  "verified": false,
+  "records": [
+    {
+      "id": "evidence_source_fixture",
+      "runId": "sample-run",
+      "candidateId": null,
+      "claim": "The replay source is the synthetic fixture file at revision fixture-weather-v1.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified fixture assembly; hash the local source-before.ts bytes without fetching a repository.",
+      "observation": {
+        "kind": "text",
+        "value": "Local fixture source only; GitHub resolution was not attempted."
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_source_before",
+        "contentSha256": "0dfe8c2cb9c9250023ae429eaf26e3164529738a81e5ab07e2b241a94a1ed7a1",
+        "recordedAt": "2026-08-31T00:00:01.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_research_fixture",
+      "runId": "sample-run",
+      "candidateId": null,
+      "claim": "A Tavily-shaped fixture record is available solely for replay rendering.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified fixture assembly; author a response-shaped record without sending a Tavily request.",
+      "observation": {
+        "kind": "status",
+        "status": "inconclusive",
+        "detail": "No request ID or usage exists because no external search ran."
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_research_record",
+        "contentSha256": "ceaad0d3156e96f91f1986dc67520db54baca5d0665a62ebf6dfbb4bdf4b6cdd",
+        "recordedAt": "2026-08-31T00:00:02.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_inventory",
+      "runId": "sample-run",
+      "candidateId": null,
+      "claim": "The fixture inventory identifies one tool-call parser migration surface.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified inventory authored from source-before.ts; no scanner was executed.",
+      "observation": {
+        "kind": "json",
+        "value": { "migrationSurfaceCount": 1, "executed": false }
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_inventory",
+        "contentSha256": "b7fb0856fe9175dab9ab58fd1be55c4740c967619a1e7bc4ced25cea62b142a2",
+        "recordedAt": "2026-08-31T00:00:03.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_specification",
+      "runId": "sample-run",
+      "candidateId": null,
+      "claim": "The fixture specification defines three distinct candidate strategies and an evidence-first selection rule.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified migration specification authored for deterministic replay.",
+      "observation": {
+        "kind": "json",
+        "value": { "candidateCount": 3, "executed": false }
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_migration_spec",
+        "contentSha256": "3681b70547da4d4033066bfdfb10a366dad261b6a67c444662d9e7913606c828",
+        "recordedAt": "2026-08-31T00:00:04.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_checkpoint",
+      "runId": "sample-run",
+      "candidateId": null,
+      "claim": "All three candidates reference one shared logical fixture checkpoint.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified checkpoint record; hosted sandbox operation and image IDs remain null.",
+      "observation": {
+        "kind": "json",
+        "value": {
+          "checkpointId": "checkpoint_fixture_shared_v1",
+          "candidateCount": 3,
+          "hosted": false
+        }
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_checkpoint",
+        "contentSha256": "a0b99c3a1b937147870e23c84fe59d5506fedca2d7bfe82a3b193035a7c9625b",
+        "recordedAt": "2026-08-31T00:00:05.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_direct_patch",
+      "runId": "sample-run",
+      "candidateId": "candidate_direct_sdk",
+      "claim": "The direct SDK candidate reaches the synthetic build stage.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified branch transition; no patching agent was invoked.",
+      "observation": { "kind": "status", "status": "passed", "detail": "Fixture transition only." },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_direct_result",
+        "contentSha256": "feb4e45cadc298a3fbd97a37ed785a5305180dc2f6af3b73eeeed0dd4d85d74f",
+        "recordedAt": "2026-08-31T00:00:07.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_direct_build",
+      "runId": "sample-run",
+      "candidateId": "candidate_direct_sdk",
+      "claim": "The direct SDK candidate is marked as built in the fixture narrative.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified build outcome; the command template is shown but was not executed.",
+      "observation": {
+        "kind": "command",
+        "commandTemplate": "pnpm build",
+        "exitCode": 0,
+        "durationMs": 0,
+        "timedOut": false,
+        "stdoutArtifactId": null,
+        "stderrArtifactId": null
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_direct_result",
+        "contentSha256": "feb4e45cadc298a3fbd97a37ed785a5305180dc2f6af3b73eeeed0dd4d85d74f",
+        "recordedAt": "2026-08-31T00:00:10.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_direct_counterexample",
+      "runId": "sample-run",
+      "candidateId": "candidate_direct_sdk",
+      "claim": "The authored counterexample would expose schema and tool-call behavior that returns NaN instead of rejecting invalid input.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified counterexample narrative; compare authored expected and observed values without executing code.",
+      "observation": {
+        "kind": "status",
+        "status": "failed",
+        "detail": "temperature_c='hot' is described as coercing to NaN rather than throwing."
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_direct_result",
+        "contentSha256": "feb4e45cadc298a3fbd97a37ed785a5305180dc2f6af3b73eeeed0dd4d85d74f",
+        "recordedAt": "2026-08-31T00:00:13.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_adapter_patch",
+      "runId": "sample-run",
+      "candidateId": "candidate_prompt_schema",
+      "claim": "The selected fixture candidate has an accessible illustrative patch.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified patch authored for replay; no coding model was invoked.",
+      "observation": {
+        "kind": "text",
+        "value": "See diff.patch; it is illustrative fixture content."
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_selected_patch",
+        "contentSha256": "a678df970df00cce0c6f2ebc67fdfec1e4bc539d69ebca5cabf527ee05294eab",
+        "recordedAt": "2026-08-31T00:00:08.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_adapter_build",
+      "runId": "sample-run",
+      "candidateId": "candidate_prompt_schema",
+      "claim": "The prompt-and-schema adapter is marked as built in the fixture narrative.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified build outcome; no command was executed.",
+      "observation": {
+        "kind": "command",
+        "commandTemplate": "pnpm build",
+        "exitCode": 0,
+        "durationMs": 0,
+        "timedOut": false,
+        "stdoutArtifactId": null,
+        "stderrArtifactId": null
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_adapter_result",
+        "contentSha256": "246b58b0198d240ac795fde84a4a246f0fef2012d997330c9c5c7af6eee363a0",
+        "recordedAt": "2026-08-31T00:00:11.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_adapter_behavior",
+      "runId": "sample-run",
+      "candidateId": "candidate_prompt_schema",
+      "claim": "The selected candidate is marked as passing the fixture behavior, schema, tool-call, and prompt-regression gates.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified gate outcomes; no test process was executed.",
+      "observation": {
+        "kind": "status",
+        "status": "passed",
+        "detail": "Fixture gate record only."
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_adapter_result",
+        "contentSha256": "246b58b0198d240ac795fde84a4a246f0fef2012d997330c9c5c7af6eee363a0",
+        "recordedAt": "2026-08-31T00:00:15.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_adapter_security",
+      "runId": "sample-run",
+      "candidateId": "candidate_prompt_schema",
+      "claim": "The selected candidate is marked as passing fixture secret-scan and security gates.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified security gate outcomes; no scanner was executed.",
+      "observation": {
+        "kind": "status",
+        "status": "passed",
+        "detail": "Fixture gate record only."
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_adapter_result",
+        "contentSha256": "246b58b0198d240ac795fde84a4a246f0fef2012d997330c9c5c7af6eee363a0",
+        "recordedAt": "2026-08-31T00:00:15.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_adapter_completeness",
+      "runId": "sample-run",
+      "candidateId": "candidate_prompt_schema",
+      "claim": "The selected candidate is marked as having complete fixture evidence references.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified completeness assertion over fixture records only.",
+      "observation": {
+        "kind": "status",
+        "status": "passed",
+        "detail": "Fixture gate record only."
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_adapter_result",
+        "contentSha256": "246b58b0198d240ac795fde84a4a246f0fef2012d997330c9c5c7af6eee363a0",
+        "recordedAt": "2026-08-31T00:00:15.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_shim_patch",
+      "runId": "sample-run",
+      "candidateId": "candidate_compat_shim",
+      "claim": "The compatibility shim reaches the synthetic build stage.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified branch transition; no patching agent was invoked.",
+      "observation": { "kind": "status", "status": "passed", "detail": "Fixture transition only." },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_shim_result",
+        "contentSha256": "3764bc6cef94e4dec053d67b6b5b4b3fb532cb95bbdf2d90c885822d3e7af800",
+        "recordedAt": "2026-08-31T00:00:09.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_shim_timeout",
+      "runId": "sample-run",
+      "candidateId": "candidate_compat_shim",
+      "claim": "A deterministic synthetic infrastructure timeout makes the compatibility shim inconclusive.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified timeout record; no sandbox operation was started.",
+      "observation": {
+        "kind": "command",
+        "commandTemplate": "fixture sandbox build",
+        "exitCode": null,
+        "durationMs": 900000,
+        "timedOut": true,
+        "stdoutArtifactId": null,
+        "stderrArtifactId": null
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_shim_result",
+        "contentSha256": "3764bc6cef94e4dec053d67b6b5b4b3fb532cb95bbdf2d90c885822d3e7af800",
+        "recordedAt": "2026-08-31T00:00:12.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_evaluation",
+      "runId": "sample-run",
+      "candidateId": null,
+      "claim": "The fixture evaluator separates one eligible, one rejected, and one inconclusive candidate.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified aggregation of terminal candidate fixture states.",
+      "observation": {
+        "kind": "json",
+        "value": { "eligible": 1, "rejected": 1, "inconclusive": 1, "executed": false }
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_report",
+        "contentSha256": "88b279088869fd30fb824273d7190becbbe5944031be9eea317b46e442983c22",
+        "recordedAt": "2026-08-31T00:00:16.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_falsification",
+      "runId": "sample-run",
+      "candidateId": null,
+      "claim": "The fixture falsifier preserves the direct-port counterexample and does not convert the timeout into a behavioral failure.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified final falsifier narrative; no model or command was executed.",
+      "observation": {
+        "kind": "status",
+        "status": "passed",
+        "detail": "Fixture outcome partition is internally consistent."
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_report",
+        "contentSha256": "88b279088869fd30fb824273d7190becbbe5944031be9eea317b46e442983c22",
+        "recordedAt": "2026-08-31T00:00:17.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_scoring",
+      "runId": "sample-run",
+      "candidateId": null,
+      "claim": "The fixture scoring assigns rank one only to the eligible prompt-and-schema adapter.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified deterministic score assignment over fixture outcomes.",
+      "observation": {
+        "kind": "metric",
+        "metric": "eligible-candidate-count",
+        "value": 1,
+        "unit": "candidates",
+        "sampleSize": 3
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_report",
+        "contentSha256": "88b279088869fd30fb824273d7190becbbe5944031be9eea317b46e442983c22",
+        "recordedAt": "2026-08-31T00:00:18.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    },
+    {
+      "id": "evidence_verdict",
+      "runId": "sample-run",
+      "candidateId": "candidate_prompt_schema",
+      "claim": "The fixture verdict selects candidate_prompt_schema as the only eligible candidate.",
+      "classification": "unsupported",
+      "procedure": "Synthetic, unverified deterministic verdict based on the fixture gate partition and rank.",
+      "observation": {
+        "kind": "status",
+        "status": "passed",
+        "detail": "Selected in development fixture only."
+      },
+      "provenance": {
+        "sourceRevision": "fixture-weather-v1",
+        "sandboxOperationId": null,
+        "sandboxImageId": null,
+        "integrationRequestId": null,
+        "artifactId": "artifact_report",
+        "contentSha256": "88b279088869fd30fb824273d7190becbbe5944031be9eea317b46e442983c22",
+        "recordedAt": "2026-08-31T00:00:19.000Z"
+      },
+      "sources": [],
+      "redactionVersion": "fixture-v1"
+    }
+  ]
+}

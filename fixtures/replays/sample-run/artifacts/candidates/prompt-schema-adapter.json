@@ -1,0 +1,23 @@
+{
+  "fixtureDisclosure": "DEVELOPMENT FIXTURE — synthetic outcome; no command was executed.",
+  "synthetic": true,
+  "verified": false,
+  "candidateId": "candidate_prompt_schema",
+  "strategy": "prompt-schema-adaptation",
+  "label": "Prompt + schema adapter",
+  "checkpointId": "checkpoint_fixture_shared_v1",
+  "outcome": "ELIGIBLE",
+  "configuredGates": {
+    "build": "passed",
+    "original-tests": "passed",
+    "migration-tests": "passed",
+    "schema": "passed",
+    "tool-calls": "passed",
+    "prompt-regression": "passed",
+    "secret-scan": "passed",
+    "security": "passed",
+    "evidence-completeness": "passed"
+  },
+  "selectedArtifact": "artifacts/selected-after.ts",
+  "patch": "diff.patch"
+}

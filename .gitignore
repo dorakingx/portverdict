@@ -27,9 +27,10 @@ artifacts/private/
 .DS_Store
 .idea/
 .vscode/
+.vercel/
 *.tsbuildinfo
 
 # generated media
 submission/demo-video.mp4
 submission/screenshots/generated/
-
+.vercel
