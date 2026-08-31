@@ -13,7 +13,7 @@ Status as of 2026-08-31. Checked items are backed by repository or public-deploy
 - [x] License inventory, repository-file secret heuristic, and Git-history Gitleaks scan complete.
 - [x] Actual production screenshots are stored in `submission/screenshots/`.
 - [x] Public GitHub repository, description, topics, and CI configuration verified: https://github.com/dorakingx/portverdict
-- [ ] Green CI on the release commit and `v1.0.0-hackathon` release tag verified.
+- [x] Green CI on the release commit and `v1.0.0-hackathon` prerelease tag verified.
 
 ## Mandatory sponsor proof
 
