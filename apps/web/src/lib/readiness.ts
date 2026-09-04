@@ -51,9 +51,7 @@ export async function getReadinessSnapshot(): Promise<ReadinessSnapshot> {
       ...service,
       state: readiness.state,
       detail:
-        readiness.state === "verified"
-          ? VERIFIED_SERVICE_DETAILS[service.id]
-          : readiness.detail,
+        readiness.state === "verified" ? VERIFIED_SERVICE_DETAILS[service.id] : readiness.detail,
     })),
   };
 }
