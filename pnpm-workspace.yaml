@@ -5,3 +5,6 @@ allowBuilds:
   # ESLint's resolver ships a pinned platform binary; its postinstall only
   # verifies that the matching optional dependency is available.
   unrs-resolver: true
+  # tsx/vite use esbuild; its pinned postinstall selects the matching optional
+  # platform package, verifies the embedded SHA-256, and checks the version.
+  esbuild: true

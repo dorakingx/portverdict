@@ -68,6 +68,7 @@ function routedDecision(): Extract<RoutingDecision, { status: "routed" }> {
 function completionResponse(
   content: string,
   options: {
+    readonly id?: string;
     readonly model?: string;
     readonly promptTokens?: number;
     readonly completionTokens?: number;
@@ -76,7 +77,7 @@ function completionResponse(
   const promptTokens = options.promptTokens ?? 10;
   const completionTokens = options.completionTokens ?? 4;
   return {
-    id: "completion_1",
+    id: options.id ?? "completion_1",
     object: "chat.completion",
     created: 1_788_134_400,
     model: options.model ?? EXACT_MODEL_ID,
@@ -173,7 +174,7 @@ describe("Token Factory catalog contract", () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, init] = fetchMock.mock.calls[0] ?? [];
-    expect(url).toBe(`${TOKEN_FACTORY_BASE_URL}/models`);
+    expect(url).toBe(`${TOKEN_FACTORY_BASE_URL}/models?verbose=true`);
     expect(init?.method).toBe("GET");
     expect(new Headers(init?.headers).get("authorization")).toBe(`Bearer ${API_KEY}`);
     expect(catalog.models[0]).toMatchObject({
@@ -182,8 +183,87 @@ describe("Token Factory catalog contract", () => {
       provenance: {
         source: "authenticated-catalog",
         catalogRequestId: "provider_catalog_1",
-        catalogEndpoint: `${TOKEN_FACTORY_BASE_URL}/models`,
+        catalogEndpoint: `${TOKEN_FACTORY_BASE_URL}/models?verbose=true`,
       },
+    });
+  });
+
+  it("normalizes the current verbose catalog feature and pricing fields", async () => {
+    const fetchMock = vi.fn(async () =>
+      jsonResponse(
+        {
+          object: "list",
+          data: [
+            {
+              id: "nvidia/Nemotron-3_5-Lightning",
+              object: "model",
+              owned_by: "system",
+              context_length: 262_144,
+              status: "active",
+              supported_features: ["chat", "structured-output", "tool-calls"],
+              pricing: { prompt: "0.00000006", completion: "0.00000024" },
+            },
+            {
+              id: "nvidia/retired-model",
+              object: "model",
+              owned_by: "system",
+              context_length: 8_192,
+              status: "deleted",
+              supported_features: ["chat"],
+              pricing: { prompt: "0", completion: "0" },
+            },
+          ],
+        },
+        200,
+        { "x-request-id": "provider_catalog_verbose" },
+      ),
+    );
+    const client = createClient(fetchMock as typeof fetch);
+
+    const catalog = await client.listModels();
+
+    expect(catalog.models).toHaveLength(1);
+    expect(catalog.models[0]).toMatchObject({
+      exactId: "nvidia/Nemotron-3_5-Lightning",
+      family: "LIGHTNING",
+      capabilities: ["chat", "structured-output", "tool-calls"],
+      pricing: {
+        currency: "USD",
+        inputPerMillionTokens: 0.06,
+        outputPerMillionTokens: 0.24,
+        source: "authenticated-catalog",
+      },
+    });
+  });
+
+  it("accepts nullable features and classifies current Nemotron Nano IDs", async () => {
+    const fetchMock = vi.fn(async () =>
+      jsonResponse(
+        {
+          object: "list",
+          data: [
+            {
+              id: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
+              owned_by: "NVIDIA",
+              context_length: 131_072,
+              status: "active",
+              supported_features: null,
+              pricing: { prompt: "0", completion: "0" },
+            },
+          ],
+        },
+        200,
+        { "x-request-id": "provider_catalog_nullable" },
+      ),
+    );
+    const client = createClient(fetchMock as typeof fetch);
+
+    const catalog = await client.listModels();
+
+    expect(catalog.models[0]).toMatchObject({
+      exactId: "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16",
+      family: "LIGHTNING",
+      capabilities: [],
     });
   });
 
@@ -338,7 +418,8 @@ describe("Token Factory structured completion contract", () => {
     expect(result).toMatchObject({
       data: { answer: "safe patch" },
       repairAttempted: false,
-      requestIds: ["completion_request_1"],
+      requestIds: ["completion_1"],
+      httpRequestIds: ["completion_request_1"],
       telemetry: {
         requestId: "completion_request_1",
         modelId: EXACT_MODEL_ID,
@@ -371,12 +452,20 @@ describe("Token Factory structured completion contract", () => {
   it("performs one schema-repair call and aggregates usage/request telemetry", async () => {
     const responses = [
       jsonResponse(
-        completionResponse('{"answer":42}', { promptTokens: 10, completionTokens: 2 }),
+        completionResponse('{"answer":42}', {
+          id: "completion_repair_1",
+          promptTokens: 10,
+          completionTokens: 2,
+        }),
         200,
         { "x-request-id": "repair_1" },
       ),
       jsonResponse(
-        completionResponse('{"answer":"repaired"}', { promptTokens: 14, completionTokens: 3 }),
+        completionResponse('{"answer":"repaired"}', {
+          id: "completion_repair_2",
+          promptTokens: 14,
+          completionTokens: 3,
+        }),
         200,
         { "x-request-id": "repair_2" },
       ),
@@ -394,7 +483,8 @@ describe("Token Factory structured completion contract", () => {
     expect(result).toMatchObject({
       data: { answer: "repaired" },
       repairAttempted: true,
-      requestIds: ["repair_1", "repair_2"],
+      requestIds: ["completion_repair_1", "completion_repair_2"],
+      httpRequestIds: ["repair_1", "repair_2"],
       telemetry: {
         requestId: "repair_2",
         usage: { inputTokens: 24, outputTokens: 5, totalTokens: 29 },

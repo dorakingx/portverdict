@@ -2,8 +2,8 @@ import { getReadinessSnapshot } from "../../../lib/readiness";
 
 export const dynamic = "force-dynamic";
 
-export function GET() {
-  return Response.json(getReadinessSnapshot(), {
+export async function GET() {
+  return Response.json(await getReadinessSnapshot(), {
     headers: {
       "Cache-Control": "no-store",
     },

@@ -86,15 +86,18 @@ export function parseSandboxSse(text: string): readonly SandboxSseFrame[] {
     const spawnedProcessId = payload.spid;
     const payloadType = payload.type;
     const payloadData = payload.data;
+    const validSpawnedProcessId =
+      (typeof spawnedProcessId === "number" &&
+        Number.isSafeInteger(spawnedProcessId) &&
+        spawnedProcessId >= 0) ||
+      (payloadType === "completion" && spawnedProcessId === undefined);
     if (
       typeof payloadId !== "number" ||
       payloadId !== id ||
       typeof timestamp !== "string" ||
       !timestamp.includes("T") ||
       !Number.isFinite(Date.parse(timestamp)) ||
-      typeof spawnedProcessId !== "number" ||
-      !Number.isSafeInteger(spawnedProcessId) ||
-      spawnedProcessId < 0 ||
+      !validSpawnedProcessId ||
       typeof payloadType !== "string" ||
       payloadType !== event ||
       payloadData === undefined
@@ -109,7 +112,7 @@ export function parseSandboxSse(text: string): readonly SandboxSseFrame[] {
       id,
       event,
       timestamp,
-      spawnedProcessId,
+      spawnedProcessId: typeof spawnedProcessId === "number" ? spawnedProcessId : null,
       data: payloadData,
     });
     previousId = id;

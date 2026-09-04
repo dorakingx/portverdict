@@ -1,4 +1,8 @@
-export type ReadinessState = "ready" | "configured" | "unconfigured" | "degraded";
+import "server-only";
+
+import { getEvidenceReadiness, type EvidenceReadinessState } from "./live-evidence";
+
+export type ReadinessState = EvidenceReadinessState;
 
 export type ReadinessService = Readonly<{
   id: "replay" | "token-factory" | "sandboxes" | "tavily";
@@ -8,56 +12,48 @@ export type ReadinessService = Readonly<{
 }>;
 
 export type ReadinessSnapshot = Readonly<{
-  schemaVersion: 1;
-  overall: "replay-ready" | "live-configured" | "live-unconfigured";
+  schemaVersion: 2;
+  overall: ReadinessState;
+  checkedAt: string;
+  runId: string | null;
+  exactModelId: string | null;
+  recordedAt: string | null;
+  expiresAt: string | null;
   services: readonly ReadinessService[];
 }>;
 
-function configured(value: string | undefined): boolean {
-  return typeof value === "string" && value.trim().length > 0;
-}
+const VERIFIED_SERVICE_DETAILS = {
+  replay: "Integrity, branch identity, cleanup, TTL, and replay-manifest checks passed.",
+  "token-factory": "Authenticated catalog discovery and inference request evidence were promoted.",
+  sandboxes:
+    "One immutable checkpoint and three distinct sibling Sandbox operations were verified.",
+  tavily: "Authenticated Search and Extract request evidence with source hashes was promoted.",
+} as const;
 
-export function getReadinessSnapshot(): ReadinessSnapshot {
-  const tokenFactoryConfigured = configured(process.env.NEBIUS_API_KEY);
-  const sandboxesConfigured =
-    configured(process.env.CONTREE_TOKEN) && configured(process.env.CONTREE_PROJECT);
-  const tavilyConfigured = configured(process.env.TAVILY_API_KEY);
-  const allLiveConfigured = tokenFactoryConfigured && sandboxesConfigured && tavilyConfigured;
+export async function getReadinessSnapshot(): Promise<ReadinessSnapshot> {
+  const readiness = await getEvidenceReadiness();
+  const services = [
+    { id: "replay", name: "Evidence replay" },
+    { id: "token-factory", name: "Token Factory inference" },
+    { id: "sandboxes", name: "Token Factory Sandboxes" },
+    { id: "tavily", name: "Tavily Search + Extract" },
+  ] as const;
 
   return {
-    schemaVersion: 1,
-    overall: allLiveConfigured ? "live-configured" : "live-unconfigured",
-    services: [
-      {
-        id: "replay",
-        name: "Evidence replay",
-        state: "ready",
-        detail: "Synthetic development fixture is available without credentials.",
-      },
-      {
-        id: "token-factory",
-        name: "Token Factory inference",
-        state: tokenFactoryConfigured ? "configured" : "unconfigured",
-        detail: tokenFactoryConfigured
-          ? "Credentials are present; authenticated catalog verification is still required."
-          : "Awaiting a server-side NEBIUS_API_KEY and authenticated model catalog check.",
-      },
-      {
-        id: "sandboxes",
-        name: "Token Factory Sandboxes",
-        state: sandboxesConfigured ? "configured" : "unconfigured",
-        detail: sandboxesConfigured
-          ? "Credentials and project are present; live branch smoke verification is still required."
-          : "Awaiting separate Sandbox IAM token and Nebius project ID.",
-      },
-      {
-        id: "tavily",
-        name: "Tavily research",
-        state: tavilyConfigured ? "configured" : "unconfigured",
-        detail: tavilyConfigured
-          ? "Credentials are present; the functional search and extract smoke test is still required."
-          : "Awaiting a server-side TAVILY_API_KEY for official-source retrieval.",
-      },
-    ],
+    schemaVersion: 2,
+    overall: readiness.state,
+    checkedAt: readiness.checkedAt,
+    runId: readiness.trial?.runId ?? null,
+    exactModelId: readiness.trial?.exactModelId ?? null,
+    recordedAt: readiness.trial?.recordedAt ?? null,
+    expiresAt: readiness.trial?.expiresAt ?? null,
+    services: services.map((service) => ({
+      ...service,
+      state: readiness.state,
+      detail:
+        readiness.state === "verified"
+          ? VERIFIED_SERVICE_DETAILS[service.id]
+          : `${readiness.detail} The synthetic sample remains separately labeled.`,
+    })),
   };
 }

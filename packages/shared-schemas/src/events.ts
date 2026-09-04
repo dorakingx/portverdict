@@ -9,7 +9,7 @@ import {
   RunIdSchema,
   SchemaVersionSchema,
   uniqueStrings,
-} from "./primitives.js";
+} from "./primitives";
 import {
   BaseCheckpointSchema,
   CandidateFailureSchema,
@@ -21,9 +21,9 @@ import {
   RunModeSchema,
   SelectedVerdictSchema,
   AbstainedVerdictSchema,
-} from "./run.js";
-import { HardGateResultSchema } from "./evidence.js";
-import { SourceRequestSchema, SourceRevisionSchema } from "./source.js";
+} from "./run";
+import { HardGateResultSchema } from "./evidence";
+import { SourceRequestSchema, SourceRevisionSchema } from "./source";
 
 export const OrchestrationStageSchema = z.enum([
   "source-resolution",

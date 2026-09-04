@@ -7,9 +7,9 @@ import {
   SchemaVersionSchema,
   Sha256Schema,
   uniqueStrings,
-} from "./primitives.js";
-import { OriginalLiveRunSchema, RunStateSchema } from "./run.js";
-import { SourceRevisionSchema } from "./source.js";
+} from "./primitives";
+import { OriginalLiveRunSchema, RunStateSchema } from "./run";
+import { SourceRevisionSchema } from "./source";
 
 export const ReplayFileRoleSchema = z.enum([
   "events",

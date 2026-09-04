@@ -133,7 +133,8 @@ export type SandboxSseEvent = {
   id: number;
   event: string;
   timestamp: string;
-  spawnedProcessId: number;
+  /** Null only for operation-scoped system events such as `completion`. */
+  spawnedProcessId: number | null;
   data: JsonValue;
 };
 

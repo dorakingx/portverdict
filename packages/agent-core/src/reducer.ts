@@ -19,7 +19,7 @@ import type {
   RunCommand,
   RunMachineState,
   TransitionResult,
-} from "./types.js";
+} from "./types";
 
 const TERMINAL_RUN_STATES = new Set<RunState>(["SELECTED", "ABSTAINED", "CANCELED", "FAILED"]);
 

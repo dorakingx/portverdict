@@ -10,7 +10,7 @@ import {
   RunIdSchema,
   Sha256Schema,
   uniqueStrings,
-} from "./primitives.js";
+} from "./primitives";
 
 export const EvidenceClassificationSchema = z.enum([
   "measured",

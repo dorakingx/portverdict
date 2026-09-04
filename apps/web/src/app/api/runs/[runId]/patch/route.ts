@@ -1,8 +1,10 @@
 import { isSampleRun, problem, SAMPLE_PATCH } from "../../../../../lib/replay-api";
+import { readPromotedAsset } from "../../../../../lib/live-evidence";
 
 export async function GET(request: Request, { params }: { params: Promise<{ runId: string }> }) {
   const { runId } = await params;
-  if (!isSampleRun(runId)) {
+  const patch = isSampleRun(runId) ? SAMPLE_PATCH : await readPromotedAsset(runId, "patch");
+  if (!patch) {
     return problem(
       404,
       "Run not found",
@@ -14,16 +16,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ runI
     return problem(
       409,
       "Acknowledgement required",
-      "This synthetic patch is investigation-only. Add acknowledgeUnsafe=true to download it.",
+      "This evidence patch requires human review. Add acknowledgeUnsafe=true to download it.",
       `/api/runs/${runId}/patch`,
     );
   }
-  return new Response(SAMPLE_PATCH, {
+  const synthetic = isSampleRun(runId);
+  return new Response(patch, {
     headers: {
       "Cache-Control": "no-store",
-      "Content-Disposition": 'attachment; filename="portverdict-synthetic.patch"',
+      "Content-Disposition": `attachment; filename="portverdict-${synthetic ? "synthetic" : "selected"}.patch"`,
       "Content-Type": "text/x-diff; charset=utf-8",
-      "X-PortVerdict-Safety": "synthetic-unsafe-not-for-shipping",
+      "X-PortVerdict-Safety": synthetic
+        ? "synthetic-unsafe-not-for-shipping"
+        : "verified-one-run-human-review-required",
     },
   });
 }

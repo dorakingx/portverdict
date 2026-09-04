@@ -15,6 +15,7 @@ import type {
   SandboxResourcePolicy,
   SandboxSseFrame,
   SandboxTelemetry,
+  SandboxTerminalStatus,
   SpawnedSandboxInstance,
   StreamOperationEventsOptions,
   WaitForOperationOptions,
@@ -565,7 +566,7 @@ export class TokenFactorySandboxClient {
         "Branch candidate IDs must be safe and unique.",
       );
     }
-    const spawned = await Promise.all(
+    const results = await Promise.allSettled(
       branches.map(async (branch): Promise<SandboxBranch> => {
         const { candidateId, policy, ...request } = branch;
         const instance = await this.spawn(
@@ -576,15 +577,46 @@ export class TokenFactorySandboxClient {
           },
           signal,
         );
-        if (instance.sourceImageId !== checkpointImageId) {
-          throw new SandboxAdapterError(
-            "CHECKPOINT_INVARIANT",
-            "A candidate branch was not spawned from the shared checkpoint.",
-          );
-        }
         return { candidateId, checkpointImageId, instance };
       }),
     );
+    const spawned = results.flatMap((result) =>
+      result.status === "fulfilled" ? [result.value] : [],
+    );
+    const firstFailure = results.find(
+      (result): result is PromiseRejectedResult => result.status === "rejected",
+    );
+    const invalidCheckpoint = spawned.some(
+      (branch) => branch.instance.sourceImageId !== checkpointImageId,
+    );
+    if (firstFailure || invalidCheckpoint) {
+      const cleanup = await Promise.allSettled(
+        spawned.map(async (branch) => {
+          await this.cancelOperation(branch.instance.operationId);
+          const terminal = await this.waitForOperation(branch.instance.operationId, {
+            timeoutMs: 30_000,
+          });
+          if (!SANDBOX_TERMINAL_STATUSES.includes(terminal.status as SandboxTerminalStatus)) {
+            throw new SandboxAdapterError(
+              "OPERATION_FAILED",
+              "Cancelled Sandbox branch did not reach a terminal state.",
+            );
+          }
+        }),
+      );
+      if (cleanup.some((result) => result.status === "rejected")) {
+        throw new SandboxAdapterError(
+          "OPERATION_FAILED",
+          "Sandbox branch creation failed and cleanup could not be proven.",
+          { cause: firstFailure?.reason },
+        );
+      }
+      if (firstFailure) throw firstFailure.reason;
+      throw new SandboxAdapterError(
+        "CHECKPOINT_INVARIANT",
+        "A candidate branch was not spawned from the shared checkpoint.",
+      );
+    }
     assertSameCheckpoint(spawned);
     return spawned;
   }

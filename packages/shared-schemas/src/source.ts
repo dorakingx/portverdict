@@ -1,11 +1,6 @@
 import { z } from "zod";
 
-import {
-  GitCommitShaSchema,
-  HttpsUrlSchema,
-  IdentifierSchema,
-  Sha256Schema,
-} from "./primitives.js";
+import { GitCommitShaSchema, HttpsUrlSchema, IdentifierSchema, Sha256Schema } from "./primitives";
 
 export const FixtureSourceRequestSchema = z
   .object({

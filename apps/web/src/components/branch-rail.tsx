@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import type { TrialSummary } from "../lib/live-evidence";
+
 import { StatusBadge } from "./status-badge";
 
 type StageTone = "passed" | "failed" | "warning";
@@ -60,7 +62,67 @@ const BRANCHES: ReadonlyArray<Branch> = [
   },
 ];
 
-export function BranchRail({ runId }: Readonly<{ runId: string }>) {
+function strategyLabel(strategy: string): string {
+  return strategy
+    .split("-")
+    .map((part) => `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`)
+    .join(" ");
+}
+
+function liveBranches(trial: TrialSummary): ReadonlyArray<Branch> {
+  const selectedCandidateId =
+    trial.verdict.status === "selected" ? trial.verdict.selectedCandidateId : null;
+  return trial.candidates.map((candidate, index) => {
+    const passCount = Object.values(candidate.gates).filter((status) => status === "passed").length;
+    const gateCount = Object.keys(candidate.gates).length;
+    const tone =
+      candidate.disposition === "eligible"
+        ? ("passed" as const)
+        : candidate.disposition === "rejected"
+          ? ("failed" as const)
+          : ("warning" as const);
+    const verdict =
+      candidate.candidateId === selectedCandidateId
+        ? "Selected"
+        : candidate.disposition === "eligible"
+          ? "Eligible"
+          : candidate.disposition === "rejected"
+            ? "Rejected"
+            : "Inconclusive";
+    const buildStatus = candidate.gates.build ?? "inconclusive";
+    return {
+      id: candidate.candidateId,
+      number: String(index + 1).padStart(2, "0"),
+      strategy: strategyLabel(candidate.strategy),
+      verdict,
+      tone,
+      summary: `${passCount}/${gateCount} hard gates passed in one Sandbox branch (${candidate.durationMs} ms).`,
+      stages: [
+        { label: "Patch", detail: "Generated", tone: "passed" },
+        {
+          label: "Build",
+          detail: buildStatus === "passed" ? "Passed" : buildStatus,
+          tone: buildStatus === "passed" ? "passed" : tone,
+        },
+        {
+          label: "Verify",
+          detail: `${passCount} / ${gateCount}`,
+          tone,
+        },
+        { label: "Verdict", detail: candidate.disposition, tone },
+      ],
+    };
+  });
+}
+
+export function BranchRail({
+  runId,
+  trial,
+}: Readonly<{ runId: string; trial: TrialSummary | null }>) {
+  const branches = trial ? liveBranches(trial) : BRANCHES;
+  const evidenceCount = trial
+    ? trial.candidates.reduce((count, candidate) => count + candidate.evidenceIds.length, 0)
+    : 18;
   return (
     <section className="branch-rail" aria-labelledby="branch-rail-title">
       <div className="section-heading">
@@ -68,7 +130,9 @@ export function BranchRail({ runId }: Readonly<{ runId: string }>) {
           <p className="section-kicker">Branch tournament</p>
           <h2 id="branch-rail-title">Same checkpoint. Different migration strategies.</h2>
         </div>
-        <span className="evidence-count">18 fixture records</span>
+        <span className="evidence-count">
+          {evidenceCount} {trial ? "measured records" : "fixture records"}
+        </span>
       </div>
 
       <div className="shared-checkpoint">
@@ -77,13 +141,17 @@ export function BranchRail({ runId }: Readonly<{ runId: string }>) {
         </span>
         <span>
           <strong>Shared base checkpoint</strong>
-          <small className="mono">img_base_7f2a · source 6e4c1bf</small>
+          <small className="mono">
+            {trial
+              ? `${trial.checkpoint.imageId} · source ${trial.sourceRevision}`
+              : "img_base_7f2a · source 6e4c1bf"}
+          </small>
         </span>
-        <StatusBadge tone="passed">Fixture ready</StatusBadge>
+        <StatusBadge tone="passed">{trial ? "Verified live" : "Fixture ready"}</StatusBadge>
       </div>
 
       <ol className="branch-list">
-        {BRANCHES.map((branch) => (
+        {branches.map((branch) => (
           <li className={`branch-lane branch-lane--${branch.tone}`} key={branch.id}>
             <div className="branch-lane__strategy">
               <span className="branch-number">{branch.number}</span>
@@ -104,7 +172,7 @@ export function BranchRail({ runId }: Readonly<{ runId: string }>) {
             </ol>
 
             <Link className="evidence-link" href={`/runs/${runId}/evidence/${branch.id}`}>
-              Inspect fixture evidence <span aria-hidden="true">→</span>
+              Inspect {trial ? "measured" : "fixture"} evidence <span aria-hidden="true">→</span>
             </Link>
           </li>
         ))}

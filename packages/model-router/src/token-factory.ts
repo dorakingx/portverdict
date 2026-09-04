@@ -12,7 +12,7 @@ import type {
 } from "./types";
 
 export const TOKEN_FACTORY_BASE_URL = "https://api.tokenfactory.nebius.com/v1" as const;
-const MODELS_URL = `${TOKEN_FACTORY_BASE_URL}/models`;
+const MODELS_URL = `${TOKEN_FACTORY_BASE_URL}/models?verbose=true`;
 const CHAT_COMPLETIONS_URL = `${TOKEN_FACTORY_BASE_URL}/chat/completions`;
 const TIMEOUT_REASON = Symbol("token-factory-timeout");
 const MAX_REPAIR_CONTENT_CHARS = 16_000;
@@ -32,7 +32,9 @@ const CatalogModelSchema = z
     owned_by: z.string().trim().min(1).optional(),
     context_length: z.number().int().positive().optional(),
     capabilities: z.array(z.string().trim().min(1).max(160)).max(100).optional(),
-    pricing: CatalogPricingSchema.optional(),
+    supported_features: z.array(z.string().trim().min(1).max(160)).max(100).nullish(),
+    status: z.enum(["validating", "active", "error", "deleted"]).nullish(),
+    pricing: z.union([CatalogPricingSchema, z.record(z.string(), z.unknown())]).optional(),
   })
   .passthrough();
 
@@ -207,7 +209,10 @@ export interface StructuredCompletionRequest<T> {
 export interface StructuredCompletionResult<T> {
   readonly data: T;
   readonly telemetry: RouterTelemetry;
+  /** Provider-issued chat-completion response IDs from the response bodies. */
   readonly requestIds: readonly string[];
+  /** HTTP correlation IDs, which may be client-generated only when the provider omits one. */
+  readonly httpRequestIds: readonly string[];
   readonly repairAttempted: boolean;
 }
 
@@ -632,6 +637,7 @@ export class TokenFactoryClient {
 
     const startedAt = this.#config.clock.nowMs();
     const requestIds: string[] = [];
+    const httpRequestIds: string[] = [];
     const usages: RouterTokenUsage[] = [];
     let transportRetries = 0;
     let currentMessages: TokenFactoryMessage[] = [...messages.data];
@@ -656,7 +662,7 @@ export class TokenFactoryClient {
         },
         ...(request.signal === undefined ? {} : { signal: request.signal }),
       });
-      requestIds.push(http.requestId);
+      httpRequestIds.push(http.requestId);
       transportRetries += http.retries;
 
       const completion = ChatCompletionResponseSchema.safeParse(http.json);
@@ -680,6 +686,7 @@ export class TokenFactoryClient {
           },
         );
       }
+      requestIds.push(completion.data.id);
 
       usages.push({
         inputTokens: completion.data.usage.prompt_tokens,
@@ -698,7 +705,7 @@ export class TokenFactoryClient {
       const output = decoded === undefined ? undefined : request.outputSchema.safeParse(decoded);
       if (output?.success) {
         const usage = sumUsage(usages);
-        const finalRequestId = requestIds.at(-1);
+        const finalRequestId = httpRequestIds.at(-1);
         if (!finalRequestId) {
           throw new TokenFactoryClientError("Token Factory response had no request identity.", {
             code: "invalid-response",
@@ -719,6 +726,7 @@ export class TokenFactoryClient {
             usage,
           }),
           requestIds: Object.freeze([...requestIds]),
+          httpRequestIds: Object.freeze([...httpRequestIds]),
           repairAttempted: schemaAttempt === 1,
         };
       }
@@ -745,13 +753,13 @@ export class TokenFactoryClient {
       }
     }
 
-    const lastRequestId = requestIds.at(-1);
+    const lastRequestId = httpRequestIds.at(-1);
     throw new TokenFactoryClientError(
       "Token Factory structured output remained invalid after one repair attempt.",
       {
         code: "structured-output-invalid",
         ...(lastRequestId === undefined ? {} : { requestId: lastRequestId }),
-        attempts: requestIds.length,
+        attempts: httpRequestIds.length,
       },
     );
   }
