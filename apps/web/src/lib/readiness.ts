@@ -53,7 +53,7 @@ export async function getReadinessSnapshot(): Promise<ReadinessSnapshot> {
       detail:
         readiness.state === "verified"
           ? VERIFIED_SERVICE_DETAILS[service.id]
-          : `${readiness.detail} The synthetic sample remains separately labeled.`,
+          : readiness.detail,
     })),
   };
 }
