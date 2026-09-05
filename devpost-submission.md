@@ -14,7 +14,7 @@ AI-provider migrations can compile while silently breaking streaming chunks, str
 
 PortVerdict treats migration as a controlled experiment. It inventories the provider boundary, creates three candidate strategies from a common checkpoint, evaluates each with deterministic compatibility gates, preserves rejected and inconclusive branches, and selects a candidate only if every hard gate passes. If no candidate qualifies, it abstains.
 
-The public build currently presents a clearly labeled synthetic development replay. It demonstrates the complete evidence and decision contract, but it is not an authenticated Nebius Token Factory, Token Factory Sandbox, NVIDIA-model, or Tavily run.
+The public build currently presents a clearly labeled synthetic development replay. It demonstrates the complete evidence and decision contract, but it is not an authenticated Nebius Token Factory, Token Factory Sandbox, NVIDIA-model, or integrated Tavily run.
 
 ## Why This Matters
 
@@ -24,7 +24,7 @@ Teams need to know whether an AI migration preserved behavior, not merely whethe
 
 The repository implements a catalog-bound Token Factory model router and structured generation path intended to produce three distinct migration strategies. It also implements a counterexample stage and deterministic gates that prevent model confidence from overriding executable failures.
 
-No authenticated Token Factory or NVIDIA-model execution has been completed for the current public replay. Therefore this draft makes no claim about a model ID, request ID, output quality, latency, token usage, or comparative model performance.
+No authenticated Token Factory or NVIDIA-model execution has been completed for the current public replay. Therefore this draft makes no claim about a model ID, request ID, output quality, latency, token usage, or comparative model performance. A standalone call through the repository's Tavily adapter successfully completed Search and Extract against two allowlisted official sources on September 6, 2026, using one free-plan credit. That partial smoke test is not represented as a complete migration trial or promoted public evidence.
 
 ## How We Used Codex
 
@@ -80,11 +80,11 @@ Existing captures are stored under `submission/screenshots/`.
 
 **Not ready for this hackathon.** The official requirements say every entry must run on Nebius Token Factory or Nebius AI Cloud and use an NVIDIA open-source model. The current build has tested adapters and a synthetic replay, but no authenticated sponsor execution. The required public YouTube video and human legal attestations are also incomplete.
 
-The project must not be represented as eligible for Best Use of Tavily: the public replay contains source-shaped fixture records, not a functional runtime Tavily API call.
+The project must not yet be represented as eligible for Best Use of Tavily: a standalone adapter smoke call succeeded, but Tavily has not run inside a complete Nebius-backed migration trial and the public replay still contains source-shaped fixture records.
 
 ## Known Limitations
 
-- Sponsor integrations are implemented but unverified without credentials and quota.
+- The Tavily Search→Extract adapter passed one standalone free-plan smoke call, but the sponsor integrations as a complete workflow remain unverified without Nebius access.
 - The public replay is synthetic and cannot establish sponsor-platform or model-quality claims.
 - Anonymous live execution remains disabled; the long-running workflow is designed for a trusted owner CLI.
 - Private-repository authorization, per-tenant isolation, and distributed abuse controls are future work.
@@ -106,6 +106,6 @@ The project must not be represented as eligible for Best Use of Tavily: the publ
 - Valuable Nebius capabilities: Sandbox checkpoint branching and catalog-bound inference are implemented as architectural dependencies but not yet exercised.
 - Recommendation and inference-experience ratings: Cannot be rated truthfully without a run.
 - Requested improvements: A card-free, immediately provisioned hackathon sandbox and API quota would make participant validation easier.
-- Tavily used: No
+- Tavily used: No for final prize qualification at present; one standalone adapter smoke succeeded, but no integrated Nebius-backed migration trial has completed.
 - Builders & Brews city: **human confirmation required or blank**
 - Age and employee attestations: **human confirmation required**
