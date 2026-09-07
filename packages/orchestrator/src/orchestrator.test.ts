@@ -61,6 +61,21 @@ it("mechanically applies only named model function edits without changing the ot
   ).toThrow();
 });
 
+it("permits bounded standard-library regex parsing but rejects hidden unsafe imports", async () => {
+  const original = LIVE_EVALUATION_CASES[1]!.files["adapter.py"]!;
+  const regexEdit =
+    "def normalize_tool_call(item):\n    import re\n    found = re.search('x', 'x')\n    return found.group(0)\n";
+  await expect(
+    validateGeneratedPythonSource(applyFunctionEdits(original, regexEdit, ["normalize_tool_call"])),
+  ).resolves.toBeUndefined();
+  const unsafeEdit = "def normalize_tool_call(item):\n    import os\n    return None\n";
+  await expect(
+    validateGeneratedPythonSource(
+      applyFunctionEdits(original, unsafeEdit, ["normalize_tool_call"]),
+    ),
+  ).rejects.toThrow("only json and re imports");
+});
+
 it("retains duplicate generation usage and request identities before a distinct retry", () => {
   const proposal = {
     strategy: "minimal-compatibility",

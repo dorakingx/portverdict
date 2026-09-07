@@ -66,6 +66,8 @@ Targeted generation with the old greedy sampling setting also exhausted the reas
 
 Sampled reasoning still exhausted the budget in a later bounded call. A targeted API diagnostic resolved the actual non-thinking control: the live Super endpoint accepts **top-level** `chat_template_kwargs: {enable_thinking: false}` with `max_tokens`. Nesting it inside a literal `extra_body` field was rejected (422); sending `reasoning_effort: none` was rejected (400). The accepted diagnostic returned valid function-edit JSON in 1,904 ms, 213 total tokens, with zero reasoning-content characters. Use this verified control for the final bounded worker. API-specific parameters, not just a generic reasoning capability flag, matter. No reasoning content is persisted or shown.
 
+At `2f454a2`, all three targeted proposals were generated, but the single-shot baseline (`live_20260907091216_structured_output_758e3006`) used standard-library regex parsing and was rejected by the overly narrow method allowlist. Permitted `re` and its pure matching methods within the same network-disabled Sandbox limits. Also tightened the AST check to reject unsafe imports at **every nesting depth**, with tests for both allowed regex parsing and a nested `import os`. Baseline generation still receives no behavior-guided retry or manually repaired code.
+
 ## Recording rules
 
 1. Link every observation to a private run ID during development and to a sanitized public evidence ID after promotion.
