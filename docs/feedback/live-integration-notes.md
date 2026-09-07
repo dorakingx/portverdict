@@ -1,6 +1,36 @@
 # Live integration notes
 
-Status: **implemented-unverified template**. No authenticated Nebius, NVIDIA, Sandbox, or Tavily observation is recorded here yet.
+Status: **authenticated sponsor smoke verified on 2026-09-07; evaluation in progress**. The attempt ledger below distinguishes integration success from a completed migration evaluation.
+
+## Authenticated attempt ledger
+
+### 2026-09-06 — Sandbox Beta access pending
+
+Authenticated inference and Tavily calls worked, but Sandbox `whoami` returned all execution permissions false and a minimal spawn returned HTTP 403. Supplying the actual project ID did not change this. No Sandbox success was claimed. The entrant requested Beta access; no billing setting was changed by the runner.
+
+### 2026-09-07 — Sponsor smoke succeeded
+
+- Run: `smoke_20260907075540_859b605b`.
+- Model discovered from the authenticated catalog: `nvidia/Nemotron-3_5-Lightning`.
+- Catalog request: `cc4f7b4ddfa720b10bdfd502286634ca`.
+- Inference response: `chatcmpl-462e71a1`.
+- Sandbox operation: `01a07ade-25a1-7083-8628-c9293f67fe8a`.
+- Tavily Search: `71d01aa7-f443-4420-aca3-df419bf759aa`; Extract: `d6e7eba6-08e8-4599-83a3-523ade4082f6`.
+- After the activation email, existing-key permissions were enabled and the non-root, network-disabled execution created a checkpoint. No new key was needed.
+
+### 2026-09-07 — Initial trial rejected before Sandbox execution
+
+Run `live_20260907075806_structured_output_dbdf45a4`, source commit `f1979488ff5494517849a7df7ed9deb9eeae7f92`, failed the local patch acceptance check. Inspection found that the check rejected any triple-backtick literal, including legitimate Python strings needed to parse fenced JSON. The wrapper check was narrowed; AST validation and the Sandbox security policy were retained. The failed run record remains in the private ledger. Per-response usage was not retained for this early attempt and is unavailable.
+
+### 2026-09-07 — Structured generation failed its bounded repair
+
+Run `live_20260907080033_structured_output_863bdc86`, source commit `781a6bf`, failed with `structured-output-invalid`. No successful migration or Sandbox trial was claimed. We fixed a separate repair-path defect: the JSON Schema now remains in the prompt on repair, and non-JSON content is not replayed as an assistant message. Failed model-patch outputs that pass the JSON contract are now retained with usage and request IDs, without reasoning content.
+
+### 2026-09-07 — Bounded generation diagnostic
+
+An authenticated diagnostic with the same catalog-selected model, `reasoning_effort: none`, JSON-object mode, and a 4,000-token completion cap returned valid JSON and a 2,420-character Python adapter in 8,510 ms. Response `chatcmpl-6aa15126`: 680 prompt tokens, 930 completion tokens, zero reported reasoning tokens, finish reason `stop`. This was a generation diagnostic, not a Sandbox or benchmark result. The same non-reasoning setting is now used for both tournament and single-shot patches. No cross-model comparison or fine-tuning was performed.
+
+Official references: [chat completion](https://docs.tokenfactory.nebius.com/api-reference/inference/create-chat-completion), [Sandbox overview](https://docs.tokenfactory.nebius.com/sandboxes/overview). The live catalog reported USD 0.06 per million input tokens and USD 0.24 per million output tokens for the selected model. Published run costs will use recorded usage; unrecorded development-attempt costs remain unavailable.
 
 This is the factual source for the final Devpost feedback answers. Add an entry for every authenticated attempt, including failures and inconclusive runs. Never record API keys, authorization headers, cookies, private project names, personal information, private prompts, or chain-of-thought.
 

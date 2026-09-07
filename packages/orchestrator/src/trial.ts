@@ -320,7 +320,7 @@ export async function validateGeneratedPythonSource(source: string): Promise<voi
       else {
         reject(
           new Error(
-            `Model patch failed bounded Python AST validation (${stderr.trim().slice(0, 160) || "invalid source"}).`,
+            `Model patch failed bounded Python AST validation (${stderr.trim().split(/\r?\n/u).at(-1)?.slice(0, 160) || "invalid source"}).`,
           ),
         );
       }
@@ -344,6 +344,8 @@ async function generatePatch<TStrategy extends string>(
   let retryCount = 0;
   let usage = { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
   let last: StructuredCompletionResult<PatchOutput> | null = null;
+  let validationFailure = "";
+  let sourceValidated = false;
   for (let attempt = 1; attempt <= maxModelAttempts; attempt += 1) {
     last = await clients.tokenFactory.completeStructured({
       decision,
@@ -359,7 +361,7 @@ async function generatePatch<TStrategy extends string>(
         },
         {
           role: "user",
-          content: `Case: ${liveCase.caseId} (${liveCase.behaviorFamily}). Strategy: ${strategy}. ${strategyGuidance}\n\nMigration contract:\n${liveCase.migrationContract}\n\nCurrent adapter.py:\n${liveCase.files["adapter.py"]}\n\nReference excerpts:\n${docsContext}\n\nReturn the complete replacement adapter.py in source. Attempt ${attempt}.`,
+          content: `Case: ${liveCase.caseId} (${liveCase.behaviorFamily}). Strategy: ${strategy}. ${strategyGuidance}\n\nMigration contract:\n${liveCase.migrationContract}\n\nCurrent adapter.py:\n${liveCase.files["adapter.py"]}\n\nReference excerpts:\n${docsContext}\n\nReturn the complete replacement adapter.py in source. Attempt ${attempt}.${validationFailure ? ` Prior source was rejected: ${validationFailure} Correct that issue; emit valid Python.` : ""}`,
         },
       ],
       outputContract: PATCH_OUTPUT_CONTRACT,
@@ -380,6 +382,19 @@ async function generatePatch<TStrategy extends string>(
       outputTokens: usage.outputTokens + attemptUsage.outputTokens,
       totalTokens: usage.totalTokens + attemptUsage.totalTokens,
     };
+    sourceValidated = false;
+    if (sourceLooksRunnable(last.data.source, liveCase.files["adapter.py"] as string)) {
+      try {
+        await validateGeneratedPythonSource(last.data.source);
+        sourceValidated = true;
+        validationFailure = "";
+      } catch (error) {
+        validationFailure = error instanceof Error ? error.message : "Invalid Python source.";
+      }
+    } else {
+      validationFailure =
+        "Source must change the adapter, preserve its four functions, and have no Markdown wrapper.";
+    }
     await writePrivateJson(runId, `${strategy}-attempt-${attempt}.json`, {
       kind: "portverdict.model-patch-attempt",
       recordedAt: new Date().toISOString(),
@@ -396,13 +411,14 @@ async function generatePatch<TStrategy extends string>(
         liveCase.files["adapter.py"] as string,
       ),
       output: last.data,
+      sourceValidated,
+      validationFailure,
     });
-    if (sourceLooksRunnable(last.data.source, liveCase.files["adapter.py"] as string)) break;
+    if (sourceValidated) break;
   }
-  if (!last || !sourceLooksRunnable(last.data.source, liveCase.files["adapter.py"] as string)) {
+  if (!last || !sourceValidated) {
     throw new Error(`Model did not produce a bounded changed Python patch for ${strategy}.`);
   }
-  await validateGeneratedPythonSource(last.data.source);
   assertSanitized({ source: last.data.source, summary: last.data.summary });
   return { strategy, output: last.data, requestIds, latencyMs, retryCount, usage };
 }
