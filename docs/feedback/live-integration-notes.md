@@ -34,6 +34,22 @@ Official references: [chat completion](https://docs.tokenfactory.nebius.com/api-
 
 This is the factual source for the final Devpost feedback answers. Add an entry for every authenticated attempt, including failures and inconclusive runs. Never record API keys, authorization headers, cookies, private project names, personal information, private prompts, or chain-of-thought.
 
+### 2026-09-07 — Subsequent development attempts (all retained)
+
+| Run suffix (UTC start)              | Source commit | Observation and correction                                                                                                                                                                                                       |
+| ----------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `080530_structured_output_66b683bf` | `df99c22`     | A generated branch had an unmatched closing brace. Moved AST validation inside the bounded syntax-repair loop; no behavior-test feedback is supplied to that loop.                                                               |
+| `080828_structured_output_3a50b017` | `70521cd`     | Single-shot output contained prose in the source field. Made the executable-source contract explicit in both the prompt and output schema.                                                                                       |
+| `081044_structured_output_871eec76` | `420e5e4`     | Valid baseline string parsing used `.index`/`.rindex`, which the AST allowlist incorrectly rejected. Allowed pure string operations while preserving the I/O restrictions.                                                       |
+| `081226_structured_output_78567201` | `6eb2239`     | The live API reports `duration: -1` while an operation is executing. Treat that sentinel as unknown only for nonterminal states; keep negative terminal durations invalid.                                                       |
+| `081516_structured_output_53cddfe0` | `7ac71a7`     | All Sandbox branches executed, but the reducer rejected a live run with a pinned fixture input. Authenticated execution and input origin are independent; fixed that constraint and tested both live and replay lifecycles.      |
+| `081743_structured_output_31b356a8` | `0c07aaf`     | Completed real checkpoint, three candidates and baseline. All three candidates built; all were rejected by behavioral gates, so the final state was ABSTAINED. This is an adverse evaluation result, not an integration failure. |
+| `081835_tool_calling_c7e93af1`      | `0c07aaf`     | Generation stopped with `structured-output-invalid` after the bounded repair. Two earlier generated patches were retained. Added a content-free schema error category for diagnosis.                                             |
+
+Full IDs have the prefix `live_20260907`. Private attempt records and any generated artifacts remain under `.private/evidence`; incomplete runs are not promoted as completed cases. Early failed calls without retained usage cannot be included in a reliable total development-spend figure.
+
+At source `7830d21`, a subsequent suite again completed structured output (`live_20260907082510_structured_output_df4fc842`) and stopped on tool calling. The content-free diagnostic was `too_big:testFocus`: informational labels exceeded the eight-item cap, not a failed code gate. Allowed at most 16 bounded labels and explicitly requested at most eight concise labels. Executable tests, security policy, source validation, and winner eligibility are unchanged.
+
 ## Recording rules
 
 1. Link every observation to a private run ID during development and to a sanitized public evidence ID after promotion.
