@@ -795,7 +795,7 @@ export class TokenFactoryClient {
 
     const lastRequestId = httpRequestIds.at(-1);
     throw new TokenFactoryClientError(
-      "Token Factory structured output remained invalid after one repair attempt.",
+      `Token Factory structured output remained invalid after one repair attempt (${lastFailure}).`,
       {
         code: "structured-output-invalid",
         ...(lastRequestId === undefined ? {} : { requestId: lastRequestId }),
