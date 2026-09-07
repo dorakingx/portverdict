@@ -119,7 +119,7 @@ export function selectNvidiaDecision(
     taskCategory: "portverdict-migration",
     difficulty: "medium",
     estimatedInputTokens: 4_000,
-    maxOutputTokens: 4_000,
+    maxOutputTokens: 8_000,
     minContextTokens: 8_000,
     preferredExactIds: [selected.exactId],
     budget: { maxEstimatedCostUsd: 0.02 },

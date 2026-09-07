@@ -395,7 +395,8 @@ export async function generatePatch<TStrategy extends string>(
       ],
       outputContract: PATCH_OUTPUT_CONTRACT,
       outputSchema: PatchOutputSchema,
-      maxOutputTokens: 4_000,
+      // Super reasoning and the final code share one completion budget.
+      maxOutputTokens: 8_000,
       reasoningEffort,
     });
     requestIds.push(...last.requestIds);

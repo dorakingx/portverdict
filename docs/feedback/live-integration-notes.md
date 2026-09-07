@@ -58,6 +58,8 @@ At `eb616ae`, structured output (`live_20260907083805_structured_output_caa2c7f3
 
 The authenticated catalog also offered `nvidia/nemotron-3-super-120b-a12b`, with USD 0.30/M input and USD 0.90/M output tokens. Its live endpoint rejected `reasoning_effort: none` and `max_completion_tokens`; it accepts low reasoning with `max_tokens`. Added a regression test for that provider-specific parameter difference. A small JSON probe succeeded in 3,266 ms with 109 total tokens. A subsequent code diagnostic (`diagnostic_super_low_1788771021868`) returned the requested match/case structure but had a malformed string delimiter; AST validation rejected it before execution. Requested `chr(96) * 3` for fence delimiters to avoid escaping confusion. Final inference is still bounded, catalog-selected, and no model output bypasses AST or behavioral gates.
 
+The revised diagnostic succeeded (`chatcmpl-09995a9641044d82a54d94ac42ebf5b8`, 15,017 ms, 4,808 total tokens). Super sponsor smoke `smoke_20260907085301_f18d7fd1` verified all three provider integrations. The first complete-context trial (`live_20260907085414_structured_output_88665ad6`) then exhausted its 6,048-token completion budget during reasoning, leaving zero final-content characters on both bounded attempts. No reasoning text was retained or published. Increased the bounded completion allowance to 12,000 tokens (8,000 requested plus 4,000 reasoning allowance); source size, execution limits, and a USD 0.02 routing estimate cap remain enforced.
+
 ## Recording rules
 
 1. Link every observation to a private run ID during development and to a sanitized public evidence ID after promotion.
