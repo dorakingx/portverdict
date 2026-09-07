@@ -34,6 +34,8 @@ The baseline and tournament use the same model, visible migration contract, offi
 
 Tournament proposals are generated sequentially and later strategies can inspect prior sources as untrusted comparison data to avoid duplicates. They are not independent model samples. Their subsequent Sandbox executions still begin from the identical checkpoint. The single-shot baseline does not receive other candidate sources.
 
+The final worker emits only the targeted replacement function definitions: `parse_structured`, `normalize_tool_call`, or `normalize_event` plus `retry_delay`. A tested mechanical edit operation replaces those definitions and preserves all other input source. No human-authored repair is inserted. The private attempt ledger retains the exact model edit and assembled source; the public diff, original source fingerprint, runner commit, and final source hash establish what executed. This reduces irrelevant full-file regeneration while leaving the same hidden tests and hard gates intact.
+
 ### Required evidence per case
 
 - PortVerdict Git commit SHA and immutable fixture/source SHA-256;

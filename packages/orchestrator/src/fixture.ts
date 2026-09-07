@@ -345,5 +345,5 @@ export const STRATEGY_GUIDANCE = Object.freeze({
   "prompt-schema-adaptation":
     "Prefer guard-first validation inside the four required functions, then normalization. Reject invalid container and field types explicitly.",
   "resilience-routing-adaptation":
-    "Use Python match/case for event-type dispatch and explicit bounded branches in retry_delay. Keep defensive payload validation inside the four required functions.",
+    "Use Python match/case inside the requested function definitions, with defensive type checks and bounded branches where appropriate.",
 });

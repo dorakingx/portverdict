@@ -31,6 +31,7 @@ import { assertSanitized, withIntegrity } from "./security.js";
 import { verifyHashManifest } from "./submission.js";
 import {
   accumulateGeneration,
+  applyFunctionEdits,
   sourceLooksRunnable,
   validateGeneratedPythonSource,
 } from "./trial.js";
@@ -38,6 +39,27 @@ import {
 const HASH = "a".repeat(64);
 const CHECKPOINT = "11111111-1111-4111-8111-111111111111";
 const execFileAsync = promisify(execFile);
+
+it("mechanically applies only named model function edits without changing the other functions", async () => {
+  const original = LIVE_EVALUATION_CASES[1]!.files["adapter.py"]!;
+  const edit = "def normalize_tool_call(item):\n    return {'type': 'function'}\n";
+  const assembled = applyFunctionEdits(original, edit, ["normalize_tool_call"]);
+  expect(assembled).toContain(edit.trim());
+  expect(assembled.split("def normalize_tool_call")[0]).toBe(
+    original.split("def normalize_tool_call")[0],
+  );
+  expect(assembled.split("def retry_delay")[1]).toBe(original.split("def retry_delay")[1]);
+  await expect(validateGeneratedPythonSource(assembled)).resolves.toBeUndefined();
+  expect(() =>
+    applyFunctionEdits(original, "import os\n" + edit, ["normalize_tool_call"]),
+  ).toThrow();
+  expect(() => applyFunctionEdits(original, edit + edit, ["normalize_tool_call"])).toThrow();
+  expect(() =>
+    applyFunctionEdits(original, "def retry_delay(status, attempt):\n    return 0\n", [
+      "normalize_tool_call",
+    ]),
+  ).toThrow();
+});
 
 it("retains duplicate generation usage and request identities before a distinct retry", () => {
   const proposal = {

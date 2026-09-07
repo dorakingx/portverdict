@@ -60,6 +60,8 @@ The authenticated catalog also offered `nvidia/nemotron-3-super-120b-a12b`, with
 
 The revised diagnostic succeeded (`chatcmpl-09995a9641044d82a54d94ac42ebf5b8`, 15,017 ms, 4,808 total tokens). Super sponsor smoke `smoke_20260907085301_f18d7fd1` verified all three provider integrations. The first complete-context trial (`live_20260907085414_structured_output_88665ad6`) then exhausted its 6,048-token completion budget during reasoning, leaving zero final-content characters on both bounded attempts. No reasoning text was retained or published. Increased the bounded completion allowance to 12,000 tokens (8,000 requested plus 4,000 reasoning allowance); source size, execution limits, and a USD 0.02 routing estimate cap remain enforced.
 
+At `f1f7bdd`, structured output (`live_20260907085642_structured_output_e6e78dfa`) completed with all three builds passing and all candidates rejected by hidden contracts; the tool case (`live_20260907085849_tool_calling_6f008f39`) exhausted the enlarged completion allowance. Replaced full-file generation with targeted model-written function edits and mechanical preservation of all other source. Restored the smaller 4,000 + 2,048 completion allowance. The assembly path is unit-tested, every assembled module still passes the unchanged AST policy before Sandbox execution, and no human-written behavioral fix is substituted for model output.
+
 ## Recording rules
 
 1. Link every observation to a private run ID during development and to a sanitized public evidence ID after promotion.
