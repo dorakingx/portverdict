@@ -44,8 +44,16 @@ async function metrics(runId, candidate) {
   const line = raw.split(/\r?\n/u).find((entry) => entry.startsWith("PORTVERDICT_RESULT="));
   const gates = line ? JSON.parse(line.slice("PORTVERDICT_RESULT=".length)).results : [];
   const gate = (name) => gates.find((value) => value.name === name);
+  const measuredTests = (name) =>
+    gate("build")?.passed === false
+      ? {
+          passed: null,
+          executed: null,
+          reason: "Module did not compile; behavioral assertions could not execute",
+        }
+      : testCounts(gate(name));
   const counts = ["original-tests", "schema", "tool-calls", "streaming-retry", "security"].map(
-    (name) => testCounts(gate(name)),
+    measuredTests,
   );
   const available = counts.every((value) => value.passed !== null && value.executed !== null);
   return {
@@ -59,10 +67,10 @@ async function metrics(runId, candidate) {
           executed: counts.reduce((sum, value) => sum + value.executed, 0),
         }
       : { passed: null, executed: null, reason: "At least one test count unavailable" },
-    hiddenContracts: testCounts(gate("security")),
-    schema: testCounts(gate("schema")),
-    toolCalls: testCounts(gate("tool-calls")),
-    streamingRetry: testCounts(gate("streaming-retry")),
+    hiddenContracts: measuredTests("security"),
+    schema: measuredTests("schema"),
+    toolCalls: measuredTests("tool-calls"),
+    streamingRetry: measuredTests("streaming-retry"),
     regressionCaught:
       gate("build")?.passed === true &&
       counts.some(

@@ -70,6 +70,8 @@ At `2f454a2`, all three targeted proposals were generated, but the single-shot b
 
 At `c74dfab`, the single-shot baseline (`live_20260907091502_structured_output_47e4d374`) emitted literal escaped line separators and was syntactically invalid. Corrected the experimental handling: a syntax-invalid final proposal should produce a recorded Sandbox build failure, not disappear through a rerun until a better baseline is generated. Such a Python module cannot execute its body because compilation fails first. Valid-but-unsafe ASTs are still blocked, and source-assembly scope errors still fail closed. Added a classification regression test; no automatic semantic repair is applied to the baseline.
 
+At `d9743a2`, structured output (`live_20260907091750_structured_output_b307bbe4`) and tool calling (`live_20260907091816_tool_calling_c7dd02f9`) completed. Streaming/retry (`live_20260907091837_streaming_retry_7c5aafae`) stopped because the broad mixed-topic query yielded no usable official Search→Extract evidence. Replaced it with behavior-specific Token Factory documentation queries and at most one official-domain query fallback. All retrieval attempts remain in private telemetry; the research-credit total includes empty-result retries. No unsupported source is admitted to fill the gap.
+
 ## Recording rules
 
 1. Link every observation to a private run ID during development and to a sanitized public evidence ID after promotion.

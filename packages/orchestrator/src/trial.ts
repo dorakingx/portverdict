@@ -706,9 +706,28 @@ async function executeLiveCase(
     );
   }
 
-  const research = await clients.tavily.research(
-    `official OpenAI compatible ${liveCase.behaviorFamily} migration and Nebius Sandbox branching documentation`,
+  const researchQueries = {
+    "structured-output": "Nebius Token Factory structured output JSON mode response_format",
+    "tool-calling": "Nebius Token Factory chat completions tool calling function arguments",
+    "streaming-retry":
+      "Nebius Token Factory chat completion streaming usage stream_options retry rate limits",
+  };
+  let research = await clients.tavily.research(
+    `${researchQueries[liveCase.behaviorFamily]} site:docs.tokenfactory.nebius.com`,
   );
+  if (!research.extractRequestId || research.sources.length === 0) {
+    research = await clients.tavily.research(
+      "Nebius Token Factory OpenAI compatible chat completions API site:docs.tokenfactory.nebius.com",
+    );
+  }
+  await writePrivateJson(runId, "research-attempts.json", {
+    recordedAt: new Date().toISOString(),
+    telemetry: telemetry.tavily,
+  });
+  research = {
+    ...research,
+    credits: telemetry.tavily.reduce((sum, entry) => sum + (entry.credits ?? 0), 0),
+  };
   if (!research.extractRequestId || research.sources.length === 0) {
     throw new Error(
       "Live trial requires Tavily Search and Extract evidence from an official domain.",
