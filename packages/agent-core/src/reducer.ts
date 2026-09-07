@@ -231,10 +231,9 @@ export function reduceRunEvent(state: RunMachineState, eventValue: unknown): Tra
     if (event.type !== "run.received") {
       return reject(state, "run-not-initialized", "The first event must be run.received");
     }
-    if (
-      (event.mode === "replay" && event.sourceRequest.kind !== "fixture") ||
-      (event.mode === "live" && event.sourceRequest.kind !== "github")
-    ) {
+    // A pinned fixture can be executed against real providers by the owner runner.
+    // Its source kind describes the input, not whether execution is live.
+    if (event.mode === "replay" && event.sourceRequest.kind !== "fixture") {
       return reject(state, "invariant-violation", "Run mode does not match its source kind");
     }
 
