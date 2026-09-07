@@ -65,6 +65,40 @@ function routedDecision(): Extract<RoutingDecision, { status: "routed" }> {
   return decision;
 }
 
+function reasoningOnlyDecision(): Extract<RoutingDecision, { status: "routed" }> {
+  const validated = validateAuthenticatedCatalog(
+    {
+      object: "list",
+      data: [
+        {
+          id: "nvidia/Nemotron-3_5-Lightning",
+          object: "model",
+          owned_by: "NVIDIA",
+          context_length: 131_072,
+          capabilities: ["tools", "reasoning"],
+        },
+      ],
+    },
+    {
+      authenticated: true,
+      httpStatus: 200,
+      requestId: "reasoning_catalog_fixture_request",
+      endpoint: `${TOKEN_FACTORY_BASE_URL}/models`,
+      fetchedAt: "2026-08-31T00:00:00.000Z",
+    },
+  );
+  if (!validated.ok) throw new Error("reasoning catalog fixture invalid");
+  const decision = routeModel(validated.catalog, {
+    role: "LIGHT",
+    taskCategory: "patch-worker",
+    difficulty: "low",
+    estimatedInputTokens: 1_000,
+    maxOutputTokens: 500,
+  });
+  if (decision.status !== "routed") throw new Error("reasoning routing fixture invalid");
+  return decision;
+}
+
 function completionResponse(
   content: string,
   options: {
@@ -430,6 +464,37 @@ describe("Token Factory structured completion contract", () => {
     const serializedTelemetry = JSON.stringify(result.telemetry);
     expect(serializedTelemetry).not.toContain("Analyze the bounded fixture");
     expect(serializedTelemetry).not.toContain("privateReasoning");
+  });
+
+  it("uses bounded low-effort JSON mode when the routed reasoning model lacks JSON-schema capability", async () => {
+    const decision = reasoningOnlyDecision();
+    const fetchMock = vi.fn(async (_input: FetchInput, _init?: FetchInit) =>
+      jsonResponse(
+        completionResponse('{"answer":"safe patch"}', {
+          model: decision.model.exactId,
+          promptTokens: 20,
+          completionTokens: 30,
+        }),
+      ),
+    );
+    const client = createClient(fetchMock as typeof fetch);
+
+    await expect(client.completeStructured(structuredRequest(decision))).resolves.toMatchObject({
+      data: { answer: "safe patch" },
+    });
+
+    const body = JSON.parse(
+      String((fetchMock.mock.calls[0]?.[1] as RequestInit | undefined)?.body),
+    ) as Record<string, unknown>;
+    expect(body).toMatchObject({
+      model: decision.model.exactId,
+      reasoning_effort: "low",
+      max_completion_tokens: 2_548,
+      temperature: 0,
+      response_format: { type: "json_object" },
+    });
+    expect(body).not.toHaveProperty("max_tokens");
+    expect(JSON.stringify(body.messages)).toContain("Required JSON Schema");
   });
 
   it("rejects a response whose model ID differs from the routed exact ID", async () => {

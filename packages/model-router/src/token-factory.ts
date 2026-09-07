@@ -16,6 +16,8 @@ const MODELS_URL = `${TOKEN_FACTORY_BASE_URL}/models?verbose=true`;
 const CHAT_COMPLETIONS_URL = `${TOKEN_FACTORY_BASE_URL}/chat/completions`;
 const TIMEOUT_REASON = Symbol("token-factory-timeout");
 const MAX_REPAIR_CONTENT_CHARS = 16_000;
+const MIN_REASONING_TOKEN_ALLOWANCE = 2_048;
+const MAX_REASONING_TOKEN_ALLOWANCE = 4_096;
 
 const CatalogPricingSchema = z
   .object({
@@ -640,7 +642,23 @@ export class TokenFactoryClient {
     const httpRequestIds: string[] = [];
     const usages: RouterTokenUsage[] = [];
     let transportRetries = 0;
-    let currentMessages: TokenFactoryMessage[] = [...messages.data];
+    const capabilities = request.decision.model.capabilities.map((capability) =>
+      capability.toLowerCase(),
+    );
+    const supportsStrictJsonSchema = capabilities.some((capability) =>
+      /structured[-_ ]?output|json[-_ ]?schema/iu.test(capability),
+    );
+    const isReasoningModel = capabilities.some((capability) => /reasoning/iu.test(capability));
+    const serializedSchema = JSON.stringify(contract.data.schema);
+    let currentMessages: TokenFactoryMessage[] = [
+      ...messages.data,
+      {
+        role: "user",
+        content:
+          `Required JSON Schema: ${serializedSchema}\n` +
+          "Return exactly one JSON object matching this schema. Do not add Markdown or prose.",
+      },
+    ];
     let lastFailure = "invalid-json:root";
 
     for (let schemaAttempt = 0; schemaAttempt < 2; schemaAttempt += 1) {
@@ -650,15 +668,28 @@ export class TokenFactoryClient {
         body: {
           model: request.decision.model.exactId,
           messages: currentMessages,
-          max_tokens: request.maxOutputTokens,
-          response_format: {
-            type: "json_schema",
-            json_schema: {
-              name: contract.data.name,
-              strict: true,
-              schema: contract.data.schema,
-            },
-          },
+          ...(isReasoningModel
+            ? {
+                reasoning_effort: "low",
+                max_completion_tokens:
+                  request.maxOutputTokens +
+                  Math.min(
+                    MAX_REASONING_TOKEN_ALLOWANCE,
+                    Math.max(MIN_REASONING_TOKEN_ALLOWANCE, Math.ceil(request.maxOutputTokens / 2)),
+                  ),
+              }
+            : { max_tokens: request.maxOutputTokens }),
+          temperature: 0,
+          response_format: supportsStrictJsonSchema
+            ? {
+                type: "json_schema",
+                json_schema: {
+                  name: contract.data.name,
+                  strict: true,
+                  schema: contract.data.schema,
+                },
+              }
+            : { type: "json_object" },
         },
         ...(request.signal === undefined ? {} : { signal: request.signal }),
       });
@@ -747,7 +778,7 @@ export class TokenFactoryClient {
             role: "user",
             content:
               `The previous JSON response failed the declared schema (${lastFailure}). ` +
-              "Return one corrected JSON object only. Do not add prose or private reasoning.",
+              "Return one corrected JSON object only. Do not add Markdown or prose.",
           },
         ];
       }
