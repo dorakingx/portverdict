@@ -29,11 +29,33 @@ import { readVerifiedPublicReplay } from "./public-evidence.js";
 import { getLiveReadiness } from "./readiness.js";
 import { assertSanitized, withIntegrity } from "./security.js";
 import { verifyHashManifest } from "./submission.js";
-import { sourceLooksRunnable, validateGeneratedPythonSource } from "./trial.js";
+import {
+  accumulateGeneration,
+  sourceLooksRunnable,
+  validateGeneratedPythonSource,
+} from "./trial.js";
 
 const HASH = "a".repeat(64);
 const CHECKPOINT = "11111111-1111-4111-8111-111111111111";
 const execFileAsync = promisify(execFile);
+
+it("retains duplicate generation usage and request identities before a distinct retry", () => {
+  const proposal = {
+    strategy: "minimal-compatibility",
+    output: { source: "old" },
+    requestIds: ["one"],
+    latencyMs: 10,
+    retryCount: 1,
+    usage: { inputTokens: 3, outputTokens: 4, totalTokens: 7 },
+  };
+  const next = { ...proposal, output: { source: "new" }, requestIds: ["two"], retryCount: 0 };
+  const merged = accumulateGeneration(proposal, next);
+  expect(merged.output.source).toBe("new");
+  expect(merged.requestIds).toEqual(["one", "two"]);
+  expect(merged.retryCount).toBe(2);
+  expect(merged.latencyMs).toBe(20);
+  expect(merged.usage).toEqual({ inputTokens: 6, outputTokens: 8, totalTokens: 14 });
+});
 
 it("allows JSON-fence literals in changed Python but rejects a Markdown-wrapped program", async () => {
   const original = LIVE_EVALUATION_CASES[1]!.files["adapter.py"]!;

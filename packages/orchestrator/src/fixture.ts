@@ -343,7 +343,7 @@ export function candidateSourceSha256(source: string): string {
 export const STRATEGY_GUIDANCE = Object.freeze({
   "minimal-compatibility": "Prefer small explicit conditionals and the narrowest compatible patch.",
   "prompt-schema-adaptation":
-    "Prefer strict parsing and schema validation helpers before event normalization.",
+    "Prefer guard-first validation inside the four required functions, then normalization. Reject invalid container and field types explicitly.",
   "resilience-routing-adaptation":
-    "Prefer defensive type checks and a clearly bounded retry helper.",
+    "Use Python match/case for event-type dispatch and explicit bounded branches in retry_delay. Keep defensive payload validation inside the four required functions.",
 });

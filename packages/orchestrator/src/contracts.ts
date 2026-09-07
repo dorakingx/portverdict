@@ -83,7 +83,7 @@ export const CandidateTrialEvidenceSchema = z
     checkpointImageId: IdentifierSchema,
     sandboxOperationId: IdentifierSchema,
     resultImageId: IdentifierSchema.nullable(),
-    modelRequestIds: z.array(IdentifierSchema).min(1).max(6),
+    modelRequestIds: z.array(IdentifierSchema).min(1).max(8),
     modelLatencyMs: z.number().int().nonnegative(),
     modelRetryCount: z.number().int().nonnegative(),
     modelUsage: z

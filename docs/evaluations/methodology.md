@@ -8,7 +8,7 @@ PortVerdict keeps two evaluation tiers separate so development-fixture results c
 
 This tier tests the evaluator and abstention mechanics. It does **not** measure model quality, compilation success, runtime parity, Nebius latency, Sandbox resources, Tavily quality, token usage, or cost. The fixtures are small synthetic probes, not representative production repositories.
 
-The runner records the SHA-256 digest of every fixture and of the canonical result body. `tests/benchmark-results.test.ts` verifies both integrity layers.
+The runner records the SHA-256 digest of every fixture and of the canonical result body in `local-contract-results.json`. `tests/benchmark-results.test.ts` verifies both integrity layers. `pnpm results:live` combines that separate local record with the promoted live suite in `results.json`; it verifies the public SHA256SUMS before deriving live metrics.
 
 ## Tier 2: authenticated live evaluation
 
@@ -30,7 +30,7 @@ The three-case requirement is not satisfied by reporting three behavior assertio
 
 At least one case also runs a single-shot, model-generated migration baseline under the same source contract and model-access policy. The baseline gets one migration proposal and no tournament selection. A deliberately broken hand-written adapter or the unmodified source is useful as a fixture control, but it is not the required single-shot migration baseline.
 
-The baseline and tournament must use comparable visible requirements and hidden tests. Any material difference is documented next to the result.
+The baseline and tournament use the same model, visible migration contract, official-source excerpts, fixed tests, and checkpoint. The baseline receives one proposal plus at most one JSON-schema repair. Tournament candidates may also receive at most one syntax/AST repair and one diversity reattempt. No proposal receives behavior-test feedback before measurement. This is not an equal-token-budget comparison.
 
 ### Required evidence per case
 
@@ -51,17 +51,17 @@ The baseline and tournament must use comparable visible requirements and hidden 
 Metrics are calculated from stored evidence, never copied from model prose:
 
 - **Build success:** terminal build exit code equals zero.
-- **Test pass rate:** passed executed tests divided by all executed tests for that candidate or baseline.
-- **Hidden contract pass rate:** passed hidden assertions divided by all executed hidden assertions.
+- **Test pass rate:** passed executed Python unittest methods divided by all executed methods for that candidate or baseline; not the overlapping hard-gate count. Counts are parsed from retained runner logs and left unavailable if absent.
+- **Hidden contract pass rate:** passed hidden unittest methods divided by all executed hidden methods. The gate is named `security` in the runner but tests adversarial behavior contracts, not a comprehensive vulnerability audit.
 - **Schema adherence:** exact structured-output contract validations passed divided by those executed.
 - **Tool-call validity:** schema-valid tool calls divided by tool calls exercised by the case.
-- **Regressions caught:** baseline or candidate behavior failures exposed by a deterministic visible or hidden gate.
+- **Regressions caught:** building candidate proposals with at least one failed executed behavior test. Multiple overlapping hard-gate labels for the same failure are not double counted. The single-shot baseline is listed separately.
 - **Abstention count:** trials whose deterministic verdict is abstained.
-- **End-to-end latency:** wall-clock time from recorded trial start to its terminal verdict, including failed attempts retained in the attempt ledger.
+- **End-to-end latency:** wall-clock time from each recorded case start to its terminal verdict. Earlier failed development runs remain in the attempt ledger and are not silently folded into, or erased by, this case latency.
 - **Inference token usage:** provider-reported input, output, and total tokens summed without estimating missing values.
 - **Sandbox resource usage:** provider-reported duration, image size, CPU, and memory fields; unavailable fields remain `null`.
 - **Retry count and API errors:** explicit attempts beyond the first and attributable provider/API failures.
-- **Estimated cost:** shown only when an exact official price snapshot and compatible measured usage exist; otherwise recorded as unavailable with a reason.
+- **Estimated cost:** suite inference only, using the authenticated catalog price snapshot and provider token usage. Excludes earlier attempts, smoke, Sandbox and Tavily; it is not a total development bill. Missing prices remain unavailable.
 
 Pass-rate denominators, missing fields, infrastructure failures, and cancellations remain visible. A behavior failure is `REJECTED`; a provider outage, timeout, or missing execution proof is `INCONCLUSIVE`. Only candidates with every hard gate passed are `ELIGIBLE`. If none is eligible, the trial must abstain.
 

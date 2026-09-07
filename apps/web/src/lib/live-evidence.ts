@@ -37,7 +37,7 @@ const CandidateSchema = z
     checkpointImageId: IDENTIFIER,
     sandboxOperationId: IDENTIFIER,
     resultImageId: IDENTIFIER.nullable(),
-    modelRequestIds: z.array(IDENTIFIER).min(1).max(6),
+    modelRequestIds: z.array(IDENTIFIER).min(1).max(8),
     modelLatencyMs: z.number().int().nonnegative(),
     modelRetryCount: z.number().int().nonnegative(),
     modelUsage: z

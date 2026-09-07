@@ -52,6 +52,8 @@ At source `7830d21`, a subsequent suite completed structured output (`live_20260
 
 These fields were unused model-authored commentary, not executable evidence. Removed both from the requested output; the worker now returns only the complete source. Deterministic strategy labels and test results remain the explanation. Executable tests, security policy, source validation, and winner eligibility are unchanged. This reduces schema surface instead of repeatedly increasing unused metadata limits.
 
+At `72922f9`, structured output (`live_20260907083142_structured_output_92a62117`) completed; tool calling (`live_20260907083305_tool_calling_3e1054d8`) failed because two strategies produced identical code even after one diversity reattempt. The runner correctly refused to count duplicates as distinct candidates. Added prior candidate sources as explicitly untrusted comparison data and concrete control-flow strategy guidance. No test outputs or hidden assertions are supplied. Diversity retry tokens, request IDs, and latency are now accumulated, with a regression test preventing undercounting.
+
 ## Recording rules
 
 1. Link every observation to a private run ID during development and to a sanitized public evidence ID after promotion.

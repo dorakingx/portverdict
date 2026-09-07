@@ -6,3 +6,6 @@ test-results
 pnpm-lock.yaml
 submission/demo-video.mp4
 
+# Immutable evidence: formatting would invalidate SHA256SUMS.
+fixtures/verified-live
+apps/web/public/evidence/verified-live
