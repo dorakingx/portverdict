@@ -62,6 +62,8 @@ The revised diagnostic succeeded (`chatcmpl-09995a9641044d82a54d94ac42ebf5b8`, 1
 
 At `f1f7bdd`, structured output (`live_20260907085642_structured_output_e6e78dfa`) completed with all three builds passing and all candidates rejected by hidden contracts; the tool case (`live_20260907085849_tool_calling_6f008f39`) exhausted the enlarged completion allowance. Replaced full-file generation with targeted model-written function edits and mechanical preservation of all other source. Restored the smaller 4,000 + 2,048 completion allowance. The assembly path is unit-tested, every assembled module still passes the unchanged AST policy before Sandbox execution, and no human-written behavioral fix is substituted for model output.
 
+Targeted generation with the old greedy sampling setting also exhausted the reasoning budget. NVIDIA's [official Super model card](https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8) explicitly recommends `temperature=1.0`, `top_p=0.95` across tasks. Adopted those settings for Super and recorded them in each attempt. Earlier failures used temperature zero; attributing them solely to model quality would be misleading. The evaluator remains deterministic, while generation is sampled and must be assessed from its recorded output.
+
 ## Recording rules
 
 1. Link every observation to a private run ID during development and to a sanitized public evidence ID after promotion.

@@ -521,7 +521,12 @@ describe("Token Factory structured completion contract", () => {
     );
     await createClient(fetchMock as typeof fetch).completeStructured(structuredRequest(decision));
     const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
-    expect(body).toMatchObject({ reasoning_effort: "low", max_tokens: 2548 });
+    expect(body).toMatchObject({
+      reasoning_effort: "low",
+      max_tokens: 2548,
+      temperature: 1,
+      top_p: 0.95,
+    });
     expect(body).not.toHaveProperty("max_completion_tokens");
   });
 

@@ -489,6 +489,8 @@ export async function generatePatch<TStrategy extends string>(
       requestIds: last.requestIds,
       reasoningEffort,
       latencyMs: last.telemetry.latencyMs,
+      sampling:
+        decision.model.family === "SUPER" ? { temperature: 1, topP: 0.95 } : { temperature: 0 },
       usage: attemptUsage,
       structurallyValid: sourceLooksRunnable(
         assembledSource,

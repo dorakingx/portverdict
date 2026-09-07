@@ -696,7 +696,10 @@ export class TokenFactoryClient {
                   : { max_completion_tokens: completionBudget }),
               }
             : { max_tokens: request.maxOutputTokens }),
-          temperature: 0,
+          // NVIDIA's Super model card recommends these sampling defaults across tasks.
+          ...(request.decision.model.family === "SUPER"
+            ? { temperature: 1, top_p: 0.95 }
+            : { temperature: 0 }),
           response_format: supportsStrictJsonSchema
             ? {
                 type: "json_schema",
