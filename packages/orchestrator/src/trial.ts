@@ -105,7 +105,7 @@ for node in ast.walk(tree):
         if isinstance(node.func, ast.Name) and node.func.id in denied_calls:
             raise ValueError("unsafe call")
         if isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name) and node.func.value.id != "json":
-            if node.func.attr not in {"get", "strip", "lstrip", "rstrip", "startswith", "endswith", "split", "splitlines", "replace", "lower", "upper", "items", "keys", "values", "append", "extend", "copy"}:
+            if node.func.attr not in {"get", "strip", "lstrip", "rstrip", "startswith", "endswith", "split", "splitlines", "replace", "lower", "upper", "items", "keys", "values", "append", "extend", "copy", "index", "rindex", "find", "rfind", "count", "removeprefix", "removesuffix"}:
                 raise ValueError("unexpected method call")
 if {node.name for node in tree.body if isinstance(node, ast.FunctionDef)} != allowed_functions:
     raise ValueError("required adapter functions are missing")
@@ -389,7 +389,7 @@ async function generatePatch<TStrategy extends string>(
     });
     requestIds.push(...last.requestIds);
     latencyMs += last.telemetry.latencyMs;
-    retryCount += last.telemetry.retries;
+    retryCount += last.telemetry.retries + Number(last.repairAttempted) + Number(attempt > 1);
     const attemptUsage = last.telemetry.usage ?? {
       inputTokens: 0,
       outputTokens: 0,

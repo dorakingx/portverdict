@@ -285,6 +285,11 @@ describe("live orchestration safety invariants", () => {
 
   it("rejects model-generated Python that can mutate the harness or access the host", async () => {
     await expect(
+      validateGeneratedPythonSource(
+        `import json\ndef normalize_event(event): return event\ndef parse_structured(text): return json.loads(text[text.index("{"):text.rindex("}")+1])\ndef normalize_tool_call(item): return None\ndef retry_delay(status, attempt): return None\n`,
+      ),
+    ).resolves.toBeUndefined();
+    await expect(
       validateGeneratedPythonSource(`${LIVE_EVALUATION_CASES[0]?.files["adapter.py"] ?? ""}\n`),
     ).resolves.toBeUndefined();
     await expect(
