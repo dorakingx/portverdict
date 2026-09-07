@@ -409,7 +409,7 @@ export async function generatePatch<TStrategy extends string>(
   liveCase: LiveEvaluationCase,
   maxModelAttempts = 2,
   previousSources: readonly string[] = [],
-  reasoningEffort: "none" | "low" = "low",
+  reasoningEffort: "none" | "low" = "none",
 ): Promise<GeneratedPatch<TStrategy>> {
   const requestIds: string[] = [];
   let latencyMs = 0;

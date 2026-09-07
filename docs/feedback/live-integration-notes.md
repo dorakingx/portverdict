@@ -64,6 +64,8 @@ At `f1f7bdd`, structured output (`live_20260907085642_structured_output_e6e78dfa
 
 Targeted generation with the old greedy sampling setting also exhausted the reasoning budget. NVIDIA's [official Super model card](https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8) explicitly recommends `temperature=1.0`, `top_p=0.95` across tasks. Adopted those settings for Super and recorded them in each attempt. Earlier failures used temperature zero; attributing them solely to model quality would be misleading. The evaluator remains deterministic, while generation is sampled and must be assessed from its recorded output.
 
+Sampled reasoning still exhausted the budget in a later bounded call. A targeted API diagnostic resolved the actual non-thinking control: the live Super endpoint accepts **top-level** `chat_template_kwargs: {enable_thinking: false}` with `max_tokens`. Nesting it inside a literal `extra_body` field was rejected (422); sending `reasoning_effort: none` was rejected (400). The accepted diagnostic returned valid function-edit JSON in 1,904 ms, 213 total tokens, with zero reasoning-content characters. Use this verified control for the final bounded worker. API-specific parameters, not just a generic reasoning capability flag, matter. No reasoning content is persisted or shown.
+
 ## Recording rules
 
 1. Link every observation to a private run ID during development and to a sanitized public evidence ID after promotion.

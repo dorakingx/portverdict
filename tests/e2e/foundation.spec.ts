@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 const READINESS_STATES = [
   "unconfigured",
@@ -186,6 +187,10 @@ test("verified live replay exposes a complete immutable public story", async ({
   await expect(page.getByLabel("Executed test logs", { exact: true })).toContainText("build:");
   await page.getByText("Inspect candidate diff", { exact: true }).click();
   await expect(page.getByLabel("Candidate diff", { exact: true })).toContainText("adapter.py");
+  const accessibility = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+    .analyze();
+  expect(accessibility.violations).toEqual([]);
 
   const patch = await request.get(`/api/runs/${runId}/patch`);
   expect(patch.status()).toBe(summary.verdict.status === "selected" ? 409 : 404);

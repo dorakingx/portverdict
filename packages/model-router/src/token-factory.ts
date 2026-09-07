@@ -689,7 +689,9 @@ export class TokenFactoryClient {
           messages: currentMessages,
           ...(isReasoningModel
             ? {
-                reasoning_effort: request.reasoningEffort ?? "low",
+                ...(request.decision.model.family === "SUPER" && request.reasoningEffort === "none"
+                  ? { chat_template_kwargs: { enable_thinking: false } }
+                  : { reasoning_effort: request.reasoningEffort ?? "low" }),
                 // Authenticated Super endpoint rejects max_completion_tokens.
                 ...(request.decision.model.family === "SUPER"
                   ? { max_tokens: completionBudget }

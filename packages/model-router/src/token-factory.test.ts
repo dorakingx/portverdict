@@ -530,6 +530,28 @@ describe("Token Factory structured completion contract", () => {
     expect(body).not.toHaveProperty("max_completion_tokens");
   });
 
+  it("disables Super thinking via a top-level chat template override, not unsupported reasoning_effort none", async () => {
+    const decision = reasoningOnlyDecision("nvidia/nemotron-3-super-120b-a12b");
+    const fetchMock = vi.fn(async (_input: FetchInput, _init?: FetchInit) =>
+      jsonResponse(
+        completionResponse('{"answer":"safe patch"}', { model: decision.model.exactId }),
+      ),
+    );
+    await createClient(fetchMock as typeof fetch).completeStructured({
+      ...structuredRequest(decision),
+      reasoningEffort: "none",
+    });
+    const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(body).toMatchObject({
+      max_tokens: 500,
+      chat_template_kwargs: { enable_thinking: false },
+      temperature: 1,
+      top_p: 0.95,
+    });
+    expect(body).not.toHaveProperty("reasoning_effort");
+    expect(body).not.toHaveProperty("extra_body");
+  });
+
   it("rejects a response whose model ID differs from the routed exact ID", async () => {
     const client = createClient(
       vi.fn(async () =>
