@@ -32,6 +32,7 @@ import { verifyHashManifest } from "./submission.js";
 import {
   accumulateGeneration,
   applyFunctionEdits,
+  isSyntaxOnlyValidationFailure,
   sourceLooksRunnable,
   validateGeneratedPythonSource,
 } from "./trial.js";
@@ -39,6 +40,20 @@ import {
 const HASH = "a".repeat(64);
 const CHECKPOINT = "11111111-1111-4111-8111-111111111111";
 const execFileAsync = promisify(execFile);
+
+it("keeps syntax-invalid proposals as measurable build failures without accepting unsafe valid code", () => {
+  expect(
+    isSyntaxOnlyValidationFailure(
+      "Model patch failed bounded Python AST validation (SyntaxError: invalid syntax).",
+    ),
+  ).toBe(true);
+  expect(
+    isSyntaxOnlyValidationFailure(
+      "Model patch failed bounded Python AST validation (ValueError: unsafe call).",
+    ),
+  ).toBe(false);
+  expect(isSyntaxOnlyValidationFailure("untrusted text SyntaxError: anything")).toBe(false);
+});
 
 it("mechanically applies only named model function edits without changing the other functions", async () => {
   const original = LIVE_EVALUATION_CASES[1]!.files["adapter.py"]!;

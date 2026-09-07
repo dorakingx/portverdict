@@ -245,6 +245,12 @@ export function applyFunctionEdits(
   return result;
 }
 
+export function isSyntaxOnlyValidationFailure(message: string): boolean {
+  return /^Model patch failed bounded Python AST validation \((?:SyntaxError|IndentationError|TabError):/u.test(
+    message,
+  );
+}
+
 type GeneratedPatch<TStrategy extends string = CandidateStrategy> = {
   strategy: TStrategy;
   output: PatchOutput;
@@ -420,6 +426,7 @@ export async function generatePatch<TStrategy extends string>(
   let last: StructuredCompletionResult<PatchOutput> | null = null;
   let validationFailure = "";
   let sourceValidated = false;
+  let syntaxFailurePermitted = false;
   let assembledSource = "";
   const targets = targetFunctions(liveCase);
   const targetSource = (source: string) =>
@@ -464,6 +471,7 @@ export async function generatePatch<TStrategy extends string>(
       totalTokens: usage.totalTokens + attemptUsage.totalTokens,
     };
     sourceValidated = false;
+    syntaxFailurePermitted = false;
     assembledSource = "";
     try {
       assembledSource = applyFunctionEdits(
@@ -480,6 +488,9 @@ export async function generatePatch<TStrategy extends string>(
       }
     } catch (error) {
       validationFailure = error instanceof Error ? error.message : "Invalid Python function edit.";
+      // Python compiles the entire module before execution. Invalid syntax cannot
+      // execute its body; preserve it for a real, attributable Sandbox build failure.
+      syntaxFailurePermitted = isSyntaxOnlyValidationFailure(validationFailure);
     }
     await writePrivateJson(runId, `${strategy}-attempt-${attempt}.json`, {
       kind: "portverdict.model-patch-attempt",
@@ -502,11 +513,12 @@ export async function generatePatch<TStrategy extends string>(
       assembledSource,
       assemblyMethod: "replace-only-requested-functions-preserve-other-source",
       sourceValidated,
+      syntaxFailurePermitted,
       validationFailure,
     });
     if (sourceValidated) break;
   }
-  if (!last || !sourceValidated) {
+  if (!last || (!sourceValidated && !syntaxFailurePermitted)) {
     throw new Error(`Model did not produce a bounded changed Python patch for ${strategy}.`);
   }
   assertSanitized({ source: assembledSource });

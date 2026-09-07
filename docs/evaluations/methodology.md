@@ -36,6 +36,8 @@ Tournament proposals are generated sequentially and later strategies can inspect
 
 The final worker emits only the targeted replacement function definitions: `parse_structured`, `normalize_tool_call`, or `normalize_event` plus `retry_delay`. A tested mechanical edit operation replaces those definitions and preserves all other input source. No human-authored repair is inserted. The private attempt ledger retains the exact model edit and assembled source; the public diff, original source fingerprint, runner commit, and final source hash establish what executed. This reduces irrelevant full-file regeneration while leaving the same hidden tests and hard gates intact.
 
+A syntax-invalid final proposal is not repaired by hand or discarded to improve results: it enters the isolated build, where compilation fails and the hard gate rejects it. Python parses the entire module before executing its body, so that invalid module cannot execute its contents. Syntactically valid code that violates the AST safety policy is still blocked before execution. The single-shot baseline has no extra syntax-generation attempt; a malformed baseline remains an adverse measurement.
+
 ### Required evidence per case
 
 - PortVerdict Git commit SHA and immutable fixture/source SHA-256;

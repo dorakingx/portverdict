@@ -68,6 +68,8 @@ Sampled reasoning still exhausted the budget in a later bounded call. A targeted
 
 At `2f454a2`, all three targeted proposals were generated, but the single-shot baseline (`live_20260907091216_structured_output_758e3006`) used standard-library regex parsing and was rejected by the overly narrow method allowlist. Permitted `re` and its pure matching methods within the same network-disabled Sandbox limits. Also tightened the AST check to reject unsafe imports at **every nesting depth**, with tests for both allowed regex parsing and a nested `import os`. Baseline generation still receives no behavior-guided retry or manually repaired code.
 
+At `c74dfab`, the single-shot baseline (`live_20260907091502_structured_output_47e4d374`) emitted literal escaped line separators and was syntactically invalid. Corrected the experimental handling: a syntax-invalid final proposal should produce a recorded Sandbox build failure, not disappear through a rerun until a better baseline is generated. Such a Python module cannot execute its body because compilation fails first. Valid-but-unsafe ASTs are still blocked, and source-assembly scope errors still fail closed. Added a classification regression test; no automatic semantic repair is applied to the baseline.
+
 ## Recording rules
 
 1. Link every observation to a private run ID during development and to a sanitized public evidence ID after promotion.
