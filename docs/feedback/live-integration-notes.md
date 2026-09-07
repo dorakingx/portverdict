@@ -48,7 +48,9 @@ This is the factual source for the final Devpost feedback answers. Add an entry 
 
 Full IDs have the prefix `live_20260907`. Private attempt records and any generated artifacts remain under `.private/evidence`; incomplete runs are not promoted as completed cases. Early failed calls without retained usage cannot be included in a reliable total development-spend figure.
 
-At source `7830d21`, a subsequent suite again completed structured output (`live_20260907082510_structured_output_df4fc842`) and stopped on tool calling. The content-free diagnostic was `too_big:testFocus`: informational labels exceeded the eight-item cap, not a failed code gate. Allowed at most 16 bounded labels and explicitly requested at most eight concise labels. Executable tests, security policy, source validation, and winner eligibility are unchanged.
+At source `7830d21`, a subsequent suite completed structured output (`live_20260907082510_structured_output_df4fc842`) and tool calling (`live_20260907082630_tool_calling_30aad5df`), then stopped on streaming/retry (`live_20260907082707_streaming_retry_9875fbd5`). The content-free diagnostic was `too_big:testFocus`. At source `45a13d3`, structured output (`live_20260907082805_structured_output_d7b90b2a`) completed but tool calling (`live_20260907082847_tool_calling_3e527aa4`) stopped with `too_big:summary`.
+
+These fields were unused model-authored commentary, not executable evidence. Removed both from the requested output; the worker now returns only the complete source. Deterministic strategy labels and test results remain the explanation. Executable tests, security policy, source validation, and winner eligibility are unchanged. This reduces schema surface instead of repeatedly increasing unused metadata limits.
 
 ## Recording rules
 

@@ -21,7 +21,7 @@ function sha256(value: string): string {
 
 describe("local benchmark evidence", () => {
   it("is internally hashed and references untampered fixtures", async () => {
-    const path = resolve("docs/evaluations/results.json");
+    const path = resolve("docs/evaluations/local-contract-results.json");
     const results = JSON.parse(await readFile(path, "utf8")) as BenchmarkResult;
     const { contentSha256, ...core } = results;
 

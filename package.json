@@ -20,6 +20,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "benchmark": "node scripts/run-benchmark.mjs",
+    "results:live": "node scripts/report-live-results.mjs",
     "sponsor:smoke": "tsx packages/orchestrator/src/cli.ts smoke",
     "trial:live": "tsx packages/orchestrator/src/cli.ts trial",
     "evidence:promote": "tsx packages/orchestrator/src/cli.ts promote",
