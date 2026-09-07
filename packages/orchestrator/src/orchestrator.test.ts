@@ -29,11 +29,21 @@ import { readVerifiedPublicReplay } from "./public-evidence.js";
 import { getLiveReadiness } from "./readiness.js";
 import { assertSanitized, withIntegrity } from "./security.js";
 import { verifyHashManifest } from "./submission.js";
-import { validateGeneratedPythonSource } from "./trial.js";
+import { sourceLooksRunnable, validateGeneratedPythonSource } from "./trial.js";
 
 const HASH = "a".repeat(64);
 const CHECKPOINT = "11111111-1111-4111-8111-111111111111";
 const execFileAsync = promisify(execFile);
+
+it("allows JSON-fence literals in changed Python but rejects a Markdown-wrapped program", async () => {
+  const original = LIVE_EVALUATION_CASES[1]!.files["adapter.py"]!;
+  const changed = `${original}\n# Preserve fenced JSON parsing.\n`;
+  expect(changed).toContain("```");
+  expect(sourceLooksRunnable(changed, original)).toBe(true);
+  await expect(validateGeneratedPythonSource(changed)).resolves.toBeUndefined();
+  expect(sourceLooksRunnable(`\`\`\`python\n${changed}\`\`\``, original)).toBe(false);
+  expect(sourceLooksRunnable(original, original)).toBe(false);
+});
 
 function branch(index: number): SandboxBranch {
   return {
