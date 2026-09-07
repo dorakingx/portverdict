@@ -106,7 +106,10 @@ describe("TokenFactorySandboxClient", () => {
     const fetchMock = vi
       .fn<typeof fetch>()
       .mockResolvedValueOnce(
-        jsonResponse(operation("PENDING"), { headers: { "retry-after": "2" } }),
+        jsonResponse(
+          { ...operation("PENDING"), duration: -1 },
+          { headers: { "retry-after": "2" } },
+        ),
       )
       .mockResolvedValueOnce(jsonResponse(operation("SUCCESS")));
     const { clock, sleeps } = testClock();

@@ -284,7 +284,13 @@ export function parseOperation(value: unknown): SandboxOperation {
     sourceImageId: nullableUuid(parsed.image_uuid, "image_uuid"),
     resultImageId: nullableUuid(parsed.result_image_uuid, "result_image_uuid"),
     resources: {
-      durationSeconds: nullableNumber(parsed.duration, "duration"),
+      // The live Beta API reports -1 while execution duration is not yet known.
+      durationSeconds: nullableNumber(
+        parsed.duration === -1 && ["PENDING", "ASSIGNED", "EXECUTING"].includes(status)
+          ? null
+          : parsed.duration,
+        "duration",
+      ),
       imageSizeBytes: nullableInteger(parsed.image_size, "image_size"),
       consumedCpuSeconds: nullableNumber(parsed.consumed_cpu, "consumed_cpu"),
       consumedMemory: nullableInteger(parsed.consumed_memory, "consumed_memory"),
