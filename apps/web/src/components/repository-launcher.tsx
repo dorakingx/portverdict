@@ -1,6 +1,9 @@
 import Link from "next/link";
 
-export function RepositoryLauncher({ liveRunId }: Readonly<{ liveRunId: string | null }>) {
+export function RepositoryLauncher({
+  liveRunId,
+  fresh = true,
+}: Readonly<{ liveRunId: string | null; fresh?: boolean }>) {
   return (
     <div className="repository-launcher" aria-label="Evidence replays">
       <div className="repository-launcher__primary">
@@ -8,10 +11,20 @@ export function RepositoryLauncher({ liveRunId }: Readonly<{ liveRunId: string |
           className="button button--primary"
           href={liveRunId ? `/runs/${liveRunId}/workflow` : "/runs/sample/workflow"}
         >
-          {liveRunId ? "Inspect verified live run" : "Run recorded sample"}{" "}
+          {liveRunId
+            ? fresh
+              ? "Inspect verified live run"
+              : "Inspect recorded live run"
+            : "Run recorded sample"}{" "}
           <span aria-hidden="true">→</span>
         </Link>
-        <span>{liveRunId ? "authenticated sponsor evidence" : "no account required"}</span>
+        <span>
+          {liveRunId
+            ? fresh
+              ? "authenticated sponsor evidence"
+              : "historical evidence · freshness expired"
+            : "no account required"}
+        </span>
       </div>
       <div className="repository-launcher__primary">
         <Link

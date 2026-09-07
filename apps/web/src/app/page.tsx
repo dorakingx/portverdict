@@ -31,7 +31,8 @@ export default async function HomePage() {
     getReadinessSnapshot(),
     getPromotedTrial(),
   ]);
-  const liveTrial = readiness.overall === "verified" ? promotedTrial : null;
+  // Expired freshness does not erase an integrity-checked historical experiment.
+  const liveTrial = ["verified", "stale"].includes(readiness.overall) ? promotedTrial : null;
   const primaryRunId = liveTrial?.runId ?? "sample";
   const gateCount = liveTrial ? Object.keys(liveTrial.candidates[0]?.gates ?? {}).length : 10;
 
@@ -61,7 +62,10 @@ export default async function HomePage() {
               checkpoint, attacks them with executable parity tests, and ships only evidence-backed
               code.
             </p>
-            <RepositoryLauncher liveRunId={liveTrial?.runId ?? null} />
+            <RepositoryLauncher
+              liveRunId={liveTrial?.runId ?? null}
+              fresh={readiness.overall === "verified"}
+            />
             <div className="hero__trust" aria-label="Sample properties">
               <span>✓ No login</span>
               <span>◇ Isolated execution design</span>
@@ -73,6 +77,9 @@ export default async function HomePage() {
                   Current primary: <strong>authenticated recorded evidence</strong> from Token
                   Factory, one shared Sandbox checkpoint, and Tavily Search + Extract. Exact model:{" "}
                   <span className="mono">{liveTrial.exactModelId}</span>.
+                  {readiness.overall === "stale"
+                    ? " Historical replay: the seven-day freshness window has expired. This is not a claim of current service readiness."
+                    : null}
                 </>
               ) : (
                 <>

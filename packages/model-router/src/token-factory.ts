@@ -652,6 +652,14 @@ export class TokenFactoryClient {
       /structured[-_ ]?output|json[-_ ]?schema/iu.test(capability),
     );
     const isReasoningModel = capabilities.some((capability) => /reasoning/iu.test(capability));
+    const completionBudget =
+      request.maxOutputTokens +
+      (isReasoningModel && request.reasoningEffort !== "none"
+        ? Math.min(
+            MAX_REASONING_TOKEN_ALLOWANCE,
+            Math.max(MIN_REASONING_TOKEN_ALLOWANCE, Math.ceil(request.maxOutputTokens / 2)),
+          )
+        : 0);
     const serializedSchema = JSON.stringify(contract.data.schema);
     const baseMessages: TokenFactoryMessage[] = [
       ...messages.data,
@@ -664,6 +672,13 @@ export class TokenFactoryClient {
     ];
     let currentMessages = baseMessages;
     let lastFailure = "invalid-json:root";
+    const failureMetadata: Array<{
+      finish: string;
+      contentCharacters: number;
+      fenced: boolean;
+      reasoningCharacters: number;
+      totalTokens: number;
+    }> = [];
 
     for (let schemaAttempt = 0; schemaAttempt < 2; schemaAttempt += 1) {
       const http = await this.#requestJson({
@@ -675,17 +690,10 @@ export class TokenFactoryClient {
           ...(isReasoningModel
             ? {
                 reasoning_effort: request.reasoningEffort ?? "low",
-                max_completion_tokens:
-                  request.maxOutputTokens +
-                  (request.reasoningEffort === "none"
-                    ? 0
-                    : Math.min(
-                        MAX_REASONING_TOKEN_ALLOWANCE,
-                        Math.max(
-                          MIN_REASONING_TOKEN_ALLOWANCE,
-                          Math.ceil(request.maxOutputTokens / 2),
-                        ),
-                      )),
+                // Authenticated Super endpoint rejects max_completion_tokens.
+                ...(request.decision.model.family === "SUPER"
+                  ? { max_tokens: completionBudget }
+                  : { max_completion_tokens: completionBudget }),
               }
             : { max_tokens: request.maxOutputTokens }),
           temperature: 0,
@@ -741,6 +749,15 @@ export class TokenFactoryClient {
         lastFailure = "invalid-json:root";
         decoded = undefined;
       }
+      const message = completion.data.choices[0]?.message;
+      const reason = message?.reasoning_content ?? message?.reasoning;
+      failureMetadata.push({
+        finish: completion.data.choices[0]?.finish_reason === "length" ? "length" : "other",
+        contentCharacters: content.length,
+        fenced: content.trimStart().startsWith("```"),
+        reasoningCharacters: typeof reason === "string" ? reason.length : 0,
+        totalTokens: completion.data.usage.total_tokens,
+      });
 
       const output = decoded === undefined ? undefined : request.outputSchema.safeParse(decoded);
       if (output?.success) {
@@ -795,7 +812,7 @@ export class TokenFactoryClient {
 
     const lastRequestId = httpRequestIds.at(-1);
     throw new TokenFactoryClientError(
-      `Token Factory structured output remained invalid after one repair attempt (${lastFailure}).`,
+      `Token Factory structured output remained invalid after one repair attempt (${lastFailure}; content-free diagnostics ${JSON.stringify(failureMetadata)}).`,
       {
         code: "structured-output-invalid",
         ...(lastRequestId === undefined ? {} : { requestId: lastRequestId }),

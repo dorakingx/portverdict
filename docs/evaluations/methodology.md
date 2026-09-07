@@ -32,6 +32,8 @@ At least one case also runs a single-shot, model-generated migration baseline un
 
 The baseline and tournament use the same model, visible migration contract, official-source excerpts, fixed tests, and checkpoint. The baseline receives one proposal plus at most one JSON-schema repair. Tournament candidates may also receive at most one syntax/AST repair and one diversity reattempt. No proposal receives behavior-test feedback before measurement. This is not an equal-token-budget comparison.
 
+Tournament proposals are generated sequentially and later strategies can inspect prior sources as untrusted comparison data to avoid duplicates. They are not independent model samples. Their subsequent Sandbox executions still begin from the identical checkpoint. The single-shot baseline does not receive other candidate sources.
+
 ### Required evidence per case
 
 - PortVerdict Git commit SHA and immutable fixture/source SHA-256;

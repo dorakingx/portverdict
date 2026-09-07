@@ -70,7 +70,7 @@ export function BranchTrialPreview({ trial }: Readonly<{ trial: TrialSummary | n
           <h2 id="trial-preview-title">One checkpoint. Three trials.</h2>
         </div>
         <StatusBadge tone={trial ? "live" : "replay"}>
-          {trial ? "Verified live" : "Development fixture"}
+          {trial ? "Recorded live" : "Development fixture"}
         </StatusBadge>
       </div>
 

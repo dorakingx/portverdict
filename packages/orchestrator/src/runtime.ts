@@ -101,6 +101,9 @@ export function selectNvidiaDecision(
         /structured[-_ ]?output|json[-_ ]?schema/iu.test(feature),
       );
       if (leftStructured !== rightStructured) return leftStructured ? -1 : 1;
+      // Prefer Super after Lightning's repeated duplicate-output diagnostics.
+      if (left.family === "SUPER" && right.family !== "SUPER") return -1;
+      if (right.family === "SUPER" && left.family !== "SUPER") return 1;
       if (left.family === "LIGHTNING" && right.family !== "LIGHTNING") return -1;
       if (right.family === "LIGHTNING" && left.family !== "LIGHTNING") return 1;
       return left.exactId.localeCompare(right.exactId);
@@ -119,6 +122,7 @@ export function selectNvidiaDecision(
     maxOutputTokens: 4_000,
     minContextTokens: 8_000,
     preferredExactIds: [selected.exactId],
+    budget: { maxEstimatedCostUsd: 0.02 },
   });
   if (decision.status !== "routed") {
     throw new Error(`Authenticated NVIDIA model could not be routed: ${decision.reason}.`);

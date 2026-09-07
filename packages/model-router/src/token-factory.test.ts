@@ -65,13 +65,15 @@ function routedDecision(): Extract<RoutingDecision, { status: "routed" }> {
   return decision;
 }
 
-function reasoningOnlyDecision(): Extract<RoutingDecision, { status: "routed" }> {
+function reasoningOnlyDecision(
+  exactId = "nvidia/Nemotron-3_5-Lightning",
+): Extract<RoutingDecision, { status: "routed" }> {
   const validated = validateAuthenticatedCatalog(
     {
       object: "list",
       data: [
         {
-          id: "nvidia/Nemotron-3_5-Lightning",
+          id: exactId,
           object: "model",
           owned_by: "NVIDIA",
           context_length: 131_072,
@@ -89,7 +91,7 @@ function reasoningOnlyDecision(): Extract<RoutingDecision, { status: "routed" }>
   );
   if (!validated.ok) throw new Error("reasoning catalog fixture invalid");
   const decision = routeModel(validated.catalog, {
-    role: "LIGHT",
+    role: exactId.toLowerCase().includes("super") ? "STANDARD" : "LIGHT",
     taskCategory: "patch-worker",
     difficulty: "low",
     estimatedInputTokens: 1_000,
@@ -508,6 +510,19 @@ describe("Token Factory structured completion contract", () => {
     await client.completeStructured({ ...structuredRequest(decision), reasoningEffort: "none" });
     const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
     expect(body).toMatchObject({ reasoning_effort: "none", max_completion_tokens: 500 });
+  });
+
+  it("uses the Super endpoint's max_tokens parameter for bounded reasoning", async () => {
+    const decision = reasoningOnlyDecision("nvidia/nemotron-3-super-120b-a12b");
+    const fetchMock = vi.fn(async (_input: FetchInput, _init?: FetchInit) =>
+      jsonResponse(
+        completionResponse('{"answer":"safe patch"}', { model: decision.model.exactId }),
+      ),
+    );
+    await createClient(fetchMock as typeof fetch).completeStructured(structuredRequest(decision));
+    const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(body).toMatchObject({ reasoning_effort: "low", max_tokens: 2548 });
+    expect(body).not.toHaveProperty("max_completion_tokens");
   });
 
   it("rejects a response whose model ID differs from the routed exact ID", async () => {

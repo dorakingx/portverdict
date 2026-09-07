@@ -431,6 +431,23 @@ export async function getPromotedTrialForRun(runId: string): Promise<TrialSummar
   return (await getPromotedReplay(runId))?.summary ?? null;
 }
 
+export async function readCandidateArtifact(
+  runId: string,
+  candidateId: string,
+  kind: "output" | "diff",
+): Promise<string | null> {
+  const trial = await getPromotedTrialForRun(runId);
+  const candidate = trial?.candidates.find((entry) => entry.candidateId === candidateId);
+  if (!candidate) return null;
+  const expected = kind === "output" ? candidate.outputSha256 : candidate.diffSha256;
+  try {
+    const bytes = await readBounded(`replay/${runId}/artifacts/sha256/${expected}`, 1_048_576);
+    return sha256(bytes) === expected ? Buffer.from(bytes).toString("utf8") : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function readPromotedAsset(
   runId: string,
   kind: "patch" | "report",

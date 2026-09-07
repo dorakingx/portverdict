@@ -1,9 +1,40 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { z } from "zod";
 
 import { StatusBadge } from "../../../../../components/status-badge";
 import { FIXTURE_EVIDENCE } from "../../../../../lib/development-fixture";
-import { getPromotedTrialForRun } from "../../../../../lib/live-evidence";
+import { getPromotedTrialForRun, readCandidateArtifact } from "../../../../../lib/live-evidence";
+
+function readableLogs(raw: string | null): string {
+  if (!raw) return "Artifact unavailable; no execution claim can be made.";
+  try {
+    const line = raw.split(/\r?\n/u).find((value) => value.startsWith("PORTVERDICT_RESULT="));
+    if (!line) return raw;
+    const parsed = z
+      .object({
+        results: z.array(
+          z.object({
+            name: z.string(),
+            passed: z.boolean(),
+            exitCode: z.number(),
+            durationMs: z.number(),
+            stdout: z.string(),
+            stderr: z.string(),
+          }),
+        ),
+      })
+      .parse(JSON.parse(line.slice("PORTVERDICT_RESULT=".length)));
+    return parsed.results
+      .map(
+        (entry) =>
+          `${entry.name}: ${entry.passed ? "PASS" : "FAIL"} · exit ${entry.exitCode} · ${entry.durationMs} ms\n${entry.stdout}${entry.stderr}`,
+      )
+      .join("\n");
+  } catch {
+    return raw;
+  }
+}
 
 function label(value: string): string {
   return value
@@ -21,6 +52,12 @@ export default async function EvidencePage({
   const fixture = trial ? null : FIXTURE_EVIDENCE[evidenceId];
 
   if (!candidate && !fixture) notFound();
+  const [output, diff] = candidate
+    ? await Promise.all([
+        readCandidateArtifact(runId, candidate.candidateId, "output"),
+        readCandidateArtifact(runId, candidate.candidateId, "diff"),
+      ])
+    : [null, null];
 
   const passed = candidate
     ? Object.values(candidate.gates).filter((status) => status === "passed").length
@@ -94,6 +131,34 @@ export default async function EvidencePage({
           </div>
         ) : null}
       </article>
+
+      {candidate ? (
+        <section className="artifact-viewer" aria-label="Immutable candidate artifacts">
+          <h2>Executed test logs and proposed diff</h2>
+          <p>
+            Hash-verified recorded artifacts. Rejected patches remain visible for inspection, not
+            approval to ship.
+          </p>
+          <details open>
+            <summary>Executed test logs</summary>
+            <pre tabIndex={0} aria-label="Executed test logs">
+              {readableLogs(output)}
+            </pre>
+          </details>
+          <details>
+            <summary>Inspect candidate diff</summary>
+            <pre tabIndex={0} aria-label="Candidate diff">
+              {diff ?? "Diff unavailable"}
+            </pre>
+          </details>
+          <a
+            className="text-link text-link--accent"
+            href={`/evidence/verified-live/replay/${runId}/artifacts/sha256/${candidate.outputSha256}`}
+          >
+            Raw log artifact
+          </a>
+        </section>
+      ) : null}
 
       <aside className="fixture-warning">
         <strong>{candidate ? "Measured scope boundary" : "Fixture provenance boundary"}</strong>

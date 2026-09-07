@@ -54,6 +54,10 @@ These fields were unused model-authored commentary, not executable evidence. Rem
 
 At `72922f9`, structured output (`live_20260907083142_structured_output_92a62117`) completed; tool calling (`live_20260907083305_tool_calling_3e1054d8`) failed because two strategies produced identical code even after one diversity reattempt. The runner correctly refused to count duplicates as distinct candidates. Added prior candidate sources as explicitly untrusted comparison data and concrete control-flow strategy guidance. No test outputs or hidden assertions are supplied. Diversity retry tokens, request IDs, and latency are now accumulated, with a regression test preventing undercounting.
 
+At `eb616ae`, structured output (`live_20260907083805_structured_output_caa2c7f3`) completed, but tool calling (`live_20260907084002_tool_calling_96afef15`) still produced duplicate code. Stopped whole-suite reruns and used small generation-only diagnostics. Lightning with low reasoning also failed bounded JSON parsing. These observations do not establish a controlled cross-model benchmark.
+
+The authenticated catalog also offered `nvidia/nemotron-3-super-120b-a12b`, with USD 0.30/M input and USD 0.90/M output tokens. Its live endpoint rejected `reasoning_effort: none` and `max_completion_tokens`; it accepts low reasoning with `max_tokens`. Added a regression test for that provider-specific parameter difference. A small JSON probe succeeded in 3,266 ms with 109 total tokens. A subsequent code diagnostic (`diagnostic_super_low_1788771021868`) returned the requested match/case structure but had a malformed string delimiter; AST validation rejected it before execution. Requested `chr(96) * 3` for fence delimiters to avoid escaping confusion. Final inference is still bounded, catalog-selected, and no model output bypasses AST or behavioral gates.
+
 ## Recording rules
 
 1. Link every observation to a private run ID during development and to a sanitized public evidence ID after promotion.

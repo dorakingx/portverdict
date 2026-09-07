@@ -26,9 +26,9 @@ test("judge enters the honest primary replay from the landing page", async ({ pa
     page.getByRole("heading", { name: "A migration can compile—and still break behavior." }),
   ).toBeVisible();
 
-  if (readiness.overall === "verified" && readiness.runId) {
+  if (["verified", "stale"].includes(readiness.overall) && readiness.runId) {
     await expect(page.getByText("authenticated recorded evidence", { exact: true })).toBeVisible();
-    await page.getByRole("link", { name: /Inspect verified live run/ }).click();
+    await page.getByRole("link", { name: /Inspect (?:verified|recorded) live run/ }).click();
     await expect(page).toHaveURL(new RegExp(`/runs/${readiness.runId}/workflow$`, "u"));
     await expect(
       page.getByText(readiness.exactModelId ?? "missing-model", { exact: true }),
@@ -180,6 +180,12 @@ test("verified live replay exposes a complete immutable public story", async ({
   await expect(page.getByText(summary.exactModelId, { exact: false }).first()).toBeVisible();
   await page.goto(`/runs/${runId}/evidence/${summary.candidates[0]?.candidateId}`);
   await expect(page.getByText("authenticated recorded trial", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Executed test logs and proposed diff" }),
+  ).toBeVisible();
+  await expect(page.getByLabel("Executed test logs", { exact: true })).toContainText("build:");
+  await page.getByText("Inspect candidate diff", { exact: true }).click();
+  await expect(page.getByLabel("Candidate diff", { exact: true })).toContainText("adapter.py");
 
   const patch = await request.get(`/api/runs/${runId}/patch`);
   expect(patch.status()).toBe(summary.verdict.status === "selected" ? 409 : 404);
