@@ -114,7 +114,18 @@ if {node.name for node in tree.body if isinstance(node, ast.FunctionDef)} != all
 const PatchOutputSchema = z
   .object({
     summary: z.string().trim().min(3).max(500),
-    source: z.string().min(100).max(12_000),
+    source: z
+      .string()
+      .min(100)
+      .max(12_000)
+      .regex(/^\s*import json\s*[\r\n]/u)
+      .refine(
+        (source) =>
+          ["normalize_event", "parse_structured", "normalize_tool_call", "retry_delay"].every(
+            (name) => source.includes(`def ${name}(`),
+          ),
+        "source must be the complete Python program, including all four adapter functions",
+      ),
     testFocus: z.array(z.string().trim().min(1).max(160)).min(1).max(8),
   })
   .strict();
@@ -125,7 +136,14 @@ const PATCH_OUTPUT_CONTRACT = {
     type: "object",
     properties: {
       summary: { type: "string", minLength: 3, maxLength: 500 },
-      source: { type: "string", minLength: 100, maxLength: 12000 },
+      source: {
+        type: "string",
+        minLength: 100,
+        maxLength: 12000,
+        pattern: "^\\s*import json\\s*[\\r\\n]",
+        description:
+          "The complete executable Python contents of adapter.py, starting with import json and containing def normalize_event, def parse_structured, def normalize_tool_call, and def retry_delay. Not a filename, summary, prose, diff, or Markdown block.",
+      },
       testFocus: {
         type: "array",
         minItems: 1,
