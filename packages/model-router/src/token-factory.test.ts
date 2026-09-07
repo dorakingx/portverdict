@@ -497,6 +497,19 @@ describe("Token Factory structured completion contract", () => {
     expect(JSON.stringify(body.messages)).toContain("Required JSON Schema");
   });
 
+  it("honors a bounded non-reasoning request without adding a reasoning token allowance", async () => {
+    const decision = reasoningOnlyDecision();
+    const fetchMock = vi.fn(async (_input: FetchInput, _init?: FetchInit) =>
+      jsonResponse(
+        completionResponse('{"answer":"safe patch"}', { model: decision.model.exactId }),
+      ),
+    );
+    const client = createClient(fetchMock as typeof fetch);
+    await client.completeStructured({ ...structuredRequest(decision), reasoningEffort: "none" });
+    const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    expect(body).toMatchObject({ reasoning_effort: "none", max_completion_tokens: 500 });
+  });
+
   it("rejects a response whose model ID differs from the routed exact ID", async () => {
     const client = createClient(
       vi.fn(async () =>
@@ -562,6 +575,7 @@ describe("Token Factory structured completion contract", () => {
       role: "user",
       content: expect.stringContaining("failed the declared schema"),
     });
+    expect(JSON.stringify(secondBody.messages)).toContain("Required JSON Schema");
   });
 
   it("repairs malformed JSON once, then fails closed without a third call", async () => {

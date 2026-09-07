@@ -365,6 +365,7 @@ async function generatePatch<TStrategy extends string>(
       outputContract: PATCH_OUTPUT_CONTRACT,
       outputSchema: PatchOutputSchema,
       maxOutputTokens: 4_000,
+      reasoningEffort: "none",
     });
     requestIds.push(...last.requestIds);
     latencyMs += last.telemetry.latencyMs;
@@ -387,6 +388,7 @@ async function generatePatch<TStrategy extends string>(
       attempt,
       exactModelId: decision.model.exactId,
       requestIds: last.requestIds,
+      reasoningEffort: "none",
       latencyMs: last.telemetry.latencyMs,
       usage: attemptUsage,
       structurallyValid: sourceLooksRunnable(

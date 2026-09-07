@@ -205,6 +205,7 @@ export interface StructuredCompletionRequest<T> {
   readonly outputContract: JsonSchemaContract;
   readonly outputSchema: ZodType<T>;
   readonly maxOutputTokens: number;
+  readonly reasoningEffort?: "none" | "low";
   readonly signal?: AbortSignal;
 }
 
@@ -630,6 +631,8 @@ export class TokenFactoryClient {
       !Number.isSafeInteger(request.maxOutputTokens) ||
       request.maxOutputTokens < 1 ||
       request.maxOutputTokens > 1_000_000 ||
+      (request.reasoningEffort !== undefined &&
+        !["none", "low"].includes(request.reasoningEffort)) ||
       typeof request.outputSchema?.safeParse !== "function"
     ) {
       throw new TokenFactoryClientError("Structured completion request is invalid.", {
@@ -650,7 +653,7 @@ export class TokenFactoryClient {
     );
     const isReasoningModel = capabilities.some((capability) => /reasoning/iu.test(capability));
     const serializedSchema = JSON.stringify(contract.data.schema);
-    let currentMessages: TokenFactoryMessage[] = [
+    const baseMessages: TokenFactoryMessage[] = [
       ...messages.data,
       {
         role: "user",
@@ -659,6 +662,7 @@ export class TokenFactoryClient {
           "Return exactly one JSON object matching this schema. Do not add Markdown or prose.",
       },
     ];
+    let currentMessages = baseMessages;
     let lastFailure = "invalid-json:root";
 
     for (let schemaAttempt = 0; schemaAttempt < 2; schemaAttempt += 1) {
@@ -670,13 +674,18 @@ export class TokenFactoryClient {
           messages: currentMessages,
           ...(isReasoningModel
             ? {
-                reasoning_effort: "low",
+                reasoning_effort: request.reasoningEffort ?? "low",
                 max_completion_tokens:
                   request.maxOutputTokens +
-                  Math.min(
-                    MAX_REASONING_TOKEN_ALLOWANCE,
-                    Math.max(MIN_REASONING_TOKEN_ALLOWANCE, Math.ceil(request.maxOutputTokens / 2)),
-                  ),
+                  (request.reasoningEffort === "none"
+                    ? 0
+                    : Math.min(
+                        MAX_REASONING_TOKEN_ALLOWANCE,
+                        Math.max(
+                          MIN_REASONING_TOKEN_ALLOWANCE,
+                          Math.ceil(request.maxOutputTokens / 2),
+                        ),
+                      )),
               }
             : { max_tokens: request.maxOutputTokens }),
           temperature: 0,
@@ -765,8 +774,8 @@ export class TokenFactoryClient {
       if (output && !output.success) lastFailure = zodIssueSummary(output.error);
       if (schemaAttempt === 0) {
         currentMessages = [
-          ...messages.data,
-          ...(content
+          ...baseMessages,
+          ...(content && decoded !== undefined
             ? [
                 {
                   role: "assistant" as const,
