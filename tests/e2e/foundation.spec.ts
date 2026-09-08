@@ -156,6 +156,8 @@ test("verified live replay exposes a complete immutable public story", async ({
   page,
   request,
 }) => {
+  // Three complete recorded cases plus browser accessibility; no paid API calls.
+  test.setTimeout(60_000);
   const readinessResponse = await request.get("/api/ready");
   const readiness = (await readinessResponse.json()) as { overall: string; runId: string | null };
   test.skip(
