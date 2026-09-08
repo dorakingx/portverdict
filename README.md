@@ -21,9 +21,11 @@ A provider migration can compile while silently changing streaming, structured o
 
 ## Judge path
 
-The public deployment opens without an account. Until a sanitized authenticated run is promoted, its primary evidence remains a clearly labeled development fixture. That fixture is useful for reviewing the workflow contract, but it is not sponsor-platform proof.
+The public deployment opens without an account. Its primary judge path is an immutable recording of authenticated NVIDIA inference, Tavily research, and Nebius Sandbox execution. Choose **Inspect verified live run**, then inspect Workflow, Compare, Evidence and Report. The separate synthetic development fixture is not sponsor-platform proof.
 
-The submission judge path will be switched to **Inspect verified live trial** only after the catalog, inference, Sandbox, Tavily, cleanup, redaction, manifest-integrity, and evidence-TTL gates all pass. The long-running tournament runs from the local owner CLI, not inside a synchronous Vercel request; the public application serves the resulting immutable replay.
+Suite `suite_20260907092016_6afcbf7b` records three pinned Python behavior cases using `nvidia/nemotron-3-super-120b-a12b`: nine builds passed, six candidates failed behavioral checks, and two trials abstained. The single-shot baseline was fully eligible in one of three cases. These are small descriptive observations, not superiority claims. [Measured results](docs/evaluations/results.md) include hashes and limitations.
+
+The long-running tournament runs from the local owner CLI, not inside a synchronous Vercel request; visitors cannot spend sponsor credits. Evidence freshness expires after seven days; the immutable historical recording remains inspectable with an explicit stale label. This release does not implement arbitrary-repository migration or multi-tenant live execution.
 
 ## Architecture
 
@@ -52,7 +54,7 @@ The browser renders validated snapshots; it never decides whether code is safe. 
 - Runtime Token Factory catalog discovery, exact NVIDIA model binding, structured chat validation, bounded retries, and content-free telemetry.
 - Sandbox operation, polling, SSE resume, cancellation, non-root execution, network policy, location validation, and shared-checkpoint invariants.
 - Tavily search→exact-domain-filter→extract flow with bounded content, no redirects, retry budgets, usage capture, and untrusted-content treatment.
-- Owner-run orchestrator commands for authenticated sponsor smoke, a three-case migration suite, evidence promotion, and submission preflight. These code paths are **implemented-unverified** until real runs are recorded and reviewed.
+- Owner-run orchestrator commands for authenticated sponsor smoke, a three-case migration suite, evidence promotion, and submission preflight. The recorded suite and sanitized artifacts are in `fixtures/verified-live/`; media and final submission checks remain separate gates.
 - Guest replay UI, accessible branch rail, comparison, evidence pages, report, resumable SSE API, and acknowledged unsafe patch export.
 - Ten deterministic TypeScript/Python migration contract fixtures, security headers, threat model, CI, Vercel deployment, and a non-root standalone container.
 

@@ -3,6 +3,8 @@ node_modules
 coverage
 playwright-report
 test-results
+.private
+submission/screenshots/generated
 pnpm-lock.yaml
 submission/demo-video.mp4
 

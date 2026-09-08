@@ -1,75 +1,101 @@
-# Devpost draft
-
-## Project name
-
-PortVerdict
-
-## Tagline
+# PortVerdict
 
 The model migration agent that puts every candidate branch on trial.
 
-## Category and sponsor prize
-
-- Coding and Agentic Engineering
-- Best Use of Tavily
+Track: Coding and agentic engineering. Sponsor category: Best Use of Tavily.
 
 ## Inspiration
 
-AI provider migrations fail in ways compilation cannot see. Streaming chunks change shape, structured output drifts, tool arguments become strings, and retry semantics disappear. A coding agent can produce a convincing patch while preserving none of those behavioral contracts. We wanted the result of a migration to be a falsifiable verdict, not a confident paragraph.
+A provider migration can compile while silently changing structured output, tool arguments, streaming usage, or retries. A confident patch is not evidence of behavioral compatibility. We wanted a migration result that another engineer can inspect and falsify.
 
 ## What it does
 
-PortVerdict inventories an AI application's provider boundary, researches current official compatibility guidance, and explores three migration strategies from one immutable Sandbox checkpoint. Each branch is built and attacked with deterministic tests for prompts, streaming, schemas, tool calls, retries, security, and source provenance. Behavioral failures are rejected, infrastructure failures remain inconclusive, and a branch is selected only when every hard gate passes. If no branch qualifies, PortVerdict abstains and explains the blockers.
+PortVerdict runs a controlled three-strategy migration trial for pinned Python provider adapters. An owner-run CLI obtains official compatibility context, asks a catalog-selected NVIDIA model for targeted function edits, and forks three real Nebius Sandbox operations from one immutable checkpoint. Deterministic build, behavior, adversarial contract, security-policy and provenance gates decide eligibility. If no candidate qualifies, the system abstains.
 
-The evidence flight recorder keeps losing branches visible. Reviewers can inspect the shared checkpoint, candidate stages, counterexamples, source records, diffs, and the provenance behind every reported number. Patch export is guarded, and an abstained run never exposes a normal safe-to-ship action.
+The public app serves sanitized, immutable recordings of authenticated executions. It requires no login and cannot spend visitor-triggered API credits. It is not a public arbitrary-repository migration service. The development fixture remains separately labeled and is not the submission's sponsor proof.
 
 ## How we built it
 
-The application is a strict TypeScript/pnpm monorepo with a Next.js 16 interface. Zod schemas validate every cross-boundary payload. A pure reducer owns idempotent run transitions. An append-only evidence store hashes artifacts, redacts secrets, and verifies replay manifests. A deterministic evaluator applies hard gates before any model-based preference and rejects unsupported numeric claims.
+A TypeScript/pnpm monorepo combines Next.js, Zod contracts, a pure run reducer, an append-only hash-verified evidence store, and a gate-first evaluator. Python fixtures and fixed hidden contracts execute in Nebius Token Factory Sandboxes as a non-root user with networking disabled. The runner mechanically preserves unchanged source while applying model-written function definitions; it never inserts a human-authored behavioral repair.
 
-The Token Factory adapter discovers executable model IDs from the authenticated catalog and allows only catalog-proven NVIDIA models. The Sandbox adapter handles bounded operations, polling, resumable SSE, cancellation, non-root execution, network policy, and the invariant that all candidates descend from the same checkpoint. The Tavily adapter performs bounded search, filters to exact official HTTPS hosts, extracts only approved sources, records usage and content-free telemetry, and treats returned text as untrusted.
+The exact runtime model was **`nvidia/nemotron-3-super-120b-a12b`**, discovered from the authenticated Token Factory catalog. The final worker uses NVIDIA-recommended Super sampling (temperature 1.0, top-p 0.95) and the live endpoint's top-level chat-template control to disable thinking for bounded edits. Syntax-invalid final proposals are measured as build failures; valid-but-unsafe code is blocked before execution. One separate single-shot model proposal per case uses the same input, model and checkpoint, without tournament selection or behavior-test feedback.
 
-The public deployment currently exposes an honest synthetic evidence replay and redacted integration status. It fails closed for live repository runs until authenticated smoke evidence and anonymous-run abuse controls are present.
+Tavily performs functional Search and Extract calls. Exact official-domain filtering, bounded excerpts, retrieval timestamps, content hashes and request identities preserve provenance. Retrieved text is untrusted reference data, never authority to change execution policy.
+
+## Measured results
+
+Suite `suite_20260907092016_6afcbf7b`, recorded 2026-09-07T09:20:16.918Z, runner commit `b8f912021bc76a343b9bcf43bbd80f207ba253d3`.
+
+- 3 distinct behavior cases: structured output, tool calling, and streaming/retry.
+- 9/9 candidate builds passed.
+- 6 building candidates had at least one failing executed behavior test.
+- 6 rejected and 0 inconclusive candidate proposals.
+- 2/3 trials abstained; single-shot baselines fully eligible: 1/3.
+- Recorded-suite inference estimate: $0.010991 USD, from catalog pricing and provider token usage. Excludes earlier attempts, smoke, Sandbox and Tavily; not a total bill.
+
+These are small descriptive observations, not a statistically significant improvement or cross-model benchmark. Earlier unsuccessful development attempts remain documented. Test counts unavailable after compilation/import failure remain unavailable, not invented passes. [Full measured results](https://github.com/dorakingx/portverdict/blob/main/docs/evaluations/results.md) and [immutable suite](https://portverdict.vercel.app/evidence/verified-live/evaluation-suite.json).
 
 ## Challenges
 
-The hardest design problem was preserving epistemic boundaries. A timeout cannot be called a behavioral failure; a fluent rationale cannot override a broken tool-call schema; an unverified model name cannot become an executable ID; and a synthetic fixture cannot be presented as a sponsor API run. Those distinctions shaped the state machine, provenance model, UI language, and release checklist.
+The hardest part was making boundaries honest: a provider timeout is not a code failure, a compiling patch is not compatible behavior, and stored fixture data is not live sponsor execution. Real integration exposed endpoint-specific inference parameters, a pending Sandbox duration sentinel, JSON/code escaping problems, duplicate proposals, and overly narrow source validation. The attempt ledger records these issues, including our own configuration mistakes. The final design uses bounded targeted edits and retains adverse outcomes.
 
 ## Accomplishments
 
-- A controlled three-branch migration tournament with explicit selection and abstention.
-- Inspectable evidence for rejected and inconclusive branches, not only the winner.
-- Contract-tested Token Factory, Sandbox, and Tavily adapters with bounded failure behavior.
-- Ten deterministic TypeScript/Python migration probes covering five behavior families.
-- Guest-accessible, keyboard-friendly replay with resumable events and guarded export.
-- Non-root container, security headers, threat model, pinned CI, secret scans, and public deployment.
+Real NVIDIA inference, functional Tavily research, shared-checkpoint Sandbox branching, all three live behavior cases, attributable single-shot baselines, and inspectable logs/diffs are connected to the public evidence recorder. There is no model rationale capable of overriding a failed hard gate. The project also retains ten credential-free synthetic contract probes, automated browser/accessibility checks, integrity validation, secret scans, and a non-root container.
 
 ## What we learned
 
-The useful unit of agentic engineering is not the patch; it is the experiment. Shared starting state makes candidates comparable, counterexamples are more valuable than self-reported confidence, and abstention is a product capability rather than a missing result. We also learned that sponsor integrations are strongest when they are structural: Sandboxes provide the controlled experimental branches, Token Factory provides catalog-bound inference, and Tavily supplies attributable current guidance for compatibility decisions.
+The useful unit is the experiment, not the patch. Identical starting state makes candidate comparisons inspectable; a failing counterexample is more useful than self-reported confidence. Model-specific serving defaults need live verification. Narrow edit scope preserves known-good code and makes failures easier to attribute. Abstention is an explicit product outcome.
+
+## How we used Codex
+
+Codex helped turn the participant's brief into scope, requirements, a technical specification and a sequenced checklist. It implemented and tested the state machine, adapters and public replay, diagnosed real provider parameter mismatches, retained unsuccessful attempts, and derived the result tables from verified artifacts. The participant supplied account access and sponsor activation. Codex does not replace the entrant's legal attestations or final submission confirmation.
+
+## Testing instructions
+
+Open the public demo without an account and choose Inspect verified live run (Inspect recorded live run after freshness expires). Inspect Workflow, Compare, Evidence and Report. The structured-output case selects an eligible candidate; the other two cases abstain. Exact case links are below. The public viewer never launches paid execution. Clone the repository, install locked dependencies with pnpm, then run pnpm verify and pnpm test:e2e. See submission/testing-instructions.md for commands and limitations.
 
 ## What's next
 
-Add private repositories with scoped installations, per-tenant storage and authorization, distributed abuse controls for anonymous live runs, organization-specific policy gates, additional languages and providers, and post-merge canary verification.
+Generalize beyond pinned adapters: scoped private-repository access, per-tenant authorization/storage, more languages and provider contracts, cost-enforced run admission, and post-merge canary checks. The current evidence does not claim these future capabilities already exist.
+
+## Sponsor evidence
+
+- Catalog request: `84687012b45168b2955c77e7ecfcc389`.
+- Smoke inference responses: `chatcmpl-3de3ab1f404c46768b73c6bcde71e3bc`.
+- Smoke Sandbox operation: `01a07b12-4646-70d5-9cd3-3fd28d03192c`.
+- Primary Tavily Search: `6ba67a65-b788-462b-88f2-99d210197e4c`; Extract: `43e8ebc0-b369-41e3-bc2a-853f1c1e2a9e`.
+- Primary official sources: [Structured output & JSON - Nebius Token Factory documentation](https://docs.tokenfactory.nebius.com/ai-models-inference/json); [Text generation - Nebius Token Factory documentation](https://docs.tokenfactory.nebius.com/api-reference/examples/text-generation); [Image generation - Nebius Token Factory documentation](https://docs.tokenfactory.nebius.com/api-reference/examples/image-generation).
+
+### structured-output-contract
+
+- Run: `live_20260907092016_structured_output_fe957f0f`
+- Checkpoint: `a5f4ee5a-4a9d-43ce-8e89-88eb829da30b`
+- Candidate operations: `01a07b2b-5c8e-707b-83df-e54dbcbf8212`, `01a07b2b-5c91-7127-8fb7-fce71d34f07e`, `01a07b2b-5ee0-7398-ad26-1b9781f2e2f6`
+- Single-shot operation: `01a07b2b-6006-75b8-8c1e-672890a47b71`
+- [Inspect recorded case](https://portverdict.vercel.app/runs/live_20260907092016_structured_output_fe957f0f/workflow)
+
+### tool-calling-contract
+
+- Run: `live_20260907092039_tool_calling_01e67058`
+- Checkpoint: `33e951f6-aa57-4d89-ac43-fc927702125c`
+- Candidate operations: `01a07b2b-b43d-7420-849b-fab8ae60ab0d`, `01a07b2b-b43b-754f-bcb8-576ee62624ce`, `01a07b2b-b65e-737c-ac45-607ea95c84f4`
+- Single-shot operation: `01a07b2b-b78e-74a2-a15a-167d98a72891`
+- [Inspect recorded case](https://portverdict.vercel.app/runs/live_20260907092039_tool_calling_01e67058/workflow)
+
+### streaming-retry-contract
+
+- Run: `live_20260907092102_streaming_retry_de3e3674`
+- Checkpoint: `d35afebd-6f37-4b3e-8930-4db0606dd54d`
+- Candidate operations: `01a07b2c-0d94-7275-bc61-20369fe4c945`, `01a07b2c-0d9c-7543-8ea6-c304951673ac`, `01a07b2c-1028-7754-af9d-610725074e2f`
+- Single-shot operation: `01a07b2c-115b-7195-a931-6d5003f2bea7`
+- [Inspect recorded case](https://portverdict.vercel.app/runs/live_20260907092102_streaming_retry_de3e3674/workflow)
 
 ## Built with
 
-Nebius Token Factory, NVIDIA open-source model via Token Factory, Token Factory Sandboxes, Tavily, Next.js, React, TypeScript, Zod, Vitest, Playwright, Docker, GitHub Actions, and Vercel.
+Nebius Token Factory, NVIDIA Nemotron, Token Factory Sandboxes, Tavily, Python, TypeScript, Next.js, React, Zod, Vitest, Playwright, Docker, GitHub Actions, Vercel.
 
 ## Links
 
-- Demo: https://portverdict.vercel.app
-- Repository: https://github.com/dorakingx/portverdict
-- Video: **[BLOCKED — LIVE EVIDENCE REQUIRED, THEN PUBLIC YOUTUBE UPLOAD]**
-
-## Required live-evidence insert before submission
-
-**[BLOCKED — LIVE EVIDENCE REQUIRED]** Replace this section only after storing and reviewing:
-
-- exact authenticated NVIDIA model catalog ID and inference request ID;
-- one real Sandbox checkpoint ID and three child operation/branch IDs;
-- one functional Tavily search/extract request chain and official source URLs;
-- measured gate outputs, timings, usage, and immutable replay manifest;
-- public replay regenerated from that live record.
-
-Until then, do not claim that the production replay represents sponsor API execution.
+- [Public demo](https://portverdict.vercel.app)
+- [Public Apache-2.0 repository](https://github.com/dorakingx/portverdict)

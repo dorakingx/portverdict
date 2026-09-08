@@ -1,0 +1,61 @@
+import json
+
+def normalize_event(event):
+    if not isinstance(event, dict):
+        return {"choices": []}
+    etype = event.get("type")
+    if etype == "chat.completion.chunk":
+        return event
+    if etype == "response.output_text.delta":
+        delta = event.get("delta", "")
+        return {"choices": [{"delta": {"content": delta}}]}
+    if etype == "response.output_item.added":
+        item = event.get("item", {})
+        if not isinstance(item, dict):
+            return {"choices": []}
+        call = normalize_tool_call(item)
+        if call is None:
+            return {"choices": []}
+        return {"choices": [{"delta": {"tool_calls": [call]}}]}
+    if etype == "response.completed":
+        usage = event.get("usage", {})
+        if not isinstance(usage, dict):
+            usage = {}
+        return {
+            "choices": [],
+            "usage": {
+                "prompt_tokens": usage.get("input_tokens", 0),
+                "completion_tokens": usage.get("output_tokens", 0),
+                "total_tokens": usage.get("total_tokens", 0)
+            }
+        }
+    return {"choices": []}
+
+def parse_structured(text):
+    raw = text.strip()
+    if raw.startswith("```"):
+        lines = raw.splitlines()
+        if lines[0].strip() not in ("```", "```json") or lines[-1].strip() != "```":
+            raise ValueError("invalid JSON fence")
+        raw = "\n".join(lines[1:-1]).strip()
+    data = json.loads(raw)
+    if not isinstance(data, dict) or set(data) != {"answer"} or not isinstance(data["answer"], str) or not data["answer"].strip():
+        raise ValueError("expected exactly one non-empty answer")
+    return data
+
+def normalize_tool_call(item):
+    if item.get("type") != "function_call":
+        return None
+    arguments = item.get("arguments")
+    if not isinstance(arguments, str) or not isinstance(json.loads(arguments), dict):
+        raise ValueError("function arguments must be a JSON object string")
+    return {"id": item.get("id"), "type": "function", "function": {"name": item.get("name"), "arguments": arguments}}
+
+def retry_delay(status, attempt):
+    if not isinstance(status, int) or not isinstance(attempt, int):
+        return None
+    if status == 429 or 500 <= status < 600:
+        delay = 250 * (2 ** attempt)
+        return delay if delay <= 2000 else 2000
+    return None
+

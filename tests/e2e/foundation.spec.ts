@@ -178,9 +178,11 @@ test("verified live replay exposes a complete immutable public story", async ({
   ).toBe(true);
 
   await page.goto(`/runs/${runId}/compare`);
-  await expect(page.getByText(summary.exactModelId, { exact: false }).first()).toBeVisible();
+  await expect(
+    page.getByRole("main").getByText(`Recorded NVIDIA model: ${summary.exactModelId}`),
+  ).toBeVisible();
   await page.goto(`/runs/${runId}/evidence/${summary.candidates[0]?.candidateId}`);
-  await expect(page.getByText("authenticated recorded trial", { exact: true })).toBeVisible();
+  await expect(page.getByText(/· authenticated recorded trial$/u)).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Executed test logs and proposed diff" }),
   ).toBeVisible();

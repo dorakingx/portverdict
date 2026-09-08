@@ -19,6 +19,21 @@ for (const line of manifest.trim().split(/\r?\n/u)) {
   hashes.set(match[2], match[1]);
 }
 const suite = await json(resolve(evidence, "evaluation-suite.json"));
+for (const entry of suite.cases) {
+  const prefix = `replay/${entry.runId}/`;
+  if (!hashes.has(`${prefix}replay-manifest.json`))
+    throw new Error("Replay manifest absent from verified bundle");
+  const replay = await json(resolve(evidence, `${prefix}replay-manifest.json`));
+  for (const artifact of replay.artifacts) {
+    if (!/^artifacts\/sha256\/[a-f0-9]{64}$/u.test(artifact.path))
+      throw new Error("Unsafe replay artifact path");
+    const file = `${prefix}${artifact.path}`;
+    const bytes = await readFile(resolve(evidence, file));
+    if (digest(bytes) !== artifact.sha256 || bytes.length !== artifact.byteLength)
+      throw new Error("Replay artifact integrity mismatch");
+    hashes.set(file, artifact.sha256);
+  }
+}
 const local = await json(resolve(root, "docs/evaluations/local-contract-results.json"));
 const { contentSha256: localHash, ...localCore } = local;
 if (digest(JSON.stringify(localCore)) !== localHash)

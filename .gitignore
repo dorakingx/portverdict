@@ -12,7 +12,7 @@ test-results/
 # runtime artifacts (replays under fixtures/replays remain tracked)
 .portverdict-runs/
 artifacts/private/
-.private/evidence/
+.private/
 
 # environment and secrets
 .env

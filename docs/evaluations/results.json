@@ -1,300 +1,1035 @@
 {
-  "schemaVersion": 1,
-  "benchmarkKind": "deterministic-local-contract-preflight",
-  "sponsorCallsMade": false,
-  "modelCallsMade": false,
-  "sandboxCallsMade": false,
-  "fixtureCount": 10,
-  "methodology": "Evaluate stored candidate snippets against explicit required and forbidden behavior-contract markers. This checks the evaluator harness, not model quality or live migration performance.",
-  "cases": [
-    {
-      "id": "ts-chat-basic",
-      "language": "typescript",
-      "behavior": "chat",
-      "fixturePath": "fixtures/typescript/chat-basic/fixture.json",
-      "fixtureSha256": "3b4f9a48bc2905af628625b607f46bfe787b30246dff6cec1a03c52ac9217c09",
-      "baseline": {
-        "passed": false,
-        "missing": ["catalog.requireNvidiaModel"],
-        "forbidden": ["unverified-model"]
-      },
-      "candidates": [
+  "schemaVersion": 2,
+  "tiers": {
+    "localContractPreflight": {
+      "schemaVersion": 1,
+      "benchmarkKind": "deterministic-local-contract-preflight",
+      "sponsorCallsMade": false,
+      "modelCallsMade": false,
+      "sandboxCallsMade": false,
+      "fixtureCount": 10,
+      "methodology": "Evaluate stored candidate snippets against explicit required and forbidden behavior-contract markers. This checks the evaluator harness, not model quality or live migration performance.",
+      "cases": [
         {
-          "candidate": 1,
-          "passed": true,
-          "missing": [],
-          "forbidden": []
+          "id": "ts-chat-basic",
+          "language": "typescript",
+          "behavior": "chat",
+          "fixturePath": "fixtures/typescript/chat-basic/fixture.json",
+          "fixtureSha256": "3b4f9a48bc2905af628625b607f46bfe787b30246dff6cec1a03c52ac9217c09",
+          "baseline": {
+            "passed": false,
+            "missing": ["catalog.requireNvidiaModel"],
+            "forbidden": ["unverified-model"]
+          },
+          "candidates": [
+            {
+              "candidate": 1,
+              "passed": true,
+              "missing": [],
+              "forbidden": []
+            },
+            {
+              "candidate": 2,
+              "passed": false,
+              "missing": ["catalog.requireNvidiaModel"],
+              "forbidden": ["unverified-model"]
+            }
+          ],
+          "verdict": "selected",
+          "selectedCandidate": 1
         },
         {
-          "candidate": 2,
-          "passed": false,
-          "missing": ["catalog.requireNvidiaModel"],
-          "forbidden": ["unverified-model"]
+          "id": "ts-streaming",
+          "language": "typescript",
+          "behavior": "streaming",
+          "fixturePath": "fixtures/typescript/streaming/fixture.json",
+          "fixtureSha256": "f83ce9da3f20aab112d82f28060730c8898e83bec634646bf8327b0afcca48d3",
+          "baseline": {
+            "passed": false,
+            "missing": ["choices[0]?.delta?.content"],
+            "forbidden": []
+          },
+          "candidates": [
+            {
+              "candidate": 1,
+              "passed": true,
+              "missing": [],
+              "forbidden": []
+            },
+            {
+              "candidate": 2,
+              "passed": false,
+              "missing": ["for await", "choices[0]?.delta?.content"],
+              "forbidden": ["await nebiusStream.text"]
+            }
+          ],
+          "verdict": "selected",
+          "selectedCandidate": 1
+        },
+        {
+          "id": "ts-structured-output",
+          "language": "typescript",
+          "behavior": "structured-output",
+          "fixturePath": "fixtures/typescript/structured-output/fixture.json",
+          "fixtureSha256": "c2667c9861f31debcd08466d7379a7192af9b749021320b67d147a12dc50b412",
+          "baseline": {
+            "passed": false,
+            "missing": ["InvoiceSchema.parse"],
+            "forbidden": [" as Invoice"]
+          },
+          "candidates": [
+            {
+              "candidate": 1,
+              "passed": true,
+              "missing": [],
+              "forbidden": []
+            },
+            {
+              "candidate": 2,
+              "passed": false,
+              "missing": ["InvoiceSchema.parse"],
+              "forbidden": [" as Invoice"]
+            }
+          ],
+          "verdict": "selected",
+          "selectedCandidate": 1
+        },
+        {
+          "id": "ts-tool-calling",
+          "language": "typescript",
+          "behavior": "tool-calling",
+          "fixturePath": "fixtures/typescript/tool-calling/fixture.json",
+          "fixtureSha256": "ddaace2d16f65be8ef88b6e5999ad74eefcc3a3425f62e0f295618b7f004a0e4",
+          "baseline": {
+            "passed": false,
+            "missing": ["ToolArgsSchema.parse", "JSON.parse", "requireName"],
+            "forbidden": []
+          },
+          "candidates": [
+            {
+              "candidate": 1,
+              "passed": false,
+              "missing": [],
+              "forbidden": ["String(call.function"]
+            },
+            {
+              "candidate": 2,
+              "passed": false,
+              "missing": ["ToolArgsSchema.parse", "JSON.parse", "requireName"],
+              "forbidden": ["String(call.function"]
+            }
+          ],
+          "verdict": "abstained",
+          "selectedCandidate": null
+        },
+        {
+          "id": "ts-retries",
+          "language": "typescript",
+          "behavior": "retries-timeouts",
+          "fixturePath": "fixtures/typescript/retries/fixture.json",
+          "fixtureSha256": "589b9462ed48e6b701e23b431b41484c5e8c21c27316742f4f410fba930dfb8e",
+          "baseline": {
+            "passed": false,
+            "missing": ["retry429And5xx", "AbortSignal.timeout(30000)", ", 2"],
+            "forbidden": []
+          },
+          "candidates": [
+            {
+              "candidate": 1,
+              "passed": true,
+              "missing": [],
+              "forbidden": []
+            },
+            {
+              "candidate": 2,
+              "passed": false,
+              "missing": ["retry429And5xx", "AbortSignal.timeout(30000)", ", 2"],
+              "forbidden": ["while (true)"]
+            }
+          ],
+          "verdict": "selected",
+          "selectedCandidate": 1
+        },
+        {
+          "id": "py-chat-basic",
+          "language": "python",
+          "behavior": "chat",
+          "fixturePath": "fixtures/python/chat-basic/fixture.json",
+          "fixtureSha256": "a2a5f99e627ebdc90d60b2695fc0ecec972ac330bc18bdc60059a895d577ed24",
+          "baseline": {
+            "passed": false,
+            "missing": ["catalog.require_nvidia_model"],
+            "forbidden": ["unverified-model"]
+          },
+          "candidates": [
+            {
+              "candidate": 1,
+              "passed": true,
+              "missing": [],
+              "forbidden": []
+            },
+            {
+              "candidate": 2,
+              "passed": false,
+              "missing": ["catalog.require_nvidia_model", "messages=messages"],
+              "forbidden": ["unverified-model"]
+            }
+          ],
+          "verdict": "selected",
+          "selectedCandidate": 1
+        },
+        {
+          "id": "py-streaming",
+          "language": "python",
+          "behavior": "streaming",
+          "fixturePath": "fixtures/python/streaming/fixture.json",
+          "fixtureSha256": "b266d35741152b95768efc1ec3762fe74fc504d3ff0067362ef282734eb27475",
+          "baseline": {
+            "passed": false,
+            "missing": ["choices[0].delta.content"],
+            "forbidden": []
+          },
+          "candidates": [
+            {
+              "candidate": 1,
+              "passed": true,
+              "missing": [],
+              "forbidden": []
+            },
+            {
+              "candidate": 2,
+              "passed": false,
+              "missing": ["for event", "choices[0].delta.content"],
+              "forbidden": [".read()"]
+            }
+          ],
+          "verdict": "selected",
+          "selectedCandidate": 1
+        },
+        {
+          "id": "py-structured-output",
+          "language": "python",
+          "behavior": "structured-output",
+          "fixturePath": "fixtures/python/structured-output/fixture.json",
+          "fixtureSha256": "d78b7cb1568e4c4b176136205f60961204bbc6aef0c3fda7c957eedf6d74ccb8",
+          "baseline": {
+            "passed": false,
+            "missing": ["Invoice.model_validate_json"],
+            "forbidden": []
+          },
+          "candidates": [
+            {
+              "candidate": 1,
+              "passed": true,
+              "missing": [],
+              "forbidden": []
+            },
+            {
+              "candidate": 2,
+              "passed": false,
+              "missing": ["Invoice.model_validate_json"],
+              "forbidden": ["return dict("]
+            }
+          ],
+          "verdict": "selected",
+          "selectedCandidate": 1
+        },
+        {
+          "id": "py-tool-calling",
+          "language": "python",
+          "behavior": "tool-calling",
+          "fixturePath": "fixtures/python/tool-calling/fixture.json",
+          "fixtureSha256": "c51898a66dedab66cbbea352d4fa7fd645060769feb2dfdf8bcb81c5d367c0ee",
+          "baseline": {
+            "passed": false,
+            "missing": ["ToolArgs.model_validate_json", "require_name"],
+            "forbidden": []
+          },
+          "candidates": [
+            {
+              "candidate": 1,
+              "passed": true,
+              "missing": [],
+              "forbidden": []
+            },
+            {
+              "candidate": 2,
+              "passed": false,
+              "missing": ["ToolArgs.model_validate_json", "require_name"],
+              "forbidden": ["str(call.function"]
+            }
+          ],
+          "verdict": "selected",
+          "selectedCandidate": 1
+        },
+        {
+          "id": "py-retries",
+          "language": "python",
+          "behavior": "retries-timeouts",
+          "fixturePath": "fixtures/python/retries/fixture.json",
+          "fixtureSha256": "9abdd4c6f62d7334d628563c13df9e7c1fee1c68d022fdb26121ae0e8cd4f755",
+          "baseline": {
+            "passed": false,
+            "missing": ["retry_429_and_5xx", "timeout=30", "max_retries=2"],
+            "forbidden": []
+          },
+          "candidates": [
+            {
+              "candidate": 1,
+              "passed": true,
+              "missing": [],
+              "forbidden": []
+            },
+            {
+              "candidate": 2,
+              "passed": false,
+              "missing": ["retry_429_and_5xx", "timeout=30", "max_retries=2"],
+              "forbidden": ["while True"]
+            }
+          ],
+          "verdict": "selected",
+          "selectedCandidate": 1
         }
       ],
-      "verdict": "selected",
-      "selectedCandidate": 1
+      "summary": {
+        "baselinePassed": 0,
+        "baselineFailed": 10,
+        "workflowSelected": 9,
+        "workflowAbstained": 1,
+        "regressionsCaught": 9,
+        "elapsedMilliseconds": 10.677
+      },
+      "contentSha256": "ff489c7a5239fd4653eba17de0271b3922402f191094ec30fca147e7b5c71740"
     },
-    {
-      "id": "ts-streaming",
-      "language": "typescript",
-      "behavior": "streaming",
-      "fixturePath": "fixtures/typescript/streaming/fixture.json",
-      "fixtureSha256": "f83ce9da3f20aab112d82f28060730c8898e83bec634646bf8327b0afcca48d3",
-      "baseline": {
-        "passed": false,
-        "missing": ["choices[0]?.delta?.content"],
-        "forbidden": []
-      },
-      "candidates": [
+    "authenticatedLive": {
+      "kind": "authenticated-live-evaluation",
+      "suiteId": "suite_20260907092016_6afcbf7b",
+      "suiteIntegritySha256": "5530609f16ba7adb5a5fca8d49de429662ee44f6f0ea854eb2d50f6d7492b600",
+      "recordedAt": "2026-09-07T09:20:16.918Z",
+      "expiresAt": "2026-09-14T09:20:16.918Z",
+      "sourceCommit": "b8f912021bc76a343b9bcf43bbd80f207ba253d3",
+      "exactModelId": "nvidia/nemotron-3-super-120b-a12b",
+      "cases": [
         {
-          "candidate": 1,
-          "passed": true,
-          "missing": [],
-          "forbidden": []
+          "caseId": "structured-output-contract",
+          "runId": "live_20260907092016_structured_output_fe957f0f",
+          "checkpointImageId": "a5f4ee5a-4a9d-43ce-8e89-88eb829da30b",
+          "verdict": {
+            "eligibleCandidateIds": [
+              "candidate_1_minimal_compatibility",
+              "candidate_2_prompt_schema_adaptation",
+              "candidate_3_resilience_routing_adaptation"
+            ],
+            "inconclusiveCandidateIds": [],
+            "rejectedCandidateIds": [],
+            "selectedCandidateId": "candidate_3_resilience_routing_adaptation",
+            "status": "selected"
+          },
+          "metrics": {
+            "apiErrorCount": 0,
+            "endToEndLatencyMs": 23004,
+            "estimatedCostReason": null,
+            "estimatedCostUsd": 0.0036042,
+            "retryCount": 0
+          },
+          "candidates": [
+            {
+              "candidateId": "candidate_1_minimal_compatibility",
+              "disposition": "eligible",
+              "sandboxOperationId": "01a07b2b-5c8e-707b-83df-e54dbcbf8212",
+              "buildSuccess": true,
+              "tests": {
+                "passed": 8,
+                "executed": 8
+              },
+              "hiddenContracts": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "schema": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "toolCalls": {
+                "passed": 1,
+                "executed": 1,
+                "reason": null
+              },
+              "streamingRetry": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "regressionCaught": false,
+              "modelUsage": {
+                "inputTokens": 1860,
+                "outputTokens": 336,
+                "totalTokens": 2196
+              },
+              "modelLatencyMs": 2549,
+              "modelRetryCount": 0,
+              "sandboxDurationMs": 1638,
+              "resources": {
+                "consumedCpuSeconds": 1.010315,
+                "consumedMemory": 20864,
+                "durationSeconds": 1.638,
+                "imageSizeBytes": 7568
+              },
+              "resourceNote": "Provider memory field is retained without inventing a unit.",
+              "outputSha256": "35da367fc41223627a84673b0c0cb0722a7882b94163453795ea261659e50518"
+            },
+            {
+              "candidateId": "candidate_2_prompt_schema_adaptation",
+              "disposition": "eligible",
+              "sandboxOperationId": "01a07b2b-5c91-7127-8fb7-fce71d34f07e",
+              "buildSuccess": true,
+              "tests": {
+                "passed": 8,
+                "executed": 8
+              },
+              "hiddenContracts": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "schema": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "toolCalls": {
+                "passed": 1,
+                "executed": 1,
+                "reason": null
+              },
+              "streamingRetry": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "regressionCaught": false,
+              "modelUsage": {
+                "inputTokens": 2201,
+                "outputTokens": 310,
+                "totalTokens": 2511
+              },
+              "modelLatencyMs": 1734,
+              "modelRetryCount": 0,
+              "sandboxDurationMs": 1636,
+              "resources": {
+                "consumedCpuSeconds": 1.004821,
+                "consumedMemory": 20864,
+                "durationSeconds": 1.636,
+                "imageSizeBytes": 7552
+              },
+              "resourceNote": "Provider memory field is retained without inventing a unit.",
+              "outputSha256": "f45288f6f86dc072b20fba384c1733579af476ec726f96f0788410d8d3f7792d"
+            },
+            {
+              "candidateId": "candidate_3_resilience_routing_adaptation",
+              "disposition": "eligible",
+              "sandboxOperationId": "01a07b2b-5ee0-7398-ad26-1b9781f2e2f6",
+              "buildSuccess": true,
+              "tests": {
+                "passed": 8,
+                "executed": 8
+              },
+              "hiddenContracts": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "schema": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "toolCalls": {
+                "passed": 1,
+                "executed": 1,
+                "reason": null
+              },
+              "streamingRetry": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "regressionCaught": false,
+              "modelUsage": {
+                "inputTokens": 2502,
+                "outputTokens": 286,
+                "totalTokens": 2788
+              },
+              "modelLatencyMs": 1545,
+              "modelRetryCount": 0,
+              "sandboxDurationMs": 1535,
+              "resources": {
+                "consumedCpuSeconds": 0.975578,
+                "consumedMemory": 20864,
+                "durationSeconds": 1.535,
+                "imageSizeBytes": 7423
+              },
+              "resourceNote": "Provider memory field is retained without inventing a unit.",
+              "outputSha256": "a25c72260eec3cdc5a244d118468a39dffedc14d6bfb4c4731147202ded115db"
+            }
+          ],
+          "singleShotBaseline": {
+            "candidateId": "single-shot",
+            "disposition": "eligible",
+            "sandboxOperationId": "01a07b2b-6006-75b8-8c1e-672890a47b71",
+            "buildSuccess": true,
+            "tests": {
+              "passed": 8,
+              "executed": 8
+            },
+            "hiddenContracts": {
+              "passed": 2,
+              "executed": 2,
+              "reason": null
+            },
+            "schema": {
+              "passed": 2,
+              "executed": 2,
+              "reason": null
+            },
+            "toolCalls": {
+              "passed": 1,
+              "executed": 1,
+              "reason": null
+            },
+            "streamingRetry": {
+              "passed": 2,
+              "executed": 2,
+              "reason": null
+            },
+            "regressionCaught": false,
+            "modelUsage": {
+              "inputTokens": 1845,
+              "outputTokens": 270,
+              "totalTokens": 2115
+            },
+            "modelLatencyMs": 2979,
+            "modelRetryCount": 0,
+            "sandboxDurationMs": 1558,
+            "resources": null,
+            "resourceNote": "Baseline resource fields beyond duration are not exposed in the suite summary.",
+            "outputSha256": "26349c61853c19eae2d381a5744acfd7dbb1623d3771ca091a15c98522346a72"
+          },
+          "tavily": {
+            "citations": [
+              {
+                "contentSha256": "c2f47ade45e6727d7066771c8bf536c39f51d9d1835f3dc5871df97ca81e6395",
+                "retrievedAt": "2026-09-07T09:20:21.605Z",
+                "title": "Structured output & JSON - Nebius Token Factory documentation",
+                "url": "https://docs.tokenfactory.nebius.com/ai-models-inference/json"
+              },
+              {
+                "contentSha256": "c69140d1699a4496307d1762e7790d5a5e8616f1cd2e221814e615f0afb9e898",
+                "retrievedAt": "2026-09-07T09:20:21.605Z",
+                "title": "Text generation - Nebius Token Factory documentation",
+                "url": "https://docs.tokenfactory.nebius.com/api-reference/examples/text-generation"
+              },
+              {
+                "contentSha256": "62aacaf2b3224cbe876b48751cd938f1be3c33ac7a3a3c43207b766f97cc26e2",
+                "retrievedAt": "2026-09-07T09:20:21.605Z",
+                "title": "Image generation - Nebius Token Factory documentation",
+                "url": "https://docs.tokenfactory.nebius.com/api-reference/examples/image-generation"
+              }
+            ],
+            "credits": 2,
+            "extractRequestId": "43e8ebc0-b369-41e3-bc2a-853f1c1e2a9e",
+            "searchRequestId": "6ba67a65-b788-462b-88f2-99d210197e4c"
+          }
         },
         {
-          "candidate": 2,
-          "passed": false,
-          "missing": ["for await", "choices[0]?.delta?.content"],
-          "forbidden": ["await nebiusStream.text"]
-        }
-      ],
-      "verdict": "selected",
-      "selectedCandidate": 1
-    },
-    {
-      "id": "ts-structured-output",
-      "language": "typescript",
-      "behavior": "structured-output",
-      "fixturePath": "fixtures/typescript/structured-output/fixture.json",
-      "fixtureSha256": "c2667c9861f31debcd08466d7379a7192af9b749021320b67d147a12dc50b412",
-      "baseline": {
-        "passed": false,
-        "missing": ["InvoiceSchema.parse"],
-        "forbidden": [" as Invoice"]
-      },
-      "candidates": [
-        {
-          "candidate": 1,
-          "passed": true,
-          "missing": [],
-          "forbidden": []
+          "caseId": "tool-calling-contract",
+          "runId": "live_20260907092039_tool_calling_01e67058",
+          "checkpointImageId": "33e951f6-aa57-4d89-ac43-fc927702125c",
+          "verdict": {
+            "eligibleCandidateIds": [],
+            "inconclusiveCandidateIds": [],
+            "reason": "no-eligible-candidates",
+            "rejectedCandidateIds": [
+              "candidate_1_minimal_compatibility",
+              "candidate_2_prompt_schema_adaptation",
+              "candidate_3_resilience_routing_adaptation"
+            ],
+            "status": "abstained"
+          },
+          "metrics": {
+            "apiErrorCount": 0,
+            "endToEndLatencyMs": 22322,
+            "estimatedCostReason": null,
+            "estimatedCostUsd": 0.0032487,
+            "retryCount": 0
+          },
+          "candidates": [
+            {
+              "candidateId": "candidate_1_minimal_compatibility",
+              "disposition": "rejected",
+              "sandboxOperationId": "01a07b2b-b43d-7420-849b-fab8ae60ab0d",
+              "buildSuccess": true,
+              "tests": {
+                "passed": 7,
+                "executed": 8
+              },
+              "hiddenContracts": {
+                "passed": 1,
+                "executed": 2,
+                "reason": null
+              },
+              "schema": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "toolCalls": {
+                "passed": 1,
+                "executed": 1,
+                "reason": null
+              },
+              "streamingRetry": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "regressionCaught": true,
+              "modelUsage": {
+                "inputTokens": 1899,
+                "outputTokens": 224,
+                "totalTokens": 2123
+              },
+              "modelLatencyMs": 3162,
+              "modelRetryCount": 0,
+              "sandboxDurationMs": 1553,
+              "resources": {
+                "consumedCpuSeconds": 0.977231,
+                "consumedMemory": 20864,
+                "durationSeconds": 1.553,
+                "imageSizeBytes": 7428
+              },
+              "resourceNote": "Provider memory field is retained without inventing a unit.",
+              "outputSha256": "b6707fed0ad3fc6a323678e600626f96b4a9823f421c53994898499373156bb7"
+            },
+            {
+              "candidateId": "candidate_2_prompt_schema_adaptation",
+              "disposition": "rejected",
+              "sandboxOperationId": "01a07b2b-b43b-754f-bcb8-576ee62624ce",
+              "buildSuccess": true,
+              "tests": {
+                "passed": 7,
+                "executed": 8
+              },
+              "hiddenContracts": {
+                "passed": 1,
+                "executed": 2,
+                "reason": null
+              },
+              "schema": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "toolCalls": {
+                "passed": 1,
+                "executed": 1,
+                "reason": null
+              },
+              "streamingRetry": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "regressionCaught": true,
+              "modelUsage": {
+                "inputTokens": 2128,
+                "outputTokens": 213,
+                "totalTokens": 2341
+              },
+              "modelLatencyMs": 1429,
+              "modelRetryCount": 0,
+              "sandboxDurationMs": 1555,
+              "resources": {
+                "consumedCpuSeconds": 0.967593,
+                "consumedMemory": 20864,
+                "durationSeconds": 1.555,
+                "imageSizeBytes": 7354
+              },
+              "resourceNote": "Provider memory field is retained without inventing a unit.",
+              "outputSha256": "b9e4e256821d2103733655388f933967ba17f0e3a75819d7242aea2ac9819994"
+            },
+            {
+              "candidateId": "candidate_3_resilience_routing_adaptation",
+              "disposition": "rejected",
+              "sandboxOperationId": "01a07b2b-b65e-737c-ac45-607ea95c84f4",
+              "buildSuccess": true,
+              "tests": {
+                "passed": 7,
+                "executed": 8
+              },
+              "hiddenContracts": {
+                "passed": 1,
+                "executed": 2,
+                "reason": null
+              },
+              "schema": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "toolCalls": {
+                "passed": 1,
+                "executed": 1,
+                "reason": null
+              },
+              "streamingRetry": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "regressionCaught": true,
+              "modelUsage": {
+                "inputTokens": 2332,
+                "outputTokens": 192,
+                "totalTokens": 2524
+              },
+              "modelLatencyMs": 1375,
+              "modelRetryCount": 0,
+              "sandboxDurationMs": 1576,
+              "resources": {
+                "consumedCpuSeconds": 0.9732729999999999,
+                "consumedMemory": 20864,
+                "durationSeconds": 1.576,
+                "imageSizeBytes": 7496
+              },
+              "resourceNote": "Provider memory field is retained without inventing a unit.",
+              "outputSha256": "cadc9c067bf178a5ecb43647ba1571e808ab60a5b957375772d23947decf7d18"
+            }
+          ],
+          "singleShotBaseline": {
+            "candidateId": "single-shot",
+            "disposition": "rejected",
+            "sandboxOperationId": "01a07b2b-b78e-74a2-a15a-167d98a72891",
+            "buildSuccess": true,
+            "tests": {
+              "passed": 7,
+              "executed": 8
+            },
+            "hiddenContracts": {
+              "passed": 1,
+              "executed": 2,
+              "reason": null
+            },
+            "schema": {
+              "passed": 2,
+              "executed": 2,
+              "reason": null
+            },
+            "toolCalls": {
+              "passed": 1,
+              "executed": 1,
+              "reason": null
+            },
+            "streamingRetry": {
+              "passed": 2,
+              "executed": 2,
+              "reason": null
+            },
+            "regressionCaught": true,
+            "modelUsage": {
+              "inputTokens": 1884,
+              "outputTokens": 233,
+              "totalTokens": 2117
+            },
+            "modelLatencyMs": 2569,
+            "modelRetryCount": 0,
+            "sandboxDurationMs": 1570,
+            "resources": null,
+            "resourceNote": "Baseline resource fields beyond duration are not exposed in the suite summary.",
+            "outputSha256": "d028e4a78c74721fe0a03afa1c9c10686489ff38c1c14e78b662b7fe4106d9ec"
+          },
+          "tavily": {
+            "citations": [
+              {
+                "contentSha256": "aeac420a4019d6f9161a60fe26ea0f5cf11c1b54331e84ae4048f1ed65f88691",
+                "retrievedAt": "2026-09-07T09:20:44.001Z",
+                "title": "Function calling & Tools - Nebius Token Factory documentation",
+                "url": "https://docs.tokenfactory.nebius.com/ai-models-inference/function-calling"
+              },
+              {
+                "contentSha256": "eec957f6ddb5817cf93fe5f9c267bde6ef55391deca6721b233b85c43034159b",
+                "retrievedAt": "2026-09-07T09:20:44.001Z",
+                "title": "Helicone - Nebius Token Factory documentation",
+                "url": "https://docs.tokenfactory.nebius.com/integrations/observability/helicone"
+              },
+              {
+                "contentSha256": "9504b123e8becc19c8e96515607155946f510f38040de30bd719f863a1ea0770",
+                "retrievedAt": "2026-09-07T09:20:44.001Z",
+                "title": "Portkey - Nebius Token Factory documentation",
+                "url": "https://docs.tokenfactory.nebius.com/integrations/api-routers/portkey"
+              }
+            ],
+            "credits": 1,
+            "extractRequestId": "8f1f25b0-9b70-4428-b3f8-4ab3af3b8313",
+            "searchRequestId": "c09b3e2c-39b0-4f14-8735-0dd49edf1156"
+          }
         },
         {
-          "candidate": 2,
-          "passed": false,
-          "missing": ["InvoiceSchema.parse"],
-          "forbidden": [" as Invoice"]
+          "caseId": "streaming-retry-contract",
+          "runId": "live_20260907092102_streaming_retry_de3e3674",
+          "checkpointImageId": "d35afebd-6f37-4b3e-8930-4db0606dd54d",
+          "verdict": {
+            "eligibleCandidateIds": [],
+            "inconclusiveCandidateIds": [],
+            "reason": "no-eligible-candidates",
+            "rejectedCandidateIds": [
+              "candidate_1_minimal_compatibility",
+              "candidate_2_prompt_schema_adaptation",
+              "candidate_3_resilience_routing_adaptation"
+            ],
+            "status": "abstained"
+          },
+          "metrics": {
+            "apiErrorCount": 0,
+            "endToEndLatencyMs": 21812,
+            "estimatedCostReason": null,
+            "estimatedCostUsd": 0.0041376,
+            "retryCount": 0
+          },
+          "candidates": [
+            {
+              "candidateId": "candidate_1_minimal_compatibility",
+              "disposition": "rejected",
+              "sandboxOperationId": "01a07b2c-0d94-7275-bc61-20369fe4c945",
+              "buildSuccess": true,
+              "tests": {
+                "passed": 7,
+                "executed": 8
+              },
+              "hiddenContracts": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "schema": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "toolCalls": {
+                "passed": 1,
+                "executed": 1,
+                "reason": null
+              },
+              "streamingRetry": {
+                "passed": 1,
+                "executed": 2,
+                "reason": null
+              },
+              "regressionCaught": true,
+              "modelUsage": {
+                "inputTokens": 2111,
+                "outputTokens": 322,
+                "totalTokens": 2433
+              },
+              "modelLatencyMs": 6286,
+              "modelRetryCount": 0,
+              "sandboxDurationMs": 1520,
+              "resources": {
+                "consumedCpuSeconds": 0.966591,
+                "consumedMemory": 20864,
+                "durationSeconds": 1.52,
+                "imageSizeBytes": 6761
+              },
+              "resourceNote": "Provider memory field is retained without inventing a unit.",
+              "outputSha256": "d19f462f03d14ab82495e5a0b43272c35a040e5a82b64893bbf829434ae4104a"
+            },
+            {
+              "candidateId": "candidate_2_prompt_schema_adaptation",
+              "disposition": "rejected",
+              "sandboxOperationId": "01a07b2c-0d9c-7543-8ea6-c304951673ac",
+              "buildSuccess": true,
+              "tests": {
+                "passed": 7,
+                "executed": 8
+              },
+              "hiddenContracts": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "schema": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "toolCalls": {
+                "passed": 1,
+                "executed": 1,
+                "reason": null
+              },
+              "streamingRetry": {
+                "passed": 1,
+                "executed": 2,
+                "reason": null
+              },
+              "regressionCaught": true,
+              "modelUsage": {
+                "inputTokens": 2439,
+                "outputTokens": 419,
+                "totalTokens": 2858
+              },
+              "modelLatencyMs": 2271,
+              "modelRetryCount": 0,
+              "sandboxDurationMs": 1554,
+              "resources": {
+                "consumedCpuSeconds": 0.9613,
+                "consumedMemory": 20864,
+                "durationSeconds": 1.554,
+                "imageSizeBytes": 7391
+              },
+              "resourceNote": "Provider memory field is retained without inventing a unit.",
+              "outputSha256": "37a68386809fbb17b3e8d9d00bd3ade14f645b1e7185760d123f4d17b2cd2bee"
+            },
+            {
+              "candidateId": "candidate_3_resilience_routing_adaptation",
+              "disposition": "rejected",
+              "sandboxOperationId": "01a07b2c-1028-7754-af9d-610725074e2f",
+              "buildSuccess": true,
+              "tests": {
+                "passed": 7,
+                "executed": 8
+              },
+              "hiddenContracts": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "schema": {
+                "passed": 2,
+                "executed": 2,
+                "reason": null
+              },
+              "toolCalls": {
+                "passed": 1,
+                "executed": 1,
+                "reason": null
+              },
+              "streamingRetry": {
+                "passed": 1,
+                "executed": 2,
+                "reason": null
+              },
+              "regressionCaught": true,
+              "modelUsage": {
+                "inputTokens": 2850,
+                "outputTokens": 369,
+                "totalTokens": 3219
+              },
+              "modelLatencyMs": 2307,
+              "modelRetryCount": 0,
+              "sandboxDurationMs": 1544,
+              "resources": {
+                "consumedCpuSeconds": 0.976646,
+                "consumedMemory": 20864,
+                "durationSeconds": 1.544,
+                "imageSizeBytes": 7481
+              },
+              "resourceNote": "Provider memory field is retained without inventing a unit.",
+              "outputSha256": "0a83673c4b3fd595bd0200a4ec4ebfcd7cbb07c38b6e90c0ebe8bb747855ab2e"
+            }
+          ],
+          "singleShotBaseline": {
+            "candidateId": "single-shot",
+            "disposition": "rejected",
+            "sandboxOperationId": "01a07b2c-115b-7195-a931-6d5003f2bea7",
+            "buildSuccess": true,
+            "tests": {
+              "passed": 7,
+              "executed": 8
+            },
+            "hiddenContracts": {
+              "passed": 2,
+              "executed": 2,
+              "reason": null
+            },
+            "schema": {
+              "passed": 2,
+              "executed": 2,
+              "reason": null
+            },
+            "toolCalls": {
+              "passed": 1,
+              "executed": 1,
+              "reason": null
+            },
+            "streamingRetry": {
+              "passed": 1,
+              "executed": 2,
+              "reason": null
+            },
+            "regressionCaught": true,
+            "modelUsage": {
+              "inputTokens": 2096,
+              "outputTokens": 322,
+              "totalTokens": 2418
+            },
+            "modelLatencyMs": 1690,
+            "modelRetryCount": 0,
+            "sandboxDurationMs": 1565,
+            "resources": null,
+            "resourceNote": "Baseline resource fields beyond duration are not exposed in the suite summary.",
+            "outputSha256": "3813f87fa6e0aee3abe690650833c6c3e37cbaaed8ed87e91ae6c3686c415e08"
+          },
+          "tavily": {
+            "citations": [
+              {
+                "contentSha256": "eaf23d69325b72fe261f4fced2c44ba4c58361dea164eed7f9dfc2a93bcfe81a",
+                "retrievedAt": "2026-09-07T09:21:03.192Z",
+                "title": "Introduction - Nebius Token Factory documentation",
+                "url": "https://docs.tokenfactory.nebius.com/api-reference/introduction"
+              },
+              {
+                "contentSha256": "eaf23d69325b72fe261f4fced2c44ba4c58361dea164eed7f9dfc2a93bcfe81a",
+                "retrievedAt": "2026-09-07T09:21:03.192Z",
+                "title": "Introduction - Nebius Token Factory documentation",
+                "url": "https://docs.tokenfactory.nebius.com/api-reference"
+              },
+              {
+                "contentSha256": "be3569b939db99df2fe7f4e1d9ae4adac4eb5b72e772a4fcfff727fe00473a88",
+                "retrievedAt": "2026-09-07T09:21:03.192Z",
+                "title": "Create completion - Nebius Token Factory documentation",
+                "url": "https://docs.tokenfactory.nebius.com/api-reference/inference/create-completion"
+              }
+            ],
+            "credits": 2,
+            "extractRequestId": "18a01365-e97e-4e59-a2db-36f7751a8c65",
+            "searchRequestId": "5b330547-fc9d-46f7-a9b8-f9440acf200e"
+          }
         }
       ],
-      "verdict": "selected",
-      "selectedCandidate": 1
-    },
-    {
-      "id": "ts-tool-calling",
-      "language": "typescript",
-      "behavior": "tool-calling",
-      "fixturePath": "fixtures/typescript/tool-calling/fixture.json",
-      "fixtureSha256": "ddaace2d16f65be8ef88b6e5999ad74eefcc3a3425f62e0f295618b7f004a0e4",
-      "baseline": {
-        "passed": false,
-        "missing": ["ToolArgsSchema.parse", "JSON.parse", "requireName"],
-        "forbidden": []
+      "aggregate": {
+        "caseCount": 3,
+        "candidateCount": 9,
+        "buildSuccesses": 9,
+        "rejectedCandidates": 6,
+        "inconclusiveCandidates": 0,
+        "regressionsCaught": 6,
+        "abstentions": 2,
+        "singleShotEligible": 1,
+        "inferenceCostEstimateUsd": 0.0109905
       },
-      "candidates": [
-        {
-          "candidate": 1,
-          "passed": false,
-          "missing": [],
-          "forbidden": ["String(call.function"]
-        },
-        {
-          "candidate": 2,
-          "passed": false,
-          "missing": ["ToolArgsSchema.parse", "JSON.parse", "requireName"],
-          "forbidden": ["String(call.function"]
-        }
-      ],
-      "verdict": "abstained",
-      "selectedCandidate": null
-    },
-    {
-      "id": "ts-retries",
-      "language": "typescript",
-      "behavior": "retries-timeouts",
-      "fixturePath": "fixtures/typescript/retries/fixture.json",
-      "fixtureSha256": "589b9462ed48e6b701e23b431b41484c5e8c21c27316742f4f410fba930dfb8e",
-      "baseline": {
-        "passed": false,
-        "missing": ["retry429And5xx", "AbortSignal.timeout(30000)", ", 2"],
-        "forbidden": []
-      },
-      "candidates": [
-        {
-          "candidate": 1,
-          "passed": true,
-          "missing": [],
-          "forbidden": []
-        },
-        {
-          "candidate": 2,
-          "passed": false,
-          "missing": ["retry429And5xx", "AbortSignal.timeout(30000)", ", 2"],
-          "forbidden": ["while (true)"]
-        }
-      ],
-      "verdict": "selected",
-      "selectedCandidate": 1
-    },
-    {
-      "id": "py-chat-basic",
-      "language": "python",
-      "behavior": "chat",
-      "fixturePath": "fixtures/python/chat-basic/fixture.json",
-      "fixtureSha256": "a2a5f99e627ebdc90d60b2695fc0ecec972ac330bc18bdc60059a895d577ed24",
-      "baseline": {
-        "passed": false,
-        "missing": ["catalog.require_nvidia_model"],
-        "forbidden": ["unverified-model"]
-      },
-      "candidates": [
-        {
-          "candidate": 1,
-          "passed": true,
-          "missing": [],
-          "forbidden": []
-        },
-        {
-          "candidate": 2,
-          "passed": false,
-          "missing": ["catalog.require_nvidia_model", "messages=messages"],
-          "forbidden": ["unverified-model"]
-        }
-      ],
-      "verdict": "selected",
-      "selectedCandidate": 1
-    },
-    {
-      "id": "py-streaming",
-      "language": "python",
-      "behavior": "streaming",
-      "fixturePath": "fixtures/python/streaming/fixture.json",
-      "fixtureSha256": "b266d35741152b95768efc1ec3762fe74fc504d3ff0067362ef282734eb27475",
-      "baseline": {
-        "passed": false,
-        "missing": ["choices[0].delta.content"],
-        "forbidden": []
-      },
-      "candidates": [
-        {
-          "candidate": 1,
-          "passed": true,
-          "missing": [],
-          "forbidden": []
-        },
-        {
-          "candidate": 2,
-          "passed": false,
-          "missing": ["for event", "choices[0].delta.content"],
-          "forbidden": [".read()"]
-        }
-      ],
-      "verdict": "selected",
-      "selectedCandidate": 1
-    },
-    {
-      "id": "py-structured-output",
-      "language": "python",
-      "behavior": "structured-output",
-      "fixturePath": "fixtures/python/structured-output/fixture.json",
-      "fixtureSha256": "d78b7cb1568e4c4b176136205f60961204bbc6aef0c3fda7c957eedf6d74ccb8",
-      "baseline": {
-        "passed": false,
-        "missing": ["Invoice.model_validate_json"],
-        "forbidden": []
-      },
-      "candidates": [
-        {
-          "candidate": 1,
-          "passed": true,
-          "missing": [],
-          "forbidden": []
-        },
-        {
-          "candidate": 2,
-          "passed": false,
-          "missing": ["Invoice.model_validate_json"],
-          "forbidden": ["return dict("]
-        }
-      ],
-      "verdict": "selected",
-      "selectedCandidate": 1
-    },
-    {
-      "id": "py-tool-calling",
-      "language": "python",
-      "behavior": "tool-calling",
-      "fixturePath": "fixtures/python/tool-calling/fixture.json",
-      "fixtureSha256": "c51898a66dedab66cbbea352d4fa7fd645060769feb2dfdf8bcb81c5d367c0ee",
-      "baseline": {
-        "passed": false,
-        "missing": ["ToolArgs.model_validate_json", "require_name"],
-        "forbidden": []
-      },
-      "candidates": [
-        {
-          "candidate": 1,
-          "passed": true,
-          "missing": [],
-          "forbidden": []
-        },
-        {
-          "candidate": 2,
-          "passed": false,
-          "missing": ["ToolArgs.model_validate_json", "require_name"],
-          "forbidden": ["str(call.function"]
-        }
-      ],
-      "verdict": "selected",
-      "selectedCandidate": 1
-    },
-    {
-      "id": "py-retries",
-      "language": "python",
-      "behavior": "retries-timeouts",
-      "fixturePath": "fixtures/python/retries/fixture.json",
-      "fixtureSha256": "9abdd4c6f62d7334d628563c13df9e7c1fee1c68d022fdb26121ae0e8cd4f755",
-      "baseline": {
-        "passed": false,
-        "missing": ["retry_429_and_5xx", "timeout=30", "max_retries=2"],
-        "forbidden": []
-      },
-      "candidates": [
-        {
-          "candidate": 1,
-          "passed": true,
-          "missing": [],
-          "forbidden": []
-        },
-        {
-          "candidate": 2,
-          "passed": false,
-          "missing": ["retry_429_and_5xx", "timeout=30", "max_retries=2"],
-          "forbidden": ["while True"]
-        }
-      ],
-      "verdict": "selected",
-      "selectedCandidate": 1
+      "limitations": [
+        "Three pinned Python adapters, one completed suite; not a production-repository or cross-model benchmark.",
+        "Tournament may receive bounded syntax/schema repairs; baseline receives one proposal plus at most one JSON-schema repair, never behavior-test feedback.",
+        "Regressions caught counts building candidates with at least one failing executed behavior test; redundant hard-gate labels are not double counted.",
+        "Costs cover recorded suite inference only, excluding earlier attempts, smoke, Sandbox and Tavily. This is not a total bill.",
+        "End-to-end latency covers each recorded case, not earlier failed development runs; see the retained attempt ledger.",
+        "Model API errors absent from this completed suite are not evidence that earlier calls never failed."
+      ]
     }
-  ],
-  "summary": {
-    "baselinePassed": 0,
-    "baselineFailed": 10,
-    "workflowSelected": 9,
-    "workflowAbstained": 1,
-    "regressionsCaught": 9,
-    "elapsedMilliseconds": 2.134
   },
-  "contentSha256": "bf115c0f94be774e4ba1ee52550e5d88cc7b69c0fb38bf8dca84b5190919773d"
+  "contentSha256": "6651d694c19f982d4a5c5432bfb10536216a0128278e68876f41f5e8d3520389"
 }

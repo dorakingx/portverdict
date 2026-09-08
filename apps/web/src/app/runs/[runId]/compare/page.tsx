@@ -70,6 +70,7 @@ export default async function ComparePage({
               ? "Measured candidate evidence is shown below. A model rationale cannot override a failed or inconclusive hard gate."
               : "Fixture data is shown below. A model rationale cannot override a failed or inconclusive hard gate."}
           </p>
+          {trial ? <p>Recorded NVIDIA model: {trial.exactModelId}</p> : null}
         </div>
         <StatusBadge tone={trial ? "live" : "replay"}>
           {trial ? "Recorded live comparison" : "Synthetic comparison"}

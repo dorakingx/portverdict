@@ -12,7 +12,7 @@ The runner records the SHA-256 digest of every fixture and of the canonical resu
 
 ## Tier 2: authenticated live evaluation
 
-Status: **implemented-unverified**. The owner-run orchestration path exists, but no Tier 2 result is final until the complete protocol below has been executed, promoted, and independently rechecked. No Tier 1 result may be promoted into a Tier 2 claim.
+Status: **authenticated recording promoted**. Suite `suite_20260907092016_6afcbf7b` completed all three cases on 2026-09-07 using runner commit `b8f912021bc76a343b9bcf43bbd80f207ba253d3`. Its nested replay artifact hashes are independently rechecked by `pnpm results:live`. See `results.md` for adverse outcomes and limitations. No Tier 1 result is promoted into a Tier 2 claim.
 
 ### Experimental unit
 
