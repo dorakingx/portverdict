@@ -114,7 +114,7 @@ for (const [index, scene] of scenes.entries()) {
   const speechText = resolve(generated, `narration-${index}.txt`);
   scene.audio = resolve(generated, `narration-${index}.aiff`);
   await writeFile(speechText, scene.text);
-  await exec("say", ["-v", "Samantha", "-r", "160", "-f", speechText, "-o", scene.audio]);
+  await exec("say", ["-v", "Samantha", "-r", "175", "-f", speechText, "-o", scene.audio]);
   scene.audioDuration = await probe(scene.audio);
   if (scene.audioDuration > scene.duration - 0.2)
     throw new Error(`Narration ${index} exceeds its scene: ${scene.audioDuration}`);

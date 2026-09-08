@@ -163,6 +163,23 @@ test("verified live replay exposes a complete immutable public story", async ({
     "No promoted live evidence is present; this skip is not live-integration proof.",
   );
   const runId = readiness.runId as string;
+  const suite = (await (
+    await request.get("/evidence/verified-live/evaluation-suite.json")
+  ).json()) as { cases: { runId: string }[] };
+  expect(suite.cases).toHaveLength(3);
+  for (const entry of suite.cases) {
+    const caseRun = await request.get(`/api/runs/${entry.runId}`);
+    expect(caseRun.ok()).toBe(true);
+    const caseSnapshot = (await caseRun.json()) as { state: string };
+    if (caseSnapshot.state === "ABSTAINED") {
+      expect((await request.get(`/api/runs/${entry.runId}/patch`)).status()).toBe(404);
+      expect(
+        (await request.get(`/api/runs/${entry.runId}/patch?acknowledgeUnsafe=true`)).status(),
+      ).toBe(404);
+    }
+    for (const view of ["workflow", "compare", "report"])
+      expect((await request.get(`/runs/${entry.runId}/${view}`)).ok()).toBe(true);
+  }
   const summaryResponse = await request.get("/evidence/verified-live/trial-summary.json");
   expect(summaryResponse.ok()).toBe(true);
   const summary = (await summaryResponse.json()) as {

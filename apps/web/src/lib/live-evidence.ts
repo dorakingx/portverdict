@@ -311,10 +311,10 @@ async function readBounded(relativePath: string, limit = MAX_FILE_BYTES): Promis
 type SummaryRead =
   { kind: "absent" } | { kind: "invalid" } | { kind: "valid"; trial: TrialSummary };
 
-const readSummary = cache(async (): Promise<SummaryRead> => {
+const readSummary = cache(async (file = "trial-summary.json"): Promise<SummaryRead> => {
   let bytes: Uint8Array;
   try {
-    bytes = await readBounded("trial-summary.json");
+    bytes = await readBounded(file);
   } catch (error) {
     return error instanceof Error && "code" in error && error.code === "ENOENT"
       ? { kind: "absent" }
@@ -335,7 +335,21 @@ export const getPromotedTrial = cache(async (): Promise<TrialSummary | null> => 
 
 async function getPromotedSummaryForRun(runId: string): Promise<TrialSummary | null> {
   const trial = await getPromotedTrial();
-  return trial?.runId === runId ? trial : null;
+  if (!trial || !IDENTIFIER.safeParse(runId).success) return null;
+  if (trial.runId === runId) return trial;
+  // Fixed public case paths only: never derive a filesystem path from an incoming run ID.
+  for (const caseId of ["tool-calling-contract", "streaming-retry-contract"] as const) {
+    const result = await readSummary(`evaluation-cases/${caseId}/trial-summary.json`);
+    if (
+      result.kind === "valid" &&
+      result.trial.runId === runId &&
+      result.trial.sourceRevision === trial.sourceRevision &&
+      result.trial.exactModelId === trial.exactModelId &&
+      result.trial.sponsorSmokeRunId === trial.sponsorSmokeRunId
+    )
+      return result.trial;
+  }
+  return null;
 }
 
 async function verifyManifestFile(
@@ -452,11 +466,14 @@ export async function readPromotedAsset(
   runId: string,
   kind: "patch" | "report",
 ): Promise<string | null> {
-  if (!(await getPromotedReplay(runId))) return null;
+  const replay = await getPromotedReplay(runId);
+  if (!replay) return null;
+  if (kind === "patch") {
+    if (replay.summary.verdict.status !== "selected") return null;
+    return readCandidateArtifact(runId, replay.summary.verdict.selectedCandidateId, "diff");
+  }
   try {
-    return Buffer.from(
-      await readBounded(kind === "patch" ? "selected.patch" : "report.md"),
-    ).toString("utf8");
+    return Buffer.from(await readBounded("report.md")).toString("utf8");
   } catch {
     return null;
   }
