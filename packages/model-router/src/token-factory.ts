@@ -12,10 +12,12 @@ import type {
 } from "./types";
 
 export const TOKEN_FACTORY_BASE_URL = "https://api.tokenfactory.nebius.com/v1" as const;
-const MODELS_URL = `${TOKEN_FACTORY_BASE_URL}/models`;
+const MODELS_URL = `${TOKEN_FACTORY_BASE_URL}/models?verbose=true`;
 const CHAT_COMPLETIONS_URL = `${TOKEN_FACTORY_BASE_URL}/chat/completions`;
 const TIMEOUT_REASON = Symbol("token-factory-timeout");
 const MAX_REPAIR_CONTENT_CHARS = 16_000;
+const MIN_REASONING_TOKEN_ALLOWANCE = 2_048;
+const MAX_REASONING_TOKEN_ALLOWANCE = 4_096;
 
 const CatalogPricingSchema = z
   .object({
@@ -32,7 +34,9 @@ const CatalogModelSchema = z
     owned_by: z.string().trim().min(1).optional(),
     context_length: z.number().int().positive().optional(),
     capabilities: z.array(z.string().trim().min(1).max(160)).max(100).optional(),
-    pricing: CatalogPricingSchema.optional(),
+    supported_features: z.array(z.string().trim().min(1).max(160)).max(100).nullish(),
+    status: z.enum(["validating", "active", "error", "deleted"]).nullish(),
+    pricing: z.union([CatalogPricingSchema, z.record(z.string(), z.unknown())]).optional(),
   })
   .passthrough();
 
@@ -201,13 +205,17 @@ export interface StructuredCompletionRequest<T> {
   readonly outputContract: JsonSchemaContract;
   readonly outputSchema: ZodType<T>;
   readonly maxOutputTokens: number;
+  readonly reasoningEffort?: "none" | "low";
   readonly signal?: AbortSignal;
 }
 
 export interface StructuredCompletionResult<T> {
   readonly data: T;
   readonly telemetry: RouterTelemetry;
+  /** Provider-issued chat-completion response IDs from the response bodies. */
   readonly requestIds: readonly string[];
+  /** HTTP correlation IDs, which may be client-generated only when the provider omits one. */
+  readonly httpRequestIds: readonly string[];
   readonly repairAttempted: boolean;
 }
 
@@ -623,6 +631,8 @@ export class TokenFactoryClient {
       !Number.isSafeInteger(request.maxOutputTokens) ||
       request.maxOutputTokens < 1 ||
       request.maxOutputTokens > 1_000_000 ||
+      (request.reasoningEffort !== undefined &&
+        !["none", "low"].includes(request.reasoningEffort)) ||
       typeof request.outputSchema?.safeParse !== "function"
     ) {
       throw new TokenFactoryClientError("Structured completion request is invalid.", {
@@ -632,10 +642,43 @@ export class TokenFactoryClient {
 
     const startedAt = this.#config.clock.nowMs();
     const requestIds: string[] = [];
+    const httpRequestIds: string[] = [];
     const usages: RouterTokenUsage[] = [];
     let transportRetries = 0;
-    let currentMessages: TokenFactoryMessage[] = [...messages.data];
+    const capabilities = request.decision.model.capabilities.map((capability) =>
+      capability.toLowerCase(),
+    );
+    const supportsStrictJsonSchema = capabilities.some((capability) =>
+      /structured[-_ ]?output|json[-_ ]?schema/iu.test(capability),
+    );
+    const isReasoningModel = capabilities.some((capability) => /reasoning/iu.test(capability));
+    const completionBudget =
+      request.maxOutputTokens +
+      (isReasoningModel && request.reasoningEffort !== "none"
+        ? Math.min(
+            MAX_REASONING_TOKEN_ALLOWANCE,
+            Math.max(MIN_REASONING_TOKEN_ALLOWANCE, Math.ceil(request.maxOutputTokens / 2)),
+          )
+        : 0);
+    const serializedSchema = JSON.stringify(contract.data.schema);
+    const baseMessages: TokenFactoryMessage[] = [
+      ...messages.data,
+      {
+        role: "user",
+        content:
+          `Required JSON Schema: ${serializedSchema}\n` +
+          "Return exactly one JSON object matching this schema. Do not add Markdown or prose.",
+      },
+    ];
+    let currentMessages = baseMessages;
     let lastFailure = "invalid-json:root";
+    const failureMetadata: Array<{
+      finish: string;
+      contentCharacters: number;
+      fenced: boolean;
+      reasoningCharacters: number;
+      totalTokens: number;
+    }> = [];
 
     for (let schemaAttempt = 0; schemaAttempt < 2; schemaAttempt += 1) {
       const http = await this.#requestJson({
@@ -644,19 +687,35 @@ export class TokenFactoryClient {
         body: {
           model: request.decision.model.exactId,
           messages: currentMessages,
-          max_tokens: request.maxOutputTokens,
-          response_format: {
-            type: "json_schema",
-            json_schema: {
-              name: contract.data.name,
-              strict: true,
-              schema: contract.data.schema,
-            },
-          },
+          ...(isReasoningModel
+            ? {
+                ...(request.decision.model.family === "SUPER" && request.reasoningEffort === "none"
+                  ? { chat_template_kwargs: { enable_thinking: false } }
+                  : { reasoning_effort: request.reasoningEffort ?? "low" }),
+                // Authenticated Super endpoint rejects max_completion_tokens.
+                ...(request.decision.model.family === "SUPER"
+                  ? { max_tokens: completionBudget }
+                  : { max_completion_tokens: completionBudget }),
+              }
+            : { max_tokens: request.maxOutputTokens }),
+          // NVIDIA's Super model card recommends these sampling defaults across tasks.
+          ...(request.decision.model.family === "SUPER"
+            ? { temperature: 1, top_p: 0.95 }
+            : { temperature: 0 }),
+          response_format: supportsStrictJsonSchema
+            ? {
+                type: "json_schema",
+                json_schema: {
+                  name: contract.data.name,
+                  strict: true,
+                  schema: contract.data.schema,
+                },
+              }
+            : { type: "json_object" },
         },
         ...(request.signal === undefined ? {} : { signal: request.signal }),
       });
-      requestIds.push(http.requestId);
+      httpRequestIds.push(http.requestId);
       transportRetries += http.retries;
 
       const completion = ChatCompletionResponseSchema.safeParse(http.json);
@@ -680,6 +739,7 @@ export class TokenFactoryClient {
           },
         );
       }
+      requestIds.push(completion.data.id);
 
       usages.push({
         inputTokens: completion.data.usage.prompt_tokens,
@@ -694,11 +754,20 @@ export class TokenFactoryClient {
         lastFailure = "invalid-json:root";
         decoded = undefined;
       }
+      const message = completion.data.choices[0]?.message;
+      const reason = message?.reasoning_content ?? message?.reasoning;
+      failureMetadata.push({
+        finish: completion.data.choices[0]?.finish_reason === "length" ? "length" : "other",
+        contentCharacters: content.length,
+        fenced: content.trimStart().startsWith("```"),
+        reasoningCharacters: typeof reason === "string" ? reason.length : 0,
+        totalTokens: completion.data.usage.total_tokens,
+      });
 
       const output = decoded === undefined ? undefined : request.outputSchema.safeParse(decoded);
       if (output?.success) {
         const usage = sumUsage(usages);
-        const finalRequestId = requestIds.at(-1);
+        const finalRequestId = httpRequestIds.at(-1);
         if (!finalRequestId) {
           throw new TokenFactoryClientError("Token Factory response had no request identity.", {
             code: "invalid-response",
@@ -719,6 +788,7 @@ export class TokenFactoryClient {
             usage,
           }),
           requestIds: Object.freeze([...requestIds]),
+          httpRequestIds: Object.freeze([...httpRequestIds]),
           repairAttempted: schemaAttempt === 1,
         };
       }
@@ -726,8 +796,8 @@ export class TokenFactoryClient {
       if (output && !output.success) lastFailure = zodIssueSummary(output.error);
       if (schemaAttempt === 0) {
         currentMessages = [
-          ...messages.data,
-          ...(content
+          ...baseMessages,
+          ...(content && decoded !== undefined
             ? [
                 {
                   role: "assistant" as const,
@@ -739,19 +809,19 @@ export class TokenFactoryClient {
             role: "user",
             content:
               `The previous JSON response failed the declared schema (${lastFailure}). ` +
-              "Return one corrected JSON object only. Do not add prose or private reasoning.",
+              "Return one corrected JSON object only. Do not add Markdown or prose.",
           },
         ];
       }
     }
 
-    const lastRequestId = requestIds.at(-1);
+    const lastRequestId = httpRequestIds.at(-1);
     throw new TokenFactoryClientError(
-      "Token Factory structured output remained invalid after one repair attempt.",
+      `Token Factory structured output remained invalid after one repair attempt (${lastFailure}; content-free diagnostics ${JSON.stringify(failureMetadata)}).`,
       {
         code: "structured-output-invalid",
         ...(lastRequestId === undefined ? {} : { requestId: lastRequestId }),
-        attempts: requestIds.length,
+        attempts: httpRequestIds.length,
       },
     );
   }

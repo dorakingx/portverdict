@@ -13,6 +13,12 @@ export default defineConfig({
   use: {
     baseURL,
     trace: "retain-on-first-failure",
+    ...(process.env.PORTVERDICT_STORAGE_STATE
+      ? { storageState: process.env.PORTVERDICT_STORAGE_STATE }
+      : {}),
+    ...(process.env.PORTVERDICT_BROWSER_EXECUTABLE
+      ? { launchOptions: { executablePath: process.env.PORTVERDICT_BROWSER_EXECUTABLE } }
+      : {}),
   },
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },

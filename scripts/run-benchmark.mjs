@@ -105,7 +105,7 @@ const resultCore = {
   },
 };
 const results = { ...resultCore, contentSha256: sha256(JSON.stringify(resultCore)) };
-const outputPath = resolve(root, "docs/evaluations/results.json");
+const outputPath = resolve(root, "docs/evaluations/local-contract-results.json");
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(outputPath, `${JSON.stringify(results, null, 2)}\n`, "utf8");
 process.stdout.write(

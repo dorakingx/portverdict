@@ -3,6 +3,10 @@ import Link from "next/link";
 import { BranchTrialPreview } from "../components/branch-trial-preview";
 import { BrandMark } from "../components/brand-mark";
 import { RepositoryLauncher } from "../components/repository-launcher";
+import { getPromotedTrial } from "../lib/live-evidence";
+import { getReadinessSnapshot } from "../lib/readiness";
+
+export const dynamic = "force-dynamic";
 
 const WORKFLOW_STEPS = [
   {
@@ -22,7 +26,16 @@ const WORKFLOW_STEPS = [
   },
 ] as const;
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [readiness, promotedTrial] = await Promise.all([
+    getReadinessSnapshot(),
+    getPromotedTrial(),
+  ]);
+  // Expired freshness does not erase an integrity-checked historical experiment.
+  const liveTrial = ["verified", "stale"].includes(readiness.overall) ? promotedTrial : null;
+  const primaryRunId = liveTrial?.runId ?? "sample";
+  const gateCount = liveTrial ? Object.keys(liveTrial.candidates[0]?.gates ?? {}).length : 10;
+
   return (
     <div className="marketing-page">
       <header className="site-header">
@@ -34,8 +47,8 @@ export default function HomePage() {
           <a href="#evidence-preview">Evidence</a>
           <Link href="/status">Status</Link>
         </nav>
-        <Link className="button button--quiet header-cta" href="/runs/sample/workflow">
-          Inspect sample
+        <Link className="button button--quiet header-cta" href={`/runs/${primaryRunId}/workflow`}>
+          {liveTrial ? "Inspect live evidence" : "Inspect sample"}
         </Link>
       </header>
 
@@ -49,19 +62,35 @@ export default function HomePage() {
               checkpoint, attacks them with executable parity tests, and ships only evidence-backed
               code.
             </p>
-            <RepositoryLauncher />
+            <RepositoryLauncher
+              liveRunId={liveTrial?.runId ?? null}
+              fresh={readiness.overall === "verified"}
+            />
             <div className="hero__trust" aria-label="Sample properties">
               <span>✓ No login</span>
               <span>◇ Isolated execution design</span>
               <span>! Can abstain</span>
             </div>
             <p className="hero__disclosure">
-              Current sample: <strong>synthetic development replay</strong>. Live Nebius, NVIDIA,
-              and Tavily evidence will replace it after authenticated verification.
+              {liveTrial ? (
+                <>
+                  Current primary: <strong>authenticated recorded evidence</strong> from Token
+                  Factory, one shared Sandbox checkpoint, and Tavily Search + Extract. Exact model:{" "}
+                  <span className="mono">{liveTrial.exactModelId}</span>.
+                  {readiness.overall === "stale"
+                    ? " Historical replay: the seven-day freshness window has expired. This is not a claim of current service readiness."
+                    : null}
+                </>
+              ) : (
+                <>
+                  Current sample: <strong>synthetic development replay</strong>. No live sponsor
+                  execution is claimed while readiness is {readiness.overall}.
+                </>
+              )}
             </p>
           </div>
           <div className="hero__visual" id="evidence-preview">
-            <BranchTrialPreview />
+            <BranchTrialPreview trial={liveTrial} />
           </div>
         </section>
 
@@ -73,7 +102,7 @@ export default function HomePage() {
               <dd>Sibling branches</dd>
             </div>
             <div>
-              <dt>10</dt>
+              <dt>{String(gateCount).padStart(2, "0")}</dt>
               <dd>Deterministic hard gates</dd>
             </div>
             <div>
@@ -116,8 +145,8 @@ export default function HomePage() {
             PortVerdict separates behavioral rejection from infrastructure failure. If every branch
             fails, times out, or loses provenance, it abstains instead of manufacturing confidence.
           </p>
-          <Link className="text-link text-link--accent" href="/runs/sample/report">
-            See the fixture verdict <span aria-hidden="true">→</span>
+          <Link className="text-link text-link--accent" href={`/runs/${primaryRunId}/report`}>
+            See the {liveTrial ? "recorded" : "fixture"} verdict <span aria-hidden="true">→</span>
           </Link>
         </section>
       </main>

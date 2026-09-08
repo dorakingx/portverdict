@@ -8,6 +8,10 @@ const scriptSource =
 const nextConfig: NextConfig = {
   ...(process.env.VERCEL === "1" ? {} : { output: "standalone" }),
   allowedDevOrigins: ["127.0.0.1"],
+  outputFileTracingIncludes: {
+    "/*": ["./public/evidence/verified-live/**/*"],
+  },
+  transpilePackages: ["@portverdict/agent-core", "@portverdict/shared-schemas"],
   poweredByHeader: false,
   reactStrictMode: true,
   experimental: {

@@ -106,7 +106,10 @@ describe("TokenFactorySandboxClient", () => {
     const fetchMock = vi
       .fn<typeof fetch>()
       .mockResolvedValueOnce(
-        jsonResponse(operation("PENDING"), { headers: { "retry-after": "2" } }),
+        jsonResponse(
+          { ...operation("PENDING"), duration: -1 },
+          { headers: { "retry-after": "2" } },
+        ),
       )
       .mockResolvedValueOnce(jsonResponse(operation("SUCCESS")));
     const { clock, sleeps } = testClock();
@@ -188,6 +191,23 @@ describe("TokenFactorySandboxClient", () => {
     expect(() => parseSandboxSse(replay)).toThrow(/monotonically/u);
   });
 
+  it("accepts official stream payloads and an operation-scoped completion event", () => {
+    const official = [
+      "id: 1",
+      "event: stdout",
+      'data: {"id":1,"ts":"2026-08-31T00:00:00.000Z","spid":1,"type":"stdout","data":{"value":"ok\\n","encoding":"ascii","truncated":false}}',
+      "",
+      "id: 2",
+      "event: completion",
+      'data: {"id":2,"ts":"2026-08-31T00:00:01.000Z","type":"completion","data":{"status":"SUCCESS"}}',
+      "",
+    ].join("\n");
+
+    const frames = parseSandboxSse(official);
+    expect(frames).toHaveLength(2);
+    expect(frames[1]).toMatchObject({ event: "completion", spawnedProcessId: null });
+  });
+
   it("enforces the shared checkpoint invariant and reports readiness", () => {
     const branch = {
       candidateId: "candidate-a",
@@ -217,5 +237,53 @@ describe("TokenFactorySandboxClient", () => {
         CONTREE_PROJECT: "project-test-123",
       }),
     ).toMatchObject({ status: "configured", tokenConfigured: true, projectConfigured: true });
+  });
+
+  it("cancels branches that were already spawned when sibling creation fails", async () => {
+    const secondOperationId = "44444444-4444-4444-8444-444444444444";
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        jsonResponse(
+          { uuid: INSTANCE_ID, image: CHECKPOINT_ID, disposable: false },
+          { status: 201, headers: { location: `${BASE_URL}/operations/${OPERATION_ID}` } },
+        ),
+      )
+      .mockResolvedValueOnce(
+        jsonResponse(
+          { uuid: "55555555-5555-4555-8555-555555555555", image: CHECKPOINT_ID, disposable: false },
+          {
+            status: 201,
+            headers: { location: `${BASE_URL}/operations/${secondOperationId}` },
+          },
+        ),
+      )
+      .mockResolvedValueOnce(new Response(null, { status: 503 }))
+      .mockResolvedValueOnce(new Response(null, { status: 202 }))
+      .mockResolvedValueOnce(new Response(null, { status: 202 }));
+    const client = new TokenFactorySandboxClient({
+      iamToken: "separate-sandbox-token",
+      projectId: "project-test-123",
+      fetch: fetchMock,
+      maxTransientRetries: 0,
+    });
+
+    await expect(
+      client.spawnBranches(CHECKPOINT_ID, [
+        { candidateId: "candidate-a", command: "true" },
+        { candidateId: "candidate-b", command: "true" },
+        { candidateId: "candidate-c", command: "true" },
+      ]),
+    ).rejects.toBeInstanceOf(SandboxAdapterError);
+
+    const cancellationUrls = fetchMock.mock.calls
+      .filter(([, init]) => init?.method === "DELETE")
+      .map(([url]) => String(url));
+    expect(cancellationUrls).toEqual(
+      expect.arrayContaining([
+        `${BASE_URL}/operations/${OPERATION_ID}`,
+        `${BASE_URL}/operations/${secondOperationId}`,
+      ]),
+    );
   });
 });

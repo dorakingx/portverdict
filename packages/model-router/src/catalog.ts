@@ -53,18 +53,20 @@ function isOfficialCatalogEndpoint(endpoint: string): boolean {
 }
 
 function nvidiaOwned(id: string, owner: string | undefined): boolean {
-  if (owner !== undefined) return /(^|[^a-z0-9])nvidia([^a-z0-9]|$)/i.test(owner);
-  return /(^|[\/:._-])nvidia([\/:._-]|$)/i.test(id);
+  return (
+    (owner !== undefined && /(^|[^a-z0-9])nvidia([^a-z0-9]|$)/i.test(owner)) ||
+    /^nvidia\//i.test(id)
+  );
 }
 
 export function classifyCatalogModelFamily(exactId: string, owner?: string): CatalogModelFamily {
   if (!nvidiaOwned(exactId, owner)) return "OTHER";
   const normalized = exactId.toLowerCase();
-  if (/nemotron[\s._/-]*3(?:[\s._/-]*5)?[\s._/-]*lightning/.test(normalized)) {
+  if (/nemotron.*(?:lightning|nano)/u.test(normalized)) {
     return "LIGHTNING";
   }
-  if (/nemotron[\s._/-]*3[\s._/-]*super/.test(normalized)) return "SUPER";
-  if (/nemotron[\s._/-]*3[\s._/-]*ultra/.test(normalized)) return "ULTRA";
+  if (/nemotron.*super/u.test(normalized)) return "SUPER";
+  if (/nemotron.*ultra/u.test(normalized)) return "ULTRA";
   return "OTHER";
 }
 
@@ -87,6 +89,48 @@ function parsePricing(
   const input = value.input_per_million_tokens;
   const output = value.output_per_million_tokens;
   if (
+    currency === "USD" &&
+    typeof input === "number" &&
+    Number.isFinite(input) &&
+    input >= 0 &&
+    typeof output === "number" &&
+    Number.isFinite(output) &&
+    output >= 0
+  ) {
+    return {
+      currency: "USD",
+      inputPerMillionTokens: input,
+      outputPerMillionTokens: output,
+      source: "authenticated-catalog",
+    };
+  }
+
+  // The current verbose catalog exposes OpenAI-compatible per-token string
+  // prices as `prompt` and `completion`. Normalize them without rounding so
+  // the router can keep enforcing the same per-million-token policy.
+  const promptPerToken =
+    typeof value.prompt === "string" && value.prompt.trim() !== ""
+      ? Number(value.prompt)
+      : Number.NaN;
+  const completionPerToken =
+    typeof value.completion === "string" && value.completion.trim() !== ""
+      ? Number(value.completion)
+      : Number.NaN;
+  if (
+    Number.isFinite(promptPerToken) &&
+    promptPerToken >= 0 &&
+    Number.isFinite(completionPerToken) &&
+    completionPerToken >= 0
+  ) {
+    return {
+      currency: "USD",
+      inputPerMillionTokens: promptPerToken * 1_000_000,
+      outputPerMillionTokens: completionPerToken * 1_000_000,
+      source: "authenticated-catalog",
+    };
+  }
+
+  if (
     currency !== "USD" ||
     typeof input !== "number" ||
     !Number.isFinite(input) ||
@@ -103,12 +147,7 @@ function parsePricing(
     });
     return undefined;
   }
-  return {
-    currency: "USD",
-    inputPerMillionTokens: input,
-    outputPerMillionTokens: output,
-    source: "authenticated-catalog",
-  };
+  return undefined;
 }
 
 function parseModel(
@@ -121,6 +160,10 @@ function parseModel(
   const path = `data.${index}`;
   if (!isRecord(value)) {
     issues.push({ code: "invalid-model", path, message: "Catalog model must be an object." });
+    return undefined;
+  }
+
+  if (value.status !== undefined && value.status !== null && value.status !== "active") {
     return undefined;
   }
 
@@ -157,9 +200,9 @@ function parseModel(
     });
   }
 
-  const capabilitiesValue = value.capabilities;
+  const capabilitiesValue = value.capabilities ?? value.supported_features;
   let capabilities: string[] = [];
-  if (capabilitiesValue !== undefined) {
+  if (capabilitiesValue !== undefined && capabilitiesValue !== null) {
     if (
       !Array.isArray(capabilitiesValue) ||
       capabilitiesValue.some((capability) => typeof capability !== "string" || !capability.trim())

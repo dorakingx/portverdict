@@ -1,0 +1,26 @@
+{
+  "name": "@portverdict/orchestrator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./contracts": "./src/contracts.ts",
+    "./public-evidence": "./src/public-evidence.ts",
+    "./readiness": "./src/readiness.ts"
+  },
+  "scripts": {
+    "test": "vitest run --root ../.. packages/orchestrator/src/orchestrator.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@portverdict/agent-core": "workspace:*",
+    "@portverdict/evaluator": "workspace:*",
+    "@portverdict/evidence-store": "workspace:*",
+    "@portverdict/model-router": "workspace:*",
+    "@portverdict/sandbox-runner": "workspace:*",
+    "@portverdict/shared-schemas": "workspace:*",
+    "@portverdict/tavily-research": "workspace:*",
+    "zod": "4.5.4"
+  }
+}

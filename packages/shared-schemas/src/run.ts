@@ -10,9 +10,9 @@ import {
   SCHEMA_VERSION,
   SchemaVersionSchema,
   uniqueStrings,
-} from "./primitives.js";
-import { HardGateNameSchema, HardGateResultSchema } from "./evidence.js";
-import { SourceRequestSchema, SourceRevisionSchema } from "./source.js";
+} from "./primitives";
+import { HardGateNameSchema, HardGateResultSchema } from "./evidence";
+import { SourceRequestSchema, SourceRevisionSchema } from "./source";
 
 export const RunModeSchema = z.enum(["live", "replay"]);
 

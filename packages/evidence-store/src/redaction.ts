@@ -18,6 +18,7 @@ const TEXT_PATTERNS: ReadonlyArray<readonly [RegExp, string]> = [
   [/\bBearer\s+[A-Za-z0-9._~+/=-]{8,}\b/giu, `Bearer ${REDACTED_VALUE}`],
   [/\b(?:gh[oprsu]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})\b/gu, REDACTED_VALUE],
   [/\b(?:sk|pk)-(?:live|test|proj)-[A-Za-z0-9_-]{12,}\b/gu, REDACTED_VALUE],
+  [/\btvly-[A-Za-z0-9_-]{12,}\b/gu, REDACTED_VALUE],
   [
     /\b([A-Z][A-Z0-9_]*(?:API_KEY|TOKEN|PASSWORD|SECRET|PRIVATE_KEY))\s*=\s*([^\s,;]+)/gu,
     `$1=${REDACTED_VALUE}`,

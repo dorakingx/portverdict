@@ -85,6 +85,7 @@ function receive(
 function bootstrapCandidates(
   harness: ReturnType<typeof createHarness>,
   strategies: CandidateStrategy[] = ["minimal-compatibility"],
+  mode: "live" | "replay" = "replay",
 ) {
   const states: RunState[] = [];
   const applied = (payload: Record<string, unknown>) => {
@@ -95,7 +96,7 @@ function bootstrapCandidates(
 
   applied({
     type: "run.received",
-    mode: "replay",
+    mode,
     sourceRequest: { kind: "fixture", fixtureId: "fixture-weather" },
     config: runConfig(strategies),
     idempotencyKey: IDEMPOTENCY_KEY,
@@ -184,96 +185,99 @@ function score(candidateId: string, eligible: boolean, rank: number | null, evid
 }
 
 describe("run reducer", () => {
-  it("executes every successful run and candidate transition before selecting", () => {
-    const harness = createHarness();
-    const { states, started } = bootstrapCandidates(harness);
+  it.each(["replay", "live"] as const)(
+    "executes every successful %s fixture transition before selecting",
+    (mode) => {
+      const harness = createHarness();
+      const { states, started } = bootstrapCandidates(harness, undefined, mode);
 
-    expect(started.commands.map(({ kind }) => kind)).toEqual(["patch-candidate"]);
-    expect(harness.state.run?.candidates[0]?.state).toBe("PATCHING");
+      expect(started.commands.map(({ kind }) => kind)).toEqual(["patch-candidate"]);
+      expect(harness.state.run?.candidates[0]?.state).toBe("PATCHING");
 
-    const candidateStates: string[] = ["PATCHING"];
-    for (const [from, to] of [
-      ["PATCHING", "BUILDING"],
-      ["BUILDING", "VERIFYING"],
-      ["VERIFYING", "FALSIFYING"],
-    ] as const) {
-      const applied = expectApplied(transitionCandidate(harness, "candidate_1", from, to).result);
-      candidateStates.push(applied.state.run?.candidates[0]?.state ?? "missing");
-    }
+      const candidateStates: string[] = ["PATCHING"];
+      for (const [from, to] of [
+        ["PATCHING", "BUILDING"],
+        ["BUILDING", "VERIFYING"],
+        ["VERIFYING", "FALSIFYING"],
+      ] as const) {
+        const applied = expectApplied(transitionCandidate(harness, "candidate_1", from, to).result);
+        candidateStates.push(applied.state.run?.candidates[0]?.state ?? "missing");
+      }
 
-    const passedGates = [
-      { gate: "build", status: "passed", evidenceIds: ["evidence_build"] },
-      { gate: "schema", status: "passed", evidenceIds: ["evidence_schema"] },
-    ];
-    const eligible = expectApplied(
-      transitionCandidate(harness, "candidate_1", "FALSIFYING", "ELIGIBLE", {
-        hardGates: passedGates,
-        evidenceIds: ["evidence_build", "evidence_schema"],
-      }).result,
-    );
-    candidateStates.push(eligible.state.run?.candidates[0]?.state ?? "missing");
-    expect(eligible.commands.map(({ kind }) => kind)).toEqual(["evaluate-candidates"]);
+      const passedGates = [
+        { gate: "build", status: "passed", evidenceIds: ["evidence_build"] },
+        { gate: "schema", status: "passed", evidenceIds: ["evidence_schema"] },
+      ];
+      const eligible = expectApplied(
+        transitionCandidate(harness, "candidate_1", "FALSIFYING", "ELIGIBLE", {
+          hardGates: passedGates,
+          evidenceIds: ["evidence_build", "evidence_schema"],
+        }).result,
+      );
+      candidateStates.push(eligible.state.run?.candidates[0]?.state ?? "missing");
+      expect(eligible.commands.map(({ kind }) => kind)).toEqual(["evaluate-candidates"]);
 
-    const evaluated = expectApplied(
-      harness.send({
-        type: "candidates.evaluated",
-        evidenceIds: ["evidence_evaluation"],
-      }).result,
-    );
-    states.push(evaluated.state.run?.state ?? "FAILED");
-    const falsified = expectApplied(
-      harness.send({
-        type: "falsification.completed",
-        evidenceIds: ["evidence_falsification"],
-      }).result,
-    );
-    states.push(falsified.state.run?.state ?? "FAILED");
-    const scored = expectApplied(
-      harness.send({
-        type: "scoring.completed",
-        scores: [score("candidate_1", true, 1, "evidence_score")],
-        evidenceIds: ["evidence_score"],
-      }).result,
-    );
-    states.push(scored.state.run?.state ?? "FAILED");
-    const selected = expectApplied(
-      harness.send({
-        type: "verdict.selected",
-        verdict: {
-          kind: "selected",
-          selectedCandidateId: "candidate_1",
-          eligibleCandidateIds: ["candidate_1"],
-          rejectedCandidateIds: [],
-          inconclusiveCandidateIds: [],
-          decidedAt: "2026-08-31T00:00:14.000Z",
-          evidenceIds: ["evidence_verdict"],
-          rationaleEvidenceId: null,
-        },
-      }).result,
-    );
-    states.push(selected.state.run?.state ?? "FAILED");
+      const evaluated = expectApplied(
+        harness.send({
+          type: "candidates.evaluated",
+          evidenceIds: ["evidence_evaluation"],
+        }).result,
+      );
+      states.push(evaluated.state.run?.state ?? "FAILED");
+      const falsified = expectApplied(
+        harness.send({
+          type: "falsification.completed",
+          evidenceIds: ["evidence_falsification"],
+        }).result,
+      );
+      states.push(falsified.state.run?.state ?? "FAILED");
+      const scored = expectApplied(
+        harness.send({
+          type: "scoring.completed",
+          scores: [score("candidate_1", true, 1, "evidence_score")],
+          evidenceIds: ["evidence_score"],
+        }).result,
+      );
+      states.push(scored.state.run?.state ?? "FAILED");
+      const selected = expectApplied(
+        harness.send({
+          type: "verdict.selected",
+          verdict: {
+            kind: "selected",
+            selectedCandidateId: "candidate_1",
+            eligibleCandidateIds: ["candidate_1"],
+            rejectedCandidateIds: [],
+            inconclusiveCandidateIds: [],
+            decidedAt: "2026-08-31T00:00:14.000Z",
+            evidenceIds: ["evidence_verdict"],
+            rationaleEvidenceId: null,
+          },
+        }).result,
+      );
+      states.push(selected.state.run?.state ?? "FAILED");
 
-    expect(states).toEqual([
-      "RECEIVED",
-      "SOURCE_RESOLVED",
-      "INVENTORIED",
-      "SPECIFIED",
-      "BASE_CHECKPOINT_READY",
-      "CANDIDATES_RUNNING",
-      "CANDIDATES_EVALUATED",
-      "FALSIFIED",
-      "SCORED",
-      "SELECTED",
-    ]);
-    expect(candidateStates).toEqual([
-      "PATCHING",
-      "BUILDING",
-      "VERIFYING",
-      "FALSIFYING",
-      "ELIGIBLE",
-    ]);
-    expect(selected.commands).toEqual([]);
-  });
+      expect(states).toEqual([
+        "RECEIVED",
+        "SOURCE_RESOLVED",
+        "INVENTORIED",
+        "SPECIFIED",
+        "BASE_CHECKPOINT_READY",
+        "CANDIDATES_RUNNING",
+        "CANDIDATES_EVALUATED",
+        "FALSIFIED",
+        "SCORED",
+        "SELECTED",
+      ]);
+      expect(candidateStates).toEqual([
+        "PATCHING",
+        "BUILDING",
+        "VERIFYING",
+        "FALSIFYING",
+        "ELIGIBLE",
+      ]);
+      expect(selected.commands).toEqual([]);
+    },
+  );
 
   it("does not mutate state for duplicate, conflicting, out-of-order, or invalid transitions", () => {
     const harness = createHarness();

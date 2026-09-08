@@ -1,0 +1,13 @@
+title = "PortVerdict secret scanning"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Non-authenticating randomUUID idempotency IDs from the recorded three-case suite (trial.ts); exact values only"
+regexTarget = "secret"
+regexes = [
+  '^b44494fa-6e23-4187-b091-af9fed522e92$',
+  '^b095c0b5-fbac-467d-a037-579c9296202a$',
+  '^fa62ec7e-51fb-4e97-9732-4addbc9bb32c$',
+]

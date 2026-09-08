@@ -1,5 +1,4 @@
 import { CreateRunRequestSchema, problem } from "../../../lib/replay-api";
-import { getReadinessSnapshot } from "../../../lib/readiness";
 
 export const dynamic = "force-dynamic";
 
@@ -30,19 +29,10 @@ export async function POST(request: Request) {
     );
   }
   if (parsed.data.mode === "live") {
-    const readiness = getReadinessSnapshot();
-    if (readiness.overall !== "live-configured") {
-      return problem(
-        503,
-        "Live mode unavailable",
-        "Replay is ready, but live mode needs server-side Nebius, Sandbox, and Tavily credentials.",
-        "/api/runs",
-      );
-    }
     return problem(
-      501,
-      "Live orchestration not verified",
-      "Credentials are configured, but authenticated smoke evidence must pass before public live runs are enabled.",
+      403,
+      "Owner runner required",
+      "Public deployment is replay-only. Authenticated live trials run from the owner-controlled CLI and are promoted only after verification.",
       "/api/runs",
     );
   }

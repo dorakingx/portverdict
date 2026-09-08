@@ -3,15 +3,15 @@
 ## Fastest judge path (no account)
 
 1. Open https://portverdict.vercel.app in a private browser window.
-2. Confirm the disclosure says **synthetic development replay**.
-3. Choose **Run recorded sample**.
+2. Confirm the disclosure identifies an authenticated recorded live run, with its recording time and freshness status.
+3. Choose **Inspect verified live run** (or **Inspect recorded live run** after freshness expires).
 4. On **Workflow**, inspect the one shared checkpoint and all three visible branches.
-5. Open the rejected branch's evidence and confirm the tool/schema counterexample.
+5. Open a branch's evidence and inspect the executed test logs and exact proposed diff.
 6. Open **Compare** and verify that hard gates precede secondary assessments.
-7. Open **Report**, download the synthetic report, then confirm patch export requires unsafe acknowledgement.
-8. Open https://portverdict.vercel.app/status and confirm replay is ready while unconfigured sponsor integrations remain explicit.
+7. Open **Report**, inspect Tavily official-source provenance, and confirm patch export requires unsafe acknowledgement.
+8. Open https://portverdict.vercel.app/status and inspect recorded evidence readiness. Historical expiry is not a new live execution.
 
-Expected fixture verdict: candidate 02 is selected, candidate 01 is rejected, and candidate 03 is inconclusive. This is a deterministic synthetic UI/API fixture, not live sponsor evidence.
+The primary structured-output case selects candidate 03, with all three candidates eligible. The tool-calling and streaming/retry cases abstain because all their candidates fail behavioral checks. Inspect each recorded case using its `runId` from `/evidence/verified-live/evaluation-suite.json` at `/runs/<runId>/workflow`. The separate `sample-run` is synthetic: candidate 02 selected, 01 rejected, 03 inconclusive; never interpret that fixture as sponsor proof.
 
 ## Public API checks
 

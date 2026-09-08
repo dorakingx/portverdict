@@ -10,14 +10,16 @@ const STATE_UI: Record<
   ReadinessState,
   { label: string; tone: "passed" | "live" | "warning" | "failed" }
 > = {
-  ready: { label: "Ready", tone: "passed" },
-  configured: { label: "Configured · unverified", tone: "live" },
+  verified: { label: "Verified", tone: "passed" },
+  "configured-unverified": { label: "Configured · unverified", tone: "live" },
+  verifying: { label: "Verifying", tone: "live" },
   unconfigured: { label: "Unconfigured", tone: "warning" },
+  stale: { label: "Stale", tone: "warning" },
   degraded: { label: "Degraded", tone: "failed" },
 };
 
-export default function StatusPage() {
-  const readiness = getReadinessSnapshot();
+export default async function StatusPage() {
+  const readiness = await getReadinessSnapshot();
 
   return (
     <main className="status-page">
@@ -56,10 +58,11 @@ export default function StatusPage() {
       </div>
 
       <aside className="status-note">
-        <strong>Honest replay policy</strong>
+        <strong>Overall state: {STATE_UI[readiness.overall].label}</strong>
         <p>
-          Until authenticated smoke tests succeed, all sample artifacts remain marked as development
-          fixtures and no exact Token Factory model ID is claimed.
+          {readiness.overall === "verified"
+            ? `Run ${readiness.runId} was recorded with ${readiness.exactModelId}. Evidence expires ${readiness.expiresAt}; this is a one-run observation, not a statistical claim.`
+            : "Only a fresh, integrity-checked promoted bundle can be labeled verified. Synthetic artifacts remain visibly marked as development fixtures."}
         </p>
       </aside>
     </main>

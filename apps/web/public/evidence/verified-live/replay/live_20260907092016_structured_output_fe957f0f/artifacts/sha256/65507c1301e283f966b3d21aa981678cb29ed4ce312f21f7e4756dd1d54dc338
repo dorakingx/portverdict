@@ -1,0 +1,52 @@
+import json
+
+def normalize_event(event):
+    if event.get("type") == "chat.completion.chunk":
+        return event
+    if event.get("type") == "response.output_text.delta":
+        return {"choices": [{"delta": {"content": event.get("delta", "")}}]}
+    if event.get("type") == "response.output_item.added":
+        call = normalize_tool_call(event.get("item", {}))
+        return {"choices": [{"delta": {"tool_calls": [call]}}]} if call else {"choices": []}
+    if event.get("type") == "response.completed":
+        usage = event.get("response", {}).get("usage", {})
+        return {"choices": [], "usage": {"prompt_tokens": usage.get("input_tokens", 0), "completion_tokens": usage.get("output_tokens", 0), "total_tokens": usage.get("total_tokens", 0)}}
+    return {"choices": []}
+
+def parse_structured(text):
+    import json
+    import re
+    text = text.strip()
+    if not text:
+        raise ValueError("Empty input")
+    # Check for markdown code fence
+    fence_match = re.search(r'^```(?:json)?\n(.*?)\n```$', text, re.DOTALL | re.IGNORECASE)
+    if fence_match:
+        json_str = fence_match.group(1)
+    else:
+        json_str = text
+    try:
+        data = json.loads(json_str)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON: {e}")
+    if not isinstance(data, dict):
+        raise ValueError("JSON must be an object")
+    if set(data.keys()) != {"answer"}:
+        raise ValueError("Extra keys not allowed")
+    answer = data.get("answer")
+    if not isinstance(answer, str) or not answer.strip():
+        raise ValueError("Answer must be a non-empty string")
+    return {"answer": answer.strip()}
+
+def normalize_tool_call(item):
+    if item.get("type") != "function_call":
+        return None
+    arguments = item.get("arguments")
+    if not isinstance(arguments, str) or not isinstance(json.loads(arguments), dict):
+        raise ValueError("function arguments must be a JSON object string")
+    return {"id": item.get("id"), "type": "function", "function": {"name": item.get("name"), "arguments": arguments}}
+
+def retry_delay(status, attempt):
+    if status != 429 and not 500 <= status <= 599:
+        return None
+    return min(250 * (2 ** attempt), 2000)

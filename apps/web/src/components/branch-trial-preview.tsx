@@ -1,6 +1,8 @@
+import type { TrialSummary } from "../lib/live-evidence";
+
 import { StatusBadge } from "./status-badge";
 
-const PREVIEW_BRANCHES = [
+const FIXTURE_BRANCHES = [
   {
     name: "Direct port",
     status: "Rejected",
@@ -22,9 +24,44 @@ const PREVIEW_BRANCHES = [
     detail: "Evidence ended at the timeout boundary",
     stages: ["Patch", "Build", "Timeout !"],
   },
-];
+] as const;
 
-export function BranchTrialPreview() {
+function labelStrategy(strategy: string): string {
+  return strategy
+    .split("-")
+    .map((part) => `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`)
+    .join(" ");
+}
+
+export function BranchTrialPreview({ trial }: Readonly<{ trial: TrialSummary | null }>) {
+  const branches = trial
+    ? trial.candidates.map((candidate) => {
+        const selected =
+          trial.verdict.status === "selected" &&
+          trial.verdict.selectedCandidateId === candidate.candidateId;
+        const passed = Object.values(candidate.gates).filter((gate) => gate === "passed").length;
+        const total = Object.keys(candidate.gates).length;
+        return {
+          name: labelStrategy(candidate.strategy),
+          status: selected
+            ? "Selected"
+            : candidate.disposition === "eligible"
+              ? "Eligible"
+              : candidate.disposition === "rejected"
+                ? "Rejected"
+                : "Inconclusive",
+          tone:
+            candidate.disposition === "eligible"
+              ? ("passed" as const)
+              : candidate.disposition === "rejected"
+                ? ("failed" as const)
+                : ("warning" as const),
+          detail: `${passed}/${total} deterministic gates passed · ${candidate.durationMs} ms`,
+          stages: ["Model patch", "Sandbox", `${passed}/${total} gates`, candidate.disposition],
+        };
+      })
+    : FIXTURE_BRANCHES;
+
   return (
     <section className="trial-preview" aria-labelledby="trial-preview-title">
       <div className="trial-preview__header">
@@ -32,7 +69,9 @@ export function BranchTrialPreview() {
           <p className="section-kicker">Recorded decision path</p>
           <h2 id="trial-preview-title">One checkpoint. Three trials.</h2>
         </div>
-        <StatusBadge tone="replay">Development fixture</StatusBadge>
+        <StatusBadge tone={trial ? "live" : "replay"}>
+          {trial ? "Recorded live" : "Development fixture"}
+        </StatusBadge>
       </div>
 
       <div className="checkpoint-card">
@@ -43,11 +82,13 @@ export function BranchTrialPreview() {
           <strong>Shared Sandbox checkpoint</strong>
           <small>Every candidate begins from identical state</small>
         </span>
-        <span className="mono checkpoint-card__id">img_base_7f2a</span>
+        <span className="mono checkpoint-card__id">
+          {trial ? trial.checkpoint.imageId : "img_base_7f2a"}
+        </span>
       </div>
 
       <ol className="preview-branches">
-        {PREVIEW_BRANCHES.map((branch, index) => (
+        {branches.map((branch, index) => (
           <li className={`preview-branch preview-branch--${branch.tone}`} key={branch.name}>
             <span className="preview-branch__number" aria-hidden="true">
               {String(index + 1).padStart(2, "0")}
@@ -69,7 +110,9 @@ export function BranchTrialPreview() {
       </ol>
 
       <p className="fixture-disclosure">
-        This preview is a synthetic development fixture—not a claim of live sponsor API execution.
+        {trial
+          ? `Authenticated recorded evidence · ${trial.exactModelId} · one measured run, not a statistical claim.`
+          : "This preview is a synthetic development fixture—not a claim of live sponsor API execution."}
       </p>
     </section>
   );

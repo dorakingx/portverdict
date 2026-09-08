@@ -20,6 +20,11 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "benchmark": "node scripts/run-benchmark.mjs",
+    "results:live": "node scripts/report-live-results.mjs",
+    "sponsor:smoke": "tsx packages/orchestrator/src/cli.ts smoke",
+    "trial:live": "tsx packages/orchestrator/src/cli.ts trial",
+    "evidence:promote": "tsx packages/orchestrator/src/cli.ts promote",
+    "submission:verify": "tsx packages/orchestrator/src/cli.ts submission-verify",
     "secret:scan": "node scripts/secret-scan.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -36,6 +41,7 @@
     "next": "16.3.3",
     "prettier": "3.9.6",
     "typescript": "6.0.3",
+    "tsx": "4.23.13",
     "vitest": "4.1.11"
   }
 }

@@ -1193,6 +1193,34 @@ a {
 .report-next,
 .evidence-record,
 .fixture-warning,
+.artifact-viewer {
+  min-width: 0;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+}
+
+.artifact-viewer p {
+  color: var(--text-secondary);
+}
+
+.artifact-viewer summary {
+  cursor: pointer;
+  padding: 1rem 0;
+  font-weight: 600;
+}
+
+.artifact-viewer pre {
+  max-height: 32rem;
+  overflow: auto;
+  padding: 1rem;
+  background: var(--chrome);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
 .verdict-hero {
   max-width: 96rem;
   margin-inline: auto;

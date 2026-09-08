@@ -2,7 +2,7 @@
 
 > The model migration agent that puts every candidate branch on trial.
 
-[Live replay demo](https://portverdict.vercel.app) · [System status](https://portverdict.vercel.app/status) · [Architecture](docs/architecture/README.md) · [Evaluation](docs/evaluations/methodology.md) · [Security](SECURITY.md)
+[Public demo](https://portverdict.vercel.app) · [System status](https://portverdict.vercel.app/status) · [Architecture](docs/architecture/README.md) · [Evaluation](docs/evaluations/methodology.md) · [Security](SECURITY.md)
 
 PortVerdict is an evidence-first coding agent for migrating AI applications to NVIDIA models on Nebius. Instead of trusting one plausible patch, it forks three migration strategies from one immutable Sandbox checkpoint, attacks each with executable compatibility checks, and selects a branch only when every hard gate has attributable evidence. If none qualifies, it abstains.
 
@@ -21,9 +21,11 @@ A provider migration can compile while silently changing streaming, structured o
 
 ## Judge path
 
-The public deployment opens without an account. Choose **Run recorded sample**, then inspect the workflow, comparison, evidence, report, and guarded patch.
+The public deployment opens without an account. Its primary judge path is an immutable recording of authenticated NVIDIA inference, Tavily research, and Nebius Sandbox execution. Choose **Inspect verified live run**, then inspect Workflow, Compare, Evidence and Report. The separate synthetic development fixture is not sponsor-platform proof.
 
-The hosted sample is deliberately labeled **synthetic development replay**. It demonstrates the complete decision contract but does not claim that Nebius, NVIDIA, Tavily, GitHub, or a hosted Sandbox was called. `/status` reports those integrations as unconfigured until authenticated live evidence exists.
+Suite `suite_20260907092016_6afcbf7b` records three pinned Python behavior cases using `nvidia/nemotron-3-super-120b-a12b`: nine builds passed, six candidates failed behavioral checks, and two trials abstained. The single-shot baseline was fully eligible in one of three cases. These are small descriptive observations, not superiority claims. [Measured results](docs/evaluations/results.md) include hashes and limitations.
+
+The long-running tournament runs from the local owner CLI, not inside a synchronous Vercel request; visitors cannot spend sponsor credits. Evidence freshness expires after seven days; the immutable historical recording remains inspectable with an explicit stale label. This release does not implement arbitrary-repository migration or multi-tenant live execution.
 
 ## Architecture
 
@@ -52,6 +54,7 @@ The browser renders validated snapshots; it never decides whether code is safe. 
 - Runtime Token Factory catalog discovery, exact NVIDIA model binding, structured chat validation, bounded retries, and content-free telemetry.
 - Sandbox operation, polling, SSE resume, cancellation, non-root execution, network policy, location validation, and shared-checkpoint invariants.
 - Tavily search→exact-domain-filter→extract flow with bounded content, no redirects, retry budgets, usage capture, and untrusted-content treatment.
+- Owner-run orchestrator commands for authenticated sponsor smoke, a three-case migration suite, evidence promotion, and submission preflight. The recorded suite and sanitized artifacts are in `fixtures/verified-live/`; media and final submission checks remain separate gates.
 - Guest replay UI, accessible branch rail, comparison, evidence pages, report, resumable SSE API, and acknowledged unsafe patch export.
 - Ten deterministic TypeScript/Python migration contract fixtures, security headers, threat model, CI, Vercel deployment, and a non-root standalone container.
 
@@ -63,6 +66,7 @@ packages/agent-core/       Run state machine and reducer
 packages/evaluator/        Hard gates, provenance, selection, abstention
 packages/evidence-store/   Append-only artifacts, hashes, redaction
 packages/model-router/     Token Factory catalog and chat adapter
+packages/orchestrator/     Owner-run live trial and evidence promotion
 packages/sandbox-runner/   Token Factory Sandbox adapter
 packages/shared-schemas/   Cross-boundary Zod contracts
 packages/tavily-research/  Official-source research adapter
@@ -94,6 +98,32 @@ Live adapter credentials are server-side only:
 
 Variable presence alone does not enable public live runs. Authenticated catalog, inference, shared-checkpoint branching, and Tavily smoke evidence must pass first; anonymous live mode also needs distributed rate limiting and cleanup monitoring.
 
+Keep `.env.local` ignored and mode `0600`. Never place a credential in a browser bundle, command argument, log, screenshot, fixture, or promoted artifact. The live verification policy permits free hackathon credits only; the repository does not authorize paid usage. Actual credit consumption can be reported only from recorded provider evidence.
+
+## Authenticated evidence workflow
+
+Run the live workflow only from a trusted owner environment:
+
+```bash
+pnpm sponsor:smoke
+pnpm trial:live
+pnpm evidence:promote
+pnpm submission:verify
+```
+
+`sponsor:smoke` must authenticate and exercise the Token Factory catalog and inference API, a minimal Sandbox operation, and Tavily Search plus Extract. `trial:live` runs structured-output, tool-calling, and streaming/retry cases and creates raw evidence under the ignored `.private/evidence/<run-id>/` tree. `evidence:promote` validates invariants, redacts secret-shaped values, verifies every replay manifest, and publishes only sanitized records under `fixtures/verified-live/` and the web public evidence directory.
+
+Readiness uses these states:
+
+- `unconfigured`: required server credentials are absent.
+- `configured-unverified`: credentials exist, but authenticated proof is absent.
+- `verifying`: an owner verification is in progress.
+- `verified`: fresh authenticated evidence and every integrity gate pass.
+- `stale`: the promoted evidence exceeded its seven-day TTL.
+- `degraded`: evidence is missing, malformed, inconsistent, or failed validation.
+
+No readiness response includes credential values, prefixes, lengths, or private project names.
+
 ## Verification
 
 ```bash
@@ -102,7 +132,13 @@ pnpm benchmark
 pnpm test:e2e
 pnpm secret:scan
 pnpm audit --audit-level high
+pnpm sponsor:smoke
+pnpm trial:live
+pnpm evidence:promote
+pnpm submission:verify
 ```
+
+The last four commands require owner credentials and are not implied by an ordinary credential-free CI pass. A skipped live integration test is never reported as authenticated success.
 
 The local contract suite currently contains ten synthetic probes across chat, streaming, structured output, tool calling, and retry/timeout behavior in TypeScript and Python. Results are reproducible harness evidence—not sponsor-platform or model-quality claims. See [methodology](docs/evaluations/methodology.md) and [recorded results](docs/evaluations/results.md).
 
@@ -116,15 +152,15 @@ docker run --rm -p 3000:3000 --read-only \
 
 ## Public API
 
-| Endpoint                                                | Purpose                                                   |
-| ------------------------------------------------------- | --------------------------------------------------------- |
-| `GET /api/health`                                       | Process liveness without credential details               |
-| `GET /api/ready`                                        | Redacted replay/live dependency readiness                 |
-| `POST /api/runs`                                        | Validated replay launch; live fails closed until verified |
-| `GET /api/runs/sample-run`                              | Immutable sample snapshot                                 |
-| `GET /api/runs/sample-run/events`                       | Resumable SSE-formatted replay via `Last-Event-ID`        |
-| `GET /api/runs/sample-run/report`                       | Watermarked synthetic Markdown report                     |
-| `GET /api/runs/sample-run/patch?acknowledgeUnsafe=true` | Explicitly acknowledged synthetic patch                   |
+| Endpoint                                                | Purpose                                                                           |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `GET /api/health`                                       | Process liveness without credential details                                       |
+| `GET /api/ready`                                        | Redacted replay/live dependency readiness                                         |
+| `POST /api/runs`                                        | Development replay launch; owner live execution stays off the public request path |
+| `GET /api/runs/sample-run`                              | Immutable sample snapshot                                                         |
+| `GET /api/runs/sample-run/events`                       | Resumable SSE-formatted replay via `Last-Event-ID`                                |
+| `GET /api/runs/sample-run/report`                       | Watermarked synthetic Markdown report                                             |
+| `GET /api/runs/sample-run/patch?acknowledgeUnsafe=true` | Explicitly acknowledged synthetic patch                                           |
 
 ## Security and evidence policy
 
@@ -139,7 +175,9 @@ See the [threat model](docs/security/threat-model.md), [security policy](SECURIT
 
 ## Hackathon status
 
-The implementation, replay deployment, contract-tested sponsor adapters, container, local benchmark, and public verification path are complete. Final authenticated sponsor evidence remains intentionally blocked until credentials are supplied. The public YouTube demo and final Devpost submission must be recorded from that verified live run and still require the entrant's legal eligibility attestations.
+The live orchestrator and evidence-promotion path are **implemented-unverified**. No exact model ID, sponsor request ID, Sandbox checkpoint, branch ID, live performance number, or Tavily runtime claim is final until an authenticated run has passed promotion and public replay verification. The final YouTube video, live-result copy, release, and Devpost draft must be produced from that same promoted record.
+
+Legal eligibility answers, Builders & Brews participation, official-rules agreement, and authorization to press Devpost Submit are **human-confirmation-required**. Repository state, account profile data, or a pre-existing checkbox must never be treated as that confirmation.
 
 PortVerdict targets **Coding and Agentic Engineering** and **Best Use of Tavily** in the Nebius x NVIDIA Global AI Hackathon.
 

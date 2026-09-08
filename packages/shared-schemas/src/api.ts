@@ -8,10 +8,10 @@ import {
   IdentifierSchema,
   IsoDateTimeSchema,
   RunIdSchema,
-} from "./primitives.js";
-import { GitHubSourceRequestSchema, FixtureSourceRequestSchema } from "./source.js";
-import { RunModeSchema, RunSchema } from "./run.js";
-import { RunEventSchema } from "./events.js";
+} from "./primitives";
+import { GitHubSourceRequestSchema, FixtureSourceRequestSchema } from "./source";
+import { RunModeSchema, RunSchema } from "./run";
+import { RunEventSchema } from "./events";
 
 export const ReplayCreateRunRequestSchema = z
   .object({
