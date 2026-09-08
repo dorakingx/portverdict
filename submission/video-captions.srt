@@ -1,0 +1,132 @@
+1
+00:00:00,000 --> 00:00:03,852
+A model migration can compile and still break behavior.
+
+2
+00:00:03,852 --> 00:00:10,699
+Streaming, structured output, tool arguments, and retries are contracts that a plausible patch can silently change.
+
+3
+00:00:10,699 --> 00:00:13,267
+PortVerdict puts those migrations on trial.
+
+4
+00:00:15,000 --> 00:00:19,477
+This is an authenticated, recorded experiment, not a mock sponsor integration.
+
+5
+00:00:19,477 --> 00:00:22,733
+Anyone can inspect the evidence without an account.
+
+6
+00:00:22,733 --> 00:00:28,431
+New execution stays in an owner-only runner, so public visitors cannot spend API credits.
+
+7
+00:00:30,000 --> 00:00:35,336
+The runner discovers the exact NVIDIA model from the authenticated Nebius catalog.
+
+8
+00:00:35,336 --> 00:00:38,003
+This evaluation uses Nemotron Three Super.
+
+9
+00:00:38,003 --> 00:00:44,228
+It generates three different migration strategies: minimal compatibility, prompt and schema adaptation, and resilience.
+
+10
+00:00:44,228 --> 00:00:50,008
+Each proposal has provider response identities, measured token usage, and a source hash.
+
+11
+00:00:50,008 --> 00:00:54,010
+Model commentary never decides whether the code is safe.
+
+12
+00:00:55,000 --> 00:00:58,529
+Nebius Token Factory Sandboxes provide the controlled experiment.
+
+13
+00:00:58,529 --> 00:01:02,939
+All three candidate operations start from the same immutable checkpoint.
+
+14
+00:01:02,939 --> 00:01:07,791
+The proposed code runs as a non-root user with networking disabled.
+
+15
+00:01:07,791 --> 00:01:13,525
+Fixed tests, source hashes, operation identities, and resource observations make each branch attributable.
+
+16
+00:01:13,525 --> 00:01:17,936
+A separate single-shot proposal is tested from that same checkpoint.
+
+17
+00:01:20,000 --> 00:01:23,575
+Here is a losing branch from the tool calling case.
+
+18
+00:01:23,575 --> 00:01:26,078
+Its build passed, but behavioral contracts failed.
+
+19
+00:01:26,078 --> 00:01:30,010
+The real logs preserve the failing checks, exit codes, and timings.
+
+20
+00:01:30,010 --> 00:01:32,513
+Any failed hard gate rejects the candidate.
+
+21
+00:01:32,513 --> 00:01:36,803
+This view keeps the proposed diff even when that branch cannot ship.
+
+22
+00:01:36,803 --> 00:01:39,663
+A hash verified artifact backs the readable evidence.
+
+23
+00:01:45,000 --> 00:01:50,102
+Tavily performs real Search and Extract calls for official compatibility guidance.
+
+24
+00:01:50,102 --> 00:01:56,132
+The recorded evidence preserves request identities, source URLs, retrieval times, and content hashes.
+
+25
+00:01:56,132 --> 00:02:04,481
+Bounded excerpts inform generation, but retrieved text stays untrusted and cannot change execution policy or the fixed tests.
+
+26
+00:02:05,000 --> 00:02:11,133
+In this recorded case, PortVerdict selects a candidate only after every required hard gate passes.
+
+27
+00:02:11,133 --> 00:02:15,222
+3 of the three candidate proposals satisfied all required gates.
+
+28
+00:02:15,222 --> 00:02:20,129
+The three-case suite covers structured output, tool calling, and streaming with retries.
+
+29
+00:02:20,129 --> 00:02:24,218
+Results are descriptive, not a statistical claim of model superiority.
+
+30
+00:02:24,218 --> 00:02:28,716
+Inspect the adverse outcomes and the single-shot baselines alongside the tournament.
+
+31
+00:02:30,000 --> 00:02:36,919
+The public repository includes the Apache licensed source, immutable evidence, reproducible tests, and the owner-run workflow.
+
+32
+00:02:36,919 --> 00:02:40,378
+Earlier failed development attempts are documented, not hidden.
+
+33
+00:02:40,378 --> 00:02:47,729
+PortVerdict turns a model migration into an experiment you can inspect, and a verdict you can defend.
+

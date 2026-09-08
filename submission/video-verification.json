@@ -1,0 +1,22 @@
+{
+  "video": "submission/demo-video.mp4",
+  "sha256": "ddffae5f171ac28564cffe214bc27dceac3da5c5f40f1fe9e1fcd4832c9db58c",
+  "bytes": 6538161,
+  "durationSeconds": 170,
+  "width": 1920,
+  "height": 1080,
+  "framesPerSecond": 30,
+  "videoCodec": "h264",
+  "audioCodec": "aac",
+  "spokenLanguage": "English",
+  "narration": "macOS Samantha, synthesized",
+  "audioMeanDb": -16.5,
+  "audioPeakDb": -1.6,
+  "subtitleCodec": "mov_text",
+  "subtitleLanguage": "eng",
+  "srtSha256": "303e697ae77785ceea0ae8c85af988f2bd274e8ac6d78a6cecba9261595cbb8a",
+  "thumbnailSha256": "e7f4d74e6259175926c8083397b507295a1681773b0d2fbcbeea41bf664af749",
+  "sourceSuite": "suite_20260907092016_6afcbf7b",
+  "visualReview": "Production scenes inspected, including the actual failed hidden test; final encoded frame at 95 seconds decoded and inspected.",
+  "uploadStatus": "Entrant will upload manually; no public YouTube URL verified yet."
+}

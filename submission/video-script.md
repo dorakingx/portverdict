@@ -1,59 +1,35 @@
-# Demo video script and shot list
+# English demo narration
 
-Target duration: 2:45. Language: English. Delivery: public YouTube, captions enabled. Do not record the final version until the live evidence slots below can be shown truthfully.
+170-second public production capture. Voice: macOS Samantha (synthetic narration), no music. Exact model: `nvidia/nemotron-3-super-120b-a12b`. Recorded run: `live_20260907092016_structured_output_fe957f0f`.
 
-## 0:00–0:18 — The failure mode
+## Scene 1: A compiling migration can still break behavior
 
-**Visual:** Landing hero, then the three-branch preview.
+A model migration can compile and still break behavior. Streaming, structured output, tool arguments, and retries are contracts that a plausible patch can silently change. PortVerdict puts those migrations on trial.
 
-**Voiceover:** “A model migration can compile and still break behavior. Streaming, structured output, tool arguments, and retries are contracts a plausible patch can silently change. PortVerdict puts competing migrations on trial and ships only evidence-backed code.”
+## Scene 2: Recorded live experiment · no account required
 
-## 0:18–0:42 — Controlled experiment
+This is an authenticated, recorded experiment, not a mock sponsor integration. Anyone can inspect the evidence without an account. New execution stays in an owner-only runner, so public visitors cannot spend API credits.
 
-**Visual:** Start the verified live run. Show immutable source revision and real Sandbox checkpoint.
+## Scene 3: Catalog-bound model: nvidia/nemotron-3-super-120b-a12b
 
-**Voiceover:** “PortVerdict inventories the provider boundary, uses an NVIDIA model through Nebius Token Factory to propose three strategies, and forks them from the exact same Token Factory Sandbox checkpoint. That shared state makes the comparison controlled.”
+The runner discovers the exact NVIDIA model from the authenticated Nebius catalog. This evaluation uses Nemotron Three Super. It generates three different migration strategies: minimal compatibility, prompt and schema adaptation, and resilience. Each proposal has provider response identities, measured token usage, and a source hash. Model commentary never decides whether the code is safe.
 
-**Required overlay:** **[BLOCKED — show exact live NVIDIA model ID, inference request ID, checkpoint ID, and three branch IDs]**
+## Scene 4: One immutable checkpoint · three real sibling operations
 
-## 0:42–1:10 — Tavily evidence
+Nebius Token Factory Sandboxes provide the controlled experiment. All three candidate operations start from the same immutable checkpoint. The proposed code runs as a non-root user with networking disabled. Fixed tests, source hashes, operation identities, and resource observations make each branch attributable. A separate single-shot proposal is tested from that same checkpoint.
 
-**Visual:** Open the official-source evidence sheet.
+## Scene 5: Executed tests · exit codes · losing evidence retained
 
-**Voiceover:** “When compatibility depends on current APIs, Tavily searches and extracts only approved official sources. Retrieved text remains untrusted, but its URL, time, usage, and supported decision are preserved as evidence.”
+Here is a losing branch from the tool calling case. Its build passed, but behavioral contracts failed. The real logs preserve the failing checks, exit codes, and timings. Any failed hard gate rejects the candidate. This view keeps the proposed diff even when that branch cannot ship. A hash verified artifact backs the readable evidence.
 
-**Required overlay:** **[BLOCKED — show real Tavily search/extract request record and official source]**
+## Scene 6: Tavily Search → official-domain filter → Extract
 
-## 1:10–1:42 — Falsify candidates
+Tavily performs real Search and Extract calls for official compatibility guidance. The recorded evidence preserves request identities, source URLs, retrieval times, and content hashes. Bounded excerpts inform generation, but retrieved text stays untrusted and cannot change execution policy or the fixed tests.
 
-**Visual:** Workflow branch rail. Open candidate 01 evidence and its failed tool-call contract; show candidate 03 inconclusive.
+## Scene 7: Recorded verdict: SELECTED
 
-**Voiceover:** “Every branch builds, replays behavior contracts, validates schemas and tool calls, scans security, and faces a counterexample pass. A behavioral regression is rejected. An infrastructure timeout is inconclusive—not mislabeled as bad code. Losing evidence stays visible.”
+In this recorded case, PortVerdict selects a candidate only after every required hard gate passes. 3 of the three candidate proposals satisfied all required gates. The three-case suite covers structured output, tool calling, and streaming with retries. Results are descriptive, not a statistical claim of model superiority. Inspect the adverse outcomes and the single-shot baselines alongside the tournament.
 
-## 1:42–2:12 — Verdict, not vibes
+## Scene 8: Public source · Apache-2.0 · reproducible evidence
 
-**Visual:** Compare page, gate matrix, selected candidate, evidence deep link.
-
-**Voiceover:** “Deterministic hard gates run before any secondary assessment. Candidate two is selected only because its complete evidence passes every required gate. If no candidate qualifies, PortVerdict abstains instead of choosing the least-bad patch.”
-
-**Required overlay:** **[BLOCKED — replace fixture outcome with measured live gate record]**
-
-## 2:12–2:35 — Report and safety
-
-**Visual:** Report and guarded patch action, then system status.
-
-**Voiceover:** “The final report links claims to procedures, artifacts, sources, timestamps, and hashes. Patch export is guarded, unsupported numbers are refused, and readiness never leaks credentials or pretends an unconfigured integration is live.”
-
-## 2:35–2:45 — Close
-
-**Visual:** Landing title and logo.
-
-**Voiceover:** “PortVerdict: migrate to open NVIDIA models with a trial you can inspect—and a verdict you can defend.”
-
-## Capture checklist
-
-- Record at 1440×900 or 1920×1080 with browser zoom at 100%.
-- Use the immutable verified live replay, not a transient run still changing.
-- Keep sponsor request/checkpoint identifiers visible but redact every credential.
-- Add burned-in callouts for the shared checkpoint, failed counterexample, Tavily source, and select/abstain rule.
-- Export 1080p H.264, inspect duration under three minutes, upload publicly to YouTube, enable English captions, and verify in a signed-out window.
+The public repository includes the Apache licensed source, immutable evidence, reproducible tests, and the owner-run workflow. Earlier failed development attempts are documented, not hidden. PortVerdict turns a model migration into an experiment you can inspect, and a verdict you can defend.

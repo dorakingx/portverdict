@@ -1,0 +1,25 @@
+{
+  "checkedAt": "2026-09-08T02:25:04.178Z",
+  "baseUrl": "https://portverdict.vercel.app",
+  "suiteId": "suite_20260907092016_6afcbf7b",
+  "suiteIntegritySha256": "5530609f16ba7adb5a5fca8d49de429662ee44f6f0ea854eb2d50f6d7492b600",
+  "authentication": "none",
+  "verifiedArtifactCount": 67,
+  "cases": [
+    {
+      "caseId": "structured-output-contract",
+      "runId": "live_20260907092016_structured_output_fe957f0f",
+      "verdict": "selected"
+    },
+    {
+      "caseId": "tool-calling-contract",
+      "runId": "live_20260907092039_tool_calling_01e67058",
+      "verdict": "abstained"
+    },
+    {
+      "caseId": "streaming-retry-contract",
+      "runId": "live_20260907092102_streaming_retry_de3e3674",
+      "verdict": "abstained"
+    }
+  ]
+}

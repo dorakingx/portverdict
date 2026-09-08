@@ -24,7 +24,9 @@ if (
   throw new Error("Record only after the exact live suite is verified in production");
 await mkdir(generated, { recursive: true });
 const run = `/runs/${trial.runId}`;
-const candidate = trial.candidates[0];
+const candidate =
+  trial.candidates.find((entry) => entry.candidateId === trial.verdict.selectedCandidateId) ??
+  trial.candidates[0];
 const rejectedCase = suite.cases.find((entry) => entry.behaviorFamily === "tool-calling");
 if (!rejectedCase) throw new Error("Missing the recorded tool-calling counterexample case");
 const rejectedTrial = await load(
@@ -71,12 +73,13 @@ const scenes = [
     title: "Executed tests · exit codes · losing evidence retained",
     text: "Here is a losing branch from the tool calling case. Its build passed, but behavioral contracts failed. The real logs preserve the failing checks, exit codes, and timings. Any failed hard gate rejects the candidate. This view keeps the proposed diff even when that branch cannot ship. A hash verified artifact backs the readable evidence.",
     scroll: ".artifact-viewer",
+    showFailure: true,
   },
   {
     duration: 20,
     path: `${run}/report`,
     title: "Tavily Search → official-domain filter → Extract",
-    text: "Tavily performs real Search and Extract calls for official compatibility guidance. The report preserves request identities, source URLs, retrieval times, and content hashes. Bounded excerpts inform generation, but retrieved text stays untrusted and cannot change execution policy or the fixed tests.",
+    text: "Tavily performs real Search and Extract calls for official compatibility guidance. The recorded evidence preserves request identities, source URLs, retrieval times, and content hashes. Bounded excerpts inform generation, but retrieved text stays untrusted and cannot change execution policy or the fixed tests.",
   },
   {
     duration: 25,
@@ -170,6 +173,15 @@ for (const [index, scene] of scenes.entries()) {
     waitUntil: "networkidle",
   });
   if (scene.scroll) await page.locator(scene.scroll).scrollIntoViewIfNeeded();
+  if (scene.showFailure) {
+    await page.getByLabel("Executed test logs", { exact: true }).evaluate((element) => {
+      const lines = (element.textContent ?? "").split("\n");
+      const failedLine = lines.findIndex((line) => line.includes(": FAIL"));
+      if (failedLine < 0) throw new Error("The counterexample scene has no failed test line");
+      const lineHeight = Number.parseFloat(getComputedStyle(element).lineHeight) || 20;
+      element.scrollTop = Math.max(0, failedLine - 2) * lineHeight;
+    });
+  }
   const overlay = async () =>
     page.evaluate(
       ({ title }) => {
@@ -241,7 +253,9 @@ args.push(
   "-c:v",
   "libx264",
   "-preset",
-  "medium",
+  "veryfast",
+  "-threads",
+  "2",
   "-crf",
   "23",
   "-pix_fmt",
