@@ -25,6 +25,16 @@ if (
 await mkdir(generated, { recursive: true });
 const run = `/runs/${trial.runId}`;
 const candidate = trial.candidates[0];
+const rejectedCase = suite.cases.find((entry) => entry.behaviorFamily === "tool-calling");
+if (!rejectedCase) throw new Error("Missing the recorded tool-calling counterexample case");
+const rejectedTrial = await load(
+  `fixtures/verified-live/evaluation-cases/${rejectedCase.caseId}/trial-summary.json`,
+);
+const rejectedCandidate = rejectedTrial.candidates.find(
+  (entry) => entry.disposition === "rejected",
+);
+if (!rejectedCandidate)
+  throw new Error("The counterexample scene requires an actual rejected candidate");
 const eligible = trial.verdict.eligibleCandidateIds.length;
 const verdict =
   trial.verdict.status === "abstained"
@@ -57,9 +67,9 @@ const scenes = [
   },
   {
     duration: 25,
-    path: `${run}/evidence/${candidate.candidateId}`,
+    path: `/runs/${rejectedCase.runId}/evidence/${rejectedCandidate.candidateId}`,
     title: "Executed tests · exit codes · losing evidence retained",
-    text: "Every branch really ran build and contract checks. These logs show exit codes and timings. Building is not enough: any failed hard gate rejects a candidate. Infrastructure failures remain inconclusive. This evidence view also keeps the proposed diff, even when that branch cannot ship. The readable view is backed by a hash-verified raw artifact.",
+    text: "Here is a losing branch from the tool calling case. Its build passed, but behavioral contracts failed. The real logs preserve the failing checks, exit codes, and timings. Any failed hard gate rejects the candidate. This view keeps the proposed diff even when that branch cannot ship. A hash verified artifact backs the readable evidence.",
     scroll: ".artifact-viewer",
   },
   {

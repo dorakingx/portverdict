@@ -13,7 +13,17 @@ const READINESS_STATES = [
 test("judge enters the honest primary replay from the landing page", async ({ page, request }) => {
   const browserErrors: string[] = [];
   page.on("console", (message) => {
-    if (message.type() === "error") browserErrors.push(message.text());
+    if (message.type() !== "error") return;
+    const text = message.text();
+    // Protected previews inject Vercel's feedback toolbar; our CSP intentionally blocks it.
+    // Production/credential-free checks must still reject every console error.
+    if (
+      process.env.PORTVERDICT_STORAGE_STATE &&
+      text.startsWith("Loading the script 'https://vercel.live/_next-live/feedback/feedback.js'") &&
+      text.includes("violates the following Content Security Policy directive")
+    )
+      return;
+    browserErrors.push(text);
   });
   page.on("pageerror", (error) => browserErrors.push(error.message));
   const readiness = (await (await request.get("/api/ready")).json()) as {
